@@ -16,11 +16,14 @@ import {
   Calendar,
   LogOut,
   Star,
-  Building2
+  Building2,
+  ExternalLink
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { FirmInterestCard } from './FirmInterestCard';
 import { ScheduleConsultationDialog } from './ScheduleConsultationDialog';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
+import { generateMeetingUrl } from '@/lib/meetingUtils';
 
 interface Case {
   id: string;
@@ -76,6 +79,9 @@ const IndividualDashboard = () => {
   useEffect(() => {
     fetchUserData();
   }, []);
+
+  // Enable real-time notifications (callback will be called when new interest arrives)
+  useRealtimeNotifications(() => fetchUserData());
 
   const fetchUserData = async () => {
     try {
@@ -224,6 +230,9 @@ const IndividualDashboard = () => {
       const scheduledAt = new Date(data.date);
       scheduledAt.setHours(hours, minutes, 0, 0);
 
+      // Generate meeting URL
+      const meetingUrl = generateMeetingUrl(interest.case_id);
+
       const { error } = await supabase
         .from('consultations')
         .insert({
@@ -233,7 +242,8 @@ const IndividualDashboard = () => {
           scheduled_at: scheduledAt.toISOString(),
           duration_minutes: data.duration,
           notes: data.notes,
-          status: 'scheduled'
+          status: 'scheduled',
+          meeting_url: meetingUrl
         });
 
       if (error) throw error;
@@ -410,7 +420,11 @@ const IndividualDashboard = () => {
               </Card>
             ) : (
               cases.map((caseItem) => (
-                <Card key={caseItem.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                <Card 
+                  key={caseItem.id} 
+                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate(`/case/${caseItem.id}`)}
+                >
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
@@ -443,6 +457,17 @@ const IndividualDashboard = () => {
                         </Badge>
                       )}
                     </div>
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      className="mt-2 p-0 h-auto"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/case/${caseItem.id}`);
+                      }}
+                    >
+                      View Details <ExternalLink className="h-3 w-3 ml-1" />
+                    </Button>
                   </CardContent>
                 </Card>
               ))
