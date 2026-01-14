@@ -147,13 +147,25 @@ const Consultation = () => {
 
     setIsGenerating(true);
     try {
+      // Get the user's session token for authenticated request
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to use AI features.",
+          variant: "destructive"
+        });
+        navigate('/auth');
+        return;
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-consultation-notes`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
             caseTitle: consultation.cases?.title || 'Case',
