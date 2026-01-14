@@ -52,12 +52,14 @@ interface Consultation {
   status: string;
   notes: string | null;
   ai_notes: string | null;
+  user_id: string;
   cases: {
     title: string;
   } | null;
-  client_name?: {
-    full_name?: string | null;
-  };
+}
+
+interface ClientProfile {
+  full_name: string | null;
 }
 
 const FirmDashboard = () => {
@@ -67,6 +69,7 @@ const FirmDashboard = () => {
   const [availableCases, setAvailableCases] = useState<Case[]>([]);
   const [matchedCases, setMatchedCases] = useState<CaseMatch[]>([]);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [clientProfiles, setClientProfiles] = useState<Record<string, ClientProfile>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [practiceAreaFilter, setPracticeAreaFilter] = useState<string>('all');
@@ -105,6 +108,23 @@ const FirmDashboard = () => {
       setAvailableCases(casesData || []);
       setMatchedCases(matchesData || []);
       setConsultations(consultationsData || []);
+
+      // Fetch client profiles for consultations
+      if (consultationsData && consultationsData.length > 0) {
+        const userIds = [...new Set(consultationsData.map(c => c.user_id))];
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('user_id, full_name')
+          .in('user_id', userIds);
+        
+        if (profilesData) {
+          const profiles: Record<string, ClientProfile> = {};
+          profilesData.forEach(p => {
+            profiles[p.user_id] = { full_name: p.full_name };
+          });
+          setClientProfiles(profiles);
+        }
+      }
     } catch (error) {
       toast({
         title: "Error loading data",
@@ -367,10 +387,10 @@ const FirmDashboard = () => {
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="text-lg">
-                          {consultation.cases.title}
+                          {consultation.cases?.title || 'Consultation'}
                         </CardTitle>
                         <CardDescription>
-                          Client: {consultation.profiles?.full_name || 'Anonymous'} • 
+                          Client: {clientProfiles[consultation.user_id]?.full_name || 'Anonymous'} • 
                           {new Date(consultation.scheduled_at).toLocaleString()}
                         </CardDescription>
                       </div>
