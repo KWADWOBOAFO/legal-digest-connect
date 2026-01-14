@@ -111,8 +111,8 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
         .from('law_firms')
         .update({
           nda_signed: true,
-          nda_signed_at: new Date().toISOString(),
-          is_verified: true // Auto-verify for demo purposes
+          nda_signed_at: new Date().toISOString()
+          // Note: is_verified remains false - requires manual admin verification
         })
         .eq('id', lawFirm.id);
 
@@ -120,7 +120,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
 
       toast({
         title: "NDA Signed Successfully",
-        description: "Welcome to DEBRIEFED! You can now browse and match with cases."
+        description: "Your firm is now pending verification. You'll be notified once verified by our team."
       });
       
       onComplete();

@@ -179,9 +179,64 @@ const FirmDashboard = () => {
     return matchesSearch && matchesPracticeArea;
   });
 
-  // Show onboarding if firm is not verified or hasn't signed NDA
-  if (!lawFirm || !lawFirm.is_verified || !lawFirm.nda_signed) {
+  // Show onboarding if firm doesn't exist or hasn't signed NDA
+  if (!lawFirm || !lawFirm.nda_signed) {
     return <FirmOnboarding lawFirm={lawFirm} onComplete={refreshProfile} />;
+  }
+
+  // Show pending verification state if NDA signed but not yet verified
+  if (!lawFirm.is_verified) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Scale className="h-8 w-8 text-primary" />
+              <span className="text-xl font-bold text-primary">DEBRIEFED</span>
+              <Badge variant="outline" className="ml-2">Law Firm</Badge>
+            </div>
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
+        </header>
+        <main className="container mx-auto px-4 py-16 max-w-2xl">
+          <Card className="text-center">
+            <CardHeader>
+              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center">
+                <Clock className="h-8 w-8 text-amber-600" />
+              </div>
+              <CardTitle className="text-2xl">Verification Pending</CardTitle>
+              <CardDescription className="text-base">
+                Thank you for signing the NDA, {lawFirm.firm_name}!
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                Your firm is currently under review by our verification team. 
+                This process typically takes 1-2 business days.
+              </p>
+              <div className="bg-muted p-4 rounded-lg text-left">
+                <h4 className="font-medium mb-2">What we're verifying:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Firm registration and credentials</li>
+                  <li>• Professional licensing status</li>
+                  <li>• Contact information accuracy</li>
+                </ul>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                We'll send you an email notification once your verification is complete.
+                If you have any questions, please contact support.
+              </p>
+              <Button variant="outline" onClick={() => window.location.reload()}>
+                Check Status
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
   }
 
   return (
