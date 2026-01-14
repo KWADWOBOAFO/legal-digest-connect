@@ -27,16 +27,18 @@ interface ConsultationData {
   notes: string | null;
   ai_notes: string | null;
   meeting_url: string | null;
+  user_id: string;
   cases: {
     id: string;
     title: string;
     description: string;
     assigned_practice_area: string | null;
   } | null;
-  client_name?: {
-    full_name?: string | null;
-    email?: string;
-  } | null;
+}
+
+interface ClientProfile {
+  full_name: string | null;
+  email: string;
 }
 
 const Consultation = () => {
@@ -46,6 +48,7 @@ const Consultation = () => {
   const { toast } = useToast();
   
   const [consultation, setConsultation] = useState<ConsultationData | null>(null);
+  const [clientProfile, setClientProfile] = useState<ClientProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notes, setNotes] = useState('');
   const [aiNotes, setAiNotes] = useState('');
@@ -83,6 +86,19 @@ const Consultation = () => {
       setConsultation(data);
       setNotes(data.notes || '');
       setAiNotes(data.ai_notes || '');
+
+      // Fetch client profile separately
+      if (data.user_id) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('full_name, email')
+          .eq('user_id', data.user_id)
+          .maybeSingle();
+        
+        if (profileData) {
+          setClientProfile(profileData);
+        }
+      }
     } catch (error) {
       toast({
         title: "Error loading consultation",
@@ -140,11 +156,11 @@ const Consultation = () => {
             'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
           body: JSON.stringify({
-            caseTitle: consultation.cases.title,
-            caseDescription: consultation.cases.description,
-            practiceArea: consultation.cases.assigned_practice_area,
+            caseTitle: consultation.cases?.title || 'Case',
+            caseDescription: consultation.cases?.description || '',
+            practiceArea: consultation.cases?.assigned_practice_area,
             rawNotes: notes,
-            clientName: consultation.profiles?.full_name || 'Client'
+            clientName: clientProfile?.full_name || 'Client'
           }),
         }
       );
@@ -238,9 +254,9 @@ const Consultation = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold">{consultation.cases.title}</h1>
+              <h1 className="text-2xl font-bold">{consultation.cases?.title || 'Consultation'}</h1>
               <p className="text-muted-foreground">
-                Client: {consultation.profiles?.full_name || 'Anonymous'}
+                Client: {clientProfile?.full_name || 'Anonymous'}
               </p>
             </div>
             <Badge className={isCompleted ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}>
@@ -253,10 +269,12 @@ const Consultation = () => {
               <Clock className="h-4 w-4" />
               {new Date(consultation.scheduled_at).toLocaleString()}
             </span>
-            <span className="flex items-center gap-1">
-              <Scale className="h-4 w-4" />
-              {consultation.cases.assigned_practice_area}
-            </span>
+            {consultation.cases?.assigned_practice_area && (
+              <span className="flex items-center gap-1">
+                <Scale className="h-4 w-4" />
+                {consultation.cases.assigned_practice_area}
+              </span>
+            )}
           </div>
         </div>
 
@@ -301,7 +319,7 @@ const Consultation = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">{consultation.cases.description}</p>
+                <p className="text-muted-foreground">{consultation.cases?.description || 'No description available'}</p>
               </CardContent>
             </Card>
           </div>
