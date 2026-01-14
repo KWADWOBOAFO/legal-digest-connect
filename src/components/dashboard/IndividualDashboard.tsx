@@ -15,9 +15,12 @@ import {
   MessageSquare,
   Calendar,
   LogOut,
-  Star
+  Star,
+  Building2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { FirmInterestCard } from './FirmInterestCard';
+import { ScheduleConsultationDialog } from './ScheduleConsultationDialog';
 
 interface Case {
   id: string;
@@ -38,13 +41,37 @@ interface Consultation {
   } | null;
 }
 
+interface FirmInterest {
+  id: string;
+  firm_id: string;
+  case_id: string;
+  status: string;
+  message: string | null;
+  created_at: string;
+  law_firm: {
+    id: string;
+    firm_name: string;
+    practice_areas: string[];
+    city: string | null;
+    country: string | null;
+    is_verified: boolean;
+  };
+  case_title: string;
+}
+
 const IndividualDashboard = () => {
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [cases, setCases] = useState<Case[]>([]);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [firmInterests, setFirmInterests] = useState<FirmInterest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  
+  // Scheduling dialog state
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState<{ matchId: string; firmId: string; firmName: string; caseName: string } | null>(null);
 
   useEffect(() => {
     fetchUserData();
@@ -52,18 +79,48 @@ const IndividualDashboard = () => {
 
   const fetchUserData = async () => {
     try {
+      // Fetch cases
       const { data: casesData } = await supabase
         .from('cases')
         .select('*')
         .order('created_at', { ascending: false });
 
+      // Fetch consultations
       const { data: consultationsData } = await supabase
         .from('consultations')
         .select('*, law_firms(firm_name)')
         .order('scheduled_at', { ascending: true });
 
+      // Fetch firm interests for user's cases
+      const { data: matchesData } = await supabase
+        .from('case_matches')
+        .select(`
+          id,
+          firm_id,
+          case_id,
+          status,
+          message,
+          created_at,
+          cases!inner(id, title, user_id),
+          law_firms!inner(id, firm_name, practice_areas, city, country, is_verified)
+        `)
+        .order('created_at', { ascending: false });
+
       setCases(casesData || []);
       setConsultations(consultationsData || []);
+      
+      // Transform matches data
+      const transformedInterests: FirmInterest[] = (matchesData || []).map((match: any) => ({
+        id: match.id,
+        firm_id: match.firm_id,
+        case_id: match.case_id,
+        status: match.status,
+        message: match.message,
+        created_at: match.created_at,
+        law_firm: match.law_firms,
+        case_title: match.cases.title
+      }));
+      setFirmInterests(transformedInterests);
     } catch (error) {
       toast({
         title: "Error loading data",
@@ -80,6 +137,132 @@ const IndividualDashboard = () => {
     navigate('/');
   };
 
+  const handleAcceptInterest = async (matchId: string, firmId: string) => {
+    setActionLoading(true);
+    try {
+      const { error } = await supabase
+        .from('case_matches')
+        .update({ status: 'accepted' })
+        .eq('id', matchId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Interest accepted",
+        description: "The firm can now view your case documents. You can schedule a consultation."
+      });
+      
+      fetchUserData();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to accept interest. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRejectInterest = async (matchId: string) => {
+    setActionLoading(true);
+    try {
+      const { error } = await supabase
+        .from('case_matches')
+        .update({ status: 'rejected' })
+        .eq('id', matchId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Interest declined",
+        description: "The firm has been notified."
+      });
+      
+      fetchUserData();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to decline interest. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleOpenScheduleDialog = (matchId: string, firmId: string) => {
+    const interest = firmInterests.find(i => i.id === matchId);
+    if (interest) {
+      setSelectedMatch({
+        matchId,
+        firmId,
+        firmName: interest.law_firm.firm_name,
+        caseName: interest.case_title
+      });
+      setScheduleDialogOpen(true);
+    }
+  };
+
+  const handleScheduleConsultation = async (data: {
+    date: Date;
+    time: string;
+    duration: number;
+    notes: string;
+    consultationType: string;
+  }) => {
+    if (!selectedMatch || !user) return;
+    
+    setActionLoading(true);
+    try {
+      // Find the case for this match
+      const interest = firmInterests.find(i => i.id === selectedMatch.matchId);
+      if (!interest) throw new Error("Match not found");
+
+      // Combine date and time
+      const [hours, minutes] = data.time.split(':').map(Number);
+      const scheduledAt = new Date(data.date);
+      scheduledAt.setHours(hours, minutes, 0, 0);
+
+      const { error } = await supabase
+        .from('consultations')
+        .insert({
+          case_id: interest.case_id,
+          user_id: user.id,
+          firm_id: selectedMatch.firmId,
+          scheduled_at: scheduledAt.toISOString(),
+          duration_minutes: data.duration,
+          notes: data.notes,
+          status: 'scheduled'
+        });
+
+      if (error) throw error;
+
+      // Update case status
+      await supabase
+        .from('cases')
+        .update({ status: 'consultation_scheduled' })
+        .eq('id', interest.case_id);
+
+      toast({
+        title: "Consultation scheduled",
+        description: `Your consultation with ${selectedMatch.firmName} has been scheduled.`
+      });
+      
+      setScheduleDialogOpen(false);
+      setSelectedMatch(null);
+      fetchUserData();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to schedule consultation. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
@@ -90,6 +273,9 @@ const IndividualDashboard = () => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const pendingInterests = firmInterests.filter(i => i.status === 'interested');
+  const acceptedInterests = firmInterests.filter(i => i.status === 'accepted');
 
   return (
     <div className="min-h-screen bg-background">
@@ -114,7 +300,7 @@ const IndividualDashboard = () => {
 
       <main className="container mx-auto px-4 py-8">
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -135,6 +321,17 @@ const IndividualDashboard = () => {
                     {cases.filter(c => c.status === 'pending').length}
                   </p>
                   <p className="text-sm text-muted-foreground">Pending</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <Building2 className="h-8 w-8 text-orange-500" />
+                <div>
+                  <p className="text-2xl font-bold">{pendingInterests.length}</p>
+                  <p className="text-sm text-muted-foreground">Firm Interest</p>
                 </div>
               </div>
             </CardContent>
@@ -179,8 +376,15 @@ const IndividualDashboard = () => {
         <Tabs defaultValue="cases" className="space-y-4">
           <TabsList>
             <TabsTrigger value="cases">My Cases</TabsTrigger>
+            <TabsTrigger value="interests" className="relative">
+              Firm Interest
+              {pendingInterests.length > 0 && (
+                <Badge className="ml-2 bg-primary text-primary-foreground text-xs px-1.5">
+                  {pendingInterests.length}
+                </Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="consultations">Consultations</TabsTrigger>
-            <TabsTrigger value="matches">Firm Matches</TabsTrigger>
           </TabsList>
 
           <TabsContent value="cases" className="space-y-4">
@@ -232,10 +436,97 @@ const IndividualDashboard = () => {
                         <Clock className="h-4 w-4" />
                         {new Date(caseItem.created_at).toLocaleDateString()}
                       </span>
+                      {firmInterests.filter(i => i.case_id === caseItem.id && i.status === 'interested').length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Building2 className="h-3 w-3 mr-1" />
+                          {firmInterests.filter(i => i.case_id === caseItem.id && i.status === 'interested').length} interested
+                        </Badge>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
               ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="interests" className="space-y-4">
+            {firmInterests.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">No firm interest yet</h3>
+                  <p className="text-muted-foreground">
+                    When law firms express interest in your cases, you'll see them here
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-6">
+                {pendingInterests.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-yellow-500" />
+                      Pending Review ({pendingInterests.length})
+                    </h3>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {pendingInterests.map((interest) => (
+                        <FirmInterestCard
+                          key={interest.id}
+                          interest={interest}
+                          caseName={interest.case_title}
+                          onAccept={handleAcceptInterest}
+                          onReject={handleRejectInterest}
+                          onSchedule={handleOpenScheduleDialog}
+                          isLoading={actionLoading}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {acceptedInterests.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      Accepted ({acceptedInterests.length})
+                    </h3>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {acceptedInterests.map((interest) => (
+                        <FirmInterestCard
+                          key={interest.id}
+                          interest={interest}
+                          caseName={interest.case_title}
+                          onAccept={handleAcceptInterest}
+                          onReject={handleRejectInterest}
+                          onSchedule={handleOpenScheduleDialog}
+                          isLoading={actionLoading}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {firmInterests.filter(i => i.status === 'rejected').length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3 text-muted-foreground">
+                      Declined ({firmInterests.filter(i => i.status === 'rejected').length})
+                    </h3>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {firmInterests.filter(i => i.status === 'rejected').map((interest) => (
+                        <FirmInterestCard
+                          key={interest.id}
+                          interest={interest}
+                          caseName={interest.case_title}
+                          onAccept={handleAcceptInterest}
+                          onReject={handleRejectInterest}
+                          onSchedule={handleOpenScheduleDialog}
+                          isLoading={actionLoading}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </TabsContent>
 
@@ -246,7 +537,7 @@ const IndividualDashboard = () => {
                   <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                   <h3 className="text-lg font-semibold mb-2">No consultations scheduled</h3>
                   <p className="text-muted-foreground">
-                    Once a law firm matches with your case, you'll be able to schedule a consultation
+                    Accept a firm's interest to schedule a consultation
                   </p>
                 </CardContent>
               </Card>
@@ -290,20 +581,20 @@ const IndividualDashboard = () => {
               ))
             )}
           </TabsContent>
-
-          <TabsContent value="matches" className="space-y-4">
-            <Card>
-              <CardContent className="py-12 text-center">
-                <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">Firm matches will appear here</h3>
-                <p className="text-muted-foreground">
-                  When law firms express interest in your case, you'll see them here
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </main>
+
+      {/* Schedule Consultation Dialog */}
+      {selectedMatch && (
+        <ScheduleConsultationDialog
+          open={scheduleDialogOpen}
+          onOpenChange={setScheduleDialogOpen}
+          firmName={selectedMatch.firmName}
+          caseName={selectedMatch.caseName}
+          onSchedule={handleScheduleConsultation}
+          isLoading={actionLoading}
+        />
+      )}
     </div>
   );
 };
