@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,7 +12,45 @@ serve(async (req) => {
   }
 
   try {
+    // Authenticate the request
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Missing authorization header" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      console.error("Auth error:", claimsError);
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+    console.log("Authenticated user:", userId);
+
     const { caseTitle, caseDescription, practiceArea, rawNotes, clientName } = await req.json();
+    
+    // Validate required fields
+    if (!rawNotes || typeof rawNotes !== "string" || rawNotes.trim().length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Raw notes are required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -49,10 +88,10 @@ Keep the language professional but accessible to the client.`;
           { role: "system", content: systemPrompt },
           { 
             role: "user", 
-            content: `Client: ${clientName}
-Case Title: ${caseTitle}
-Practice Area: ${practiceArea}
-Case Description: ${caseDescription}
+            content: `Client: ${clientName || "Anonymous"}
+Case Title: ${caseTitle || "Untitled Case"}
+Practice Area: ${practiceArea || "General"}
+Case Description: ${caseDescription || "Not provided"}
 
 Raw Consultation Notes:
 ${rawNotes}
