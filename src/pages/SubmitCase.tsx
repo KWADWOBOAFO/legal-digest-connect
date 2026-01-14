@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import DocumentUpload from '@/components/case/DocumentUpload';
 
 const caseSchema = z.object({
   title: z.string().min(10, 'Title must be at least 10 characters').max(200, 'Title is too long'),
@@ -55,6 +56,7 @@ const SubmitCase = () => {
   const [urgency, setUrgency] = useState('normal');
   const [consultationType, setConsultationType] = useState('video');
   const [budgetRange, setBudgetRange] = useState('');
+  const [uploadedDocuments, setUploadedDocuments] = useState<Array<{ name: string; path: string; size: number; type: string }>>([]);
   
   // AI Analysis
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
@@ -147,7 +149,8 @@ const SubmitCase = () => {
           urgency_level: analysis.urgencyAssessment || urgency,
           preferred_consultation_type: consultationType,
           budget_range: budgetRange,
-          status: 'pending'
+          status: 'pending',
+          documents_url: uploadedDocuments.map(d => d.path)
         });
 
       if (error) throw error;
@@ -450,6 +453,16 @@ const SubmitCase = () => {
                 </p>
               </div>
 
+              {/* Document Upload */}
+              {user && (
+                <DocumentUpload 
+                  userId={user.id}
+                  onUploadComplete={(files) => setUploadedDocuments(prev => [...prev, ...files])}
+                  maxFiles={5}
+                  maxSizeMB={10}
+                />
+              )}
+
               <div className="p-4 border border-primary/20 rounded-lg bg-primary/5">
                 <p className="text-sm">
                   <strong>What happens next?</strong>
@@ -459,6 +472,7 @@ const SubmitCase = () => {
                   <li>• Matching firms will express interest</li>
                   <li>• You'll receive a free 30-minute consultation</li>
                   <li>• You decide which firm to work with</li>
+                  <li>• Documents are only shared after you accept a firm</li>
                 </ul>
               </div>
 

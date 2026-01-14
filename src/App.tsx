@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import SubmitCase from "./pages/SubmitCase";
 import Consultation from "./pages/Consultation";
 import Firms from "./pages/Firms";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/submit-case" element={<SubmitCase />} />
             <Route path="/consultation/:id" element={<Consultation />} />
             <Route path="/firms" element={<Firms />} />
+            <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
