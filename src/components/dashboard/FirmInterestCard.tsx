@@ -27,6 +27,7 @@ interface FirmInterestCardProps {
   onReject: (matchId: string) => void;
   onSchedule: (matchId: string, firmId: string) => void;
   isLoading?: boolean;
+  compact?: boolean;
 }
 
 export function FirmInterestCard({
@@ -35,7 +36,8 @@ export function FirmInterestCard({
   onAccept,
   onReject,
   onSchedule,
-  isLoading
+  isLoading,
+  compact = false
 }: FirmInterestCardProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -47,6 +49,70 @@ export function FirmInterestCard({
         return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
     }
   };
+
+  if (compact) {
+    return (
+      <div className="p-3 bg-card border rounded-lg space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-primary" />
+            <span className="font-medium text-sm">{interest.law_firm.firm_name}</span>
+            {interest.law_firm.is_verified && (
+              <Badge variant="secondary" className="text-xs">✓</Badge>
+            )}
+          </div>
+          {getStatusBadge(interest.status)}
+        </div>
+        
+        {interest.law_firm.city && (
+          <p className="text-xs text-muted-foreground">
+            {interest.law_firm.city}{interest.law_firm.country ? `, ${interest.law_firm.country}` : ''}
+          </p>
+        )}
+
+        {interest.message && (
+          <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+            "{interest.message}"
+          </p>
+        )}
+
+        {interest.status === 'interested' && (
+          <div className="flex gap-2 pt-1">
+            <Button
+              size="sm"
+              onClick={() => onAccept(interest.id, interest.firm_id)}
+              disabled={isLoading}
+              className="flex-1"
+            >
+              <Check className="h-3 w-3 mr-1" />
+              Accept
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onReject(interest.id)}
+              disabled={isLoading}
+              className="flex-1"
+            >
+              <X className="h-3 w-3 mr-1" />
+              Decline
+            </Button>
+          </div>
+        )}
+
+        {interest.status === 'accepted' && (
+          <Button
+            size="sm"
+            onClick={() => onSchedule(interest.id, interest.firm_id)}
+            className="w-full"
+          >
+            <Calendar className="h-3 w-3 mr-1" />
+            Schedule
+          </Button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <Card className="border-l-4 border-l-primary">

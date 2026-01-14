@@ -11,6 +11,7 @@ import SubmitCase from "./pages/SubmitCase";
 import Consultation from "./pages/Consultation";
 import Firms from "./pages/Firms";
 import Admin from "./pages/Admin";
+import CaseDetail from "./pages/CaseDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/case/:id" element={<CaseDetail />} />
             <Route path="/submit-case" element={<SubmitCase />} />
             <Route path="/consultation/:id" element={<Consultation />} />
             <Route path="/firms" element={<Firms />} />
