@@ -81,7 +81,7 @@ const IndividualDashboard = () => {
   }, []);
 
   // Enable real-time notifications (callback will be called when new interest arrives)
-  useRealtimeNotifications(() => fetchUserData());
+  useRealtimeNotifications(user?.id, () => fetchUserData());
 
   const fetchUserData = async () => {
     try {

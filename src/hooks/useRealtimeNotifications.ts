@@ -1,11 +1,9 @@
 import { useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
 
-export const useRealtimeNotifications = (onNewInterest?: () => void) => {
+export const useRealtimeNotifications = (userId: string | undefined, onNewInterest?: () => void) => {
   const { toast } = useToast();
-  const { user } = useAuth();
 
   const handleNewInterest = useCallback(async (payload: any) => {
     const match = payload.new;
@@ -21,7 +19,7 @@ export const useRealtimeNotifications = (onNewInterest?: () => void) => {
       ]);
 
       // Only show notification if this is the case owner
-      if (caseResult.data?.user_id !== user?.id) return;
+      if (caseResult.data?.user_id !== userId) return;
 
       const firmName = firmResult.data?.firm_name || 'A law firm';
       const caseTitle = caseResult.data?.title || 'your case';
@@ -37,10 +35,10 @@ export const useRealtimeNotifications = (onNewInterest?: () => void) => {
     } catch (error) {
       console.error('Error fetching notification details:', error);
     }
-  }, [toast, user?.id, onNewInterest]);
+  }, [toast, userId, onNewInterest]);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!userId) return;
 
     const channel = supabase
       .channel('case-matches-realtime')
@@ -58,5 +56,5 @@ export const useRealtimeNotifications = (onNewInterest?: () => void) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, handleNewInterest]);
+  }, [userId, handleNewInterest]);
 };
