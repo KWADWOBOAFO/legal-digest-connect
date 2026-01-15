@@ -31,16 +31,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { FileText, Pencil, Trash2, ArrowRight, Clock, AlertTriangle, Plus } from "lucide-react";
+import { FileText, Pencil, Trash2, ArrowRight, Clock, AlertTriangle, Plus, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Draft,
   getDrafts,
   updateDraft,
   deleteDraft,
+  duplicateDraft,
   isDraftExpiring,
   getDraftAge,
   migrateOldDraft,
+  runStartupCleanup,
 } from "@/lib/draftUtils";
 
 const practiceAreas = [
@@ -68,8 +70,18 @@ const DraftCard = () => {
   useEffect(() => {
     // Migrate old single draft format
     migrateOldDraft();
+    
+    // Run cleanup on startup
+    const { removedCount } = runStartupCleanup();
+    if (removedCount > 0) {
+      toast({
+        title: "Expired drafts removed",
+        description: `${removedCount} draft${removedCount > 1 ? "s" : ""} older than 60 days ${removedCount > 1 ? "were" : "was"} automatically removed.`,
+      });
+    }
+    
     loadDrafts();
-  }, []);
+  }, [toast]);
 
   const loadDrafts = () => {
     setDrafts(getDrafts());
@@ -115,6 +127,17 @@ const DraftCard = () => {
       title: "Draft deleted",
       description: "Your draft has been removed.",
     });
+  };
+
+  const handleDuplicate = (draft: Draft) => {
+    const duplicated = duplicateDraft(draft.id);
+    if (duplicated) {
+      loadDrafts();
+      toast({
+        title: "Draft duplicated",
+        description: `"${duplicated.title}" has been created.`,
+      });
+    }
   };
 
   const handleContinueToSubmission = (draft: Draft) => {
@@ -252,6 +275,14 @@ const DraftCard = () => {
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => handleEdit(draft)}>
                     <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDuplicate(draft)}
+                    title="Duplicate draft"
+                  >
+                    <Copy className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
