@@ -32,6 +32,7 @@ import { SecureDocumentShare } from '@/components/documents/SecureDocumentShare'
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationPermissionButton } from '@/components/notifications/NotificationPermissionButton';
+import DraftCard from './DraftCard';
 
 interface Case {
   id: string;
@@ -416,6 +417,7 @@ const IndividualDashboard = () => {
         <Tabs defaultValue="cases" className="space-y-4">
           <TabsList className="flex-wrap">
             <TabsTrigger value="cases">My Cases</TabsTrigger>
+            <TabsTrigger value="drafts">Drafts</TabsTrigger>
             <TabsTrigger value="interests" className="relative">
               Firm Interest
               {pendingInterests.length > 0 && (
@@ -429,6 +431,20 @@ const IndividualDashboard = () => {
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="drafts" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Saved Drafts</CardTitle>
+                <CardDescription>
+                  Continue working on your unfinished case submissions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <DraftCard />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="cases" className="space-y-4">
             {isLoading ? (

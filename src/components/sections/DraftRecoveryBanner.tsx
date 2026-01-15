@@ -11,6 +11,7 @@ interface DraftRecoveryBannerProps {
 const DraftRecoveryBanner = ({ onContinue }: DraftRecoveryBannerProps) => {
   const [hasDraft, setHasDraft] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
@@ -20,6 +21,8 @@ const DraftRecoveryBanner = ({ onContinue }: DraftRecoveryBannerProps) => {
         // Check if draft has meaningful content
         if (parsed.title || parsed.description || parsed.practiceArea) {
           setHasDraft(true);
+          // Delay visibility for animation
+          setTimeout(() => setIsVisible(true), 100);
         }
       } catch (e) {
         console.error("Failed to parse saved draft");
@@ -30,11 +33,17 @@ const DraftRecoveryBanner = ({ onContinue }: DraftRecoveryBannerProps) => {
   if (!hasDraft || dismissed) return null;
 
   return (
-    <div className="bg-accent/10 border-b border-accent/20">
+    <div 
+      className={`bg-accent/10 border-b border-accent/20 overflow-hidden transition-all duration-500 ease-out ${
+        isVisible 
+          ? "max-h-24 opacity-100 translate-y-0" 
+          : "max-h-0 opacity-0 -translate-y-4"
+      }`}
+    >
       <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center justify-between gap-4 flex-wrap animate-fade-in">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-accent/20 rounded-full">
+            <div className="p-2 bg-accent/20 rounded-full animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]">
               <FileText className="w-4 h-4 text-accent" />
             </div>
             <div>
@@ -59,6 +68,7 @@ const DraftRecoveryBanner = ({ onContinue }: DraftRecoveryBannerProps) => {
               variant="gold"
               size="sm"
               onClick={onContinue}
+              className="hover-scale"
             >
               Continue
               <ArrowRight className="w-4 h-4 ml-1" />
