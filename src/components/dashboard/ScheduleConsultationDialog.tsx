@@ -26,6 +26,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { CalendarExportButtons } from "@/components/calendar/CalendarExportButtons";
 
 interface ScheduleConsultationDialogProps {
   open: boolean;
@@ -68,10 +69,22 @@ export function ScheduleConsultationDialog({
   const [duration, setDuration] = useState<number>(30);
   const [notes, setNotes] = useState("");
   const [consultationType, setConsultationType] = useState("video");
+  const [isScheduled, setIsScheduled] = useState(false);
 
   const handleSubmit = () => {
     if (!date || !time) return;
     onSchedule({ date, time, duration, notes, consultationType });
+    setIsScheduled(true);
+  };
+
+  const getScheduledDateTime = () => {
+    if (!date || !time) return null;
+    const [hours, minutes] = time.split(':').map(Number);
+    const startDate = new Date(date);
+    startDate.setHours(hours, minutes, 0, 0);
+    const endDate = new Date(startDate);
+    endDate.setMinutes(endDate.getMinutes() + duration);
+    return { startDate, endDate };
   };
 
   const isValid = date && time;
@@ -181,13 +194,30 @@ export function ScheduleConsultationDialog({
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={!isValid || isLoading}>
-            {isLoading ? "Scheduling..." : "Schedule Consultation"}
-          </Button>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          {isScheduled && date && time && (() => {
+            const times = getScheduledDateTime();
+            if (!times) return null;
+            return (
+              <CalendarExportButtons
+                title={`Legal Consultation - ${caseName}`}
+                description={`Consultation with ${firmName} regarding ${caseName}. ${notes ? `Notes: ${notes}` : ''}`}
+                startDate={times.startDate}
+                endDate={times.endDate}
+                location={consultationType === 'video' ? 'Video Call' : consultationType === 'phone' ? 'Phone Call' : 'In Person'}
+              />
+            );
+          })()}
+          <div className="flex gap-2 ml-auto">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              {isScheduled ? 'Close' : 'Cancel'}
+            </Button>
+            {!isScheduled && (
+              <Button onClick={handleSubmit} disabled={!isValid || isLoading}>
+                {isLoading ? "Scheduling..." : "Schedule Consultation"}
+              </Button>
+            )}
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
