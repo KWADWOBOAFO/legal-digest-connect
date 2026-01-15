@@ -1,37 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// Get allowed origins from environment or use defaults
-const getAllowedOrigins = (): string[] => {
-  const originsEnv = Deno.env.get("ALLOWED_ORIGINS");
-  if (originsEnv) {
-    return originsEnv.split(",").map(o => o.trim());
-  }
-  // Default to Lovable preview URLs and common patterns
-  return [
-    "https://lovable.dev",
-    "https://lovable.app"
-  ];
-};
-
-const getCorsHeaders = (req: Request): Record<string, string> => {
-  const origin = req.headers.get("Origin") || "";
-  const allowedOrigins = getAllowedOrigins();
-  
-  // Check if origin matches allowed patterns (including Lovable preview subdomains)
-  const isAllowed = allowedOrigins.some(allowed => {
-    if (origin === allowed) return true;
-    // Allow subdomains of lovable.dev and lovable.app
-    if (allowed.includes("lovable.dev") && origin.endsWith(".lovable.dev")) return true;
-    if (allowed.includes("lovable.app") && origin.endsWith(".lovable.app")) return true;
-    return false;
-  });
-  
-  return {
-    "Access-Control-Allow-Origin": isAllowed ? origin : allowedOrigins[0],
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Credentials": "true",
-  };
+// CORS headers - allow all origins for edge function calls
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 // Input sanitization for AI prompts to prevent prompt injection
@@ -94,8 +67,6 @@ const PRACTICE_AREAS = [
 ];
 
 serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req);
-  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -290,7 +261,7 @@ Analyze the legal matter described above.`;
       JSON.stringify({ error: ErrorMessages.INTERNAL_ERROR, code: "INTERNAL_ERROR" }),
       {
         status: 500,
-        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
   }
