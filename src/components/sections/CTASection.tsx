@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Shield, Clock, CheckCircle, Scale } from "lucide-react";
+import { ArrowRight, Shield, Clock, CheckCircle, Scale, AlertCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -20,14 +20,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { z } from "zod";
+
+const DRAFT_STORAGE_KEY = "legal-matter-draft";
+
+const formSchema = z.object({
+  title: z
+    .string()
+    .min(5, "Title must be at least 5 characters")
+    .max(100, "Title must be less than 100 characters"),
+  description: z
+    .string()
+    .min(20, "Please provide more details (at least 20 characters)")
+    .max(2000, "Description must be less than 2000 characters"),
+  practiceArea: z.string().min(1, "Please select a practice area"),
+});
+
+type FormData = z.infer<typeof formSchema>;
+type FormErrors = Partial<Record<keyof FormData, string>>;
 
 const CTASection = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
     practiceArea: "",
   });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<Partial<Record<keyof FormData, boolean>>>({});
   const navigate = useNavigate();
 
   const practiceAreas = [
@@ -43,8 +63,74 @@ const CTASection = () => {
     "Other",
   ];
 
+  // Load draft from localStorage on mount
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft);
+        setFormData(parsed);
+      } catch (e) {
+        console.error("Failed to parse saved draft");
+      }
+    }
+  }, []);
+
+  // Save draft to localStorage when form changes
+  useEffect(() => {
+    if (formData.title || formData.description || formData.practiceArea) {
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formData));
+    }
+  }, [formData]);
+
+  const validateField = (field: keyof FormData, value: string): string | undefined => {
+    try {
+      formSchema.shape[field].parse(value);
+      return undefined;
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return err.errors[0]?.message;
+      }
+      return "Invalid input";
+    }
+  };
+
+  const handleFieldChange = (field: keyof FormData, value: string) => {
+    setFormData({ ...formData, [field]: value });
+    if (touched[field]) {
+      const error = validateField(field, value);
+      setErrors({ ...errors, [field]: error });
+    }
+  };
+
+  const handleFieldBlur = (field: keyof FormData) => {
+    setTouched({ ...touched, [field]: true });
+    const error = validateField(field, formData[field]);
+    setErrors({ ...errors, [field]: error });
+  };
+
+  const validateForm = (): boolean => {
+    const result = formSchema.safeParse(formData);
+    if (!result.success) {
+      const newErrors: FormErrors = {};
+      result.error.errors.forEach((err) => {
+        const field = err.path[0] as keyof FormData;
+        newErrors[field] = err.message;
+      });
+      setErrors(newErrors);
+      setTouched({ title: true, description: true, practiceArea: true });
+      return false;
+    }
+    setErrors({});
+    return true;
+  };
+
   const handleSubmit = () => {
-    // Navigate to the full submit case page with prefilled data
+    if (!validateForm()) return;
+    
+    // Clear draft on successful submission
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    
     navigate("/submit-case", { 
       state: { 
         prefill: formData 
@@ -52,6 +138,15 @@ const CTASection = () => {
     });
     setIsOpen(false);
   };
+
+  const handleClearDraft = () => {
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    setFormData({ title: "", description: "", practiceArea: "" });
+    setErrors({});
+    setTouched({});
+  };
+
+  const hasDraft = formData.title || formData.description || formData.practiceArea;
 
   return (
     <>
@@ -118,27 +213,51 @@ const CTASection = () => {
             </div>
             <DialogDescription>
               Tell us about your situation and we'll connect you with the right legal expert.
+              {hasDraft && (
+                <span className="block mt-1 text-accent">
+                  ✓ Draft saved automatically
+                </span>
+              )}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Brief Title</Label>
+              <Label htmlFor="title" className="flex items-center justify-between">
+                Brief Title
+                <span className="text-xs text-muted-foreground">
+                  {formData.title.length}/100
+                </span>
+              </Label>
               <Input
                 id="title"
                 placeholder="e.g., Divorce proceedings, Contract dispute..."
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => handleFieldChange("title", e.target.value)}
+                onBlur={() => handleFieldBlur("title")}
+                className={errors.title && touched.title ? "border-destructive" : ""}
+                maxLength={100}
               />
+              {errors.title && touched.title && (
+                <p className="text-sm text-destructive flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {errors.title}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="practiceArea">Practice Area</Label>
               <Select
                 value={formData.practiceArea}
-                onValueChange={(value) => setFormData({ ...formData, practiceArea: value })}
+                onValueChange={(value) => {
+                  handleFieldChange("practiceArea", value);
+                  setTouched({ ...touched, practiceArea: true });
+                }}
               >
-                <SelectTrigger>
+                <SelectTrigger 
+                  className={errors.practiceArea && touched.practiceArea ? "border-destructive" : ""}
+                >
                   <SelectValue placeholder="Select a practice area" />
                 </SelectTrigger>
                 <SelectContent>
@@ -149,28 +268,53 @@ const CTASection = () => {
                   ))}
                 </SelectContent>
               </Select>
+              {errors.practiceArea && touched.practiceArea && (
+                <p className="text-sm text-destructive flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {errors.practiceArea}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Describe Your Situation</Label>
+              <Label htmlFor="description" className="flex items-center justify-between">
+                Describe Your Situation
+                <span className="text-xs text-muted-foreground">
+                  {formData.description.length}/2000
+                </span>
+              </Label>
               <Textarea
                 id="description"
                 placeholder="Please provide details about your legal matter. The more information you share, the better we can assist you..."
-                className="min-h-[120px] resize-none"
+                className={`min-h-[120px] resize-none ${errors.description && touched.description ? "border-destructive" : ""}`}
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => handleFieldChange("description", e.target.value)}
+                onBlur={() => handleFieldBlur("description")}
+                maxLength={2000}
               />
+              {errors.description && touched.description && (
+                <p className="text-sm text-destructive flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {errors.description}
+                </p>
+              )}
             </div>
           </div>
 
           <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
-              Cancel
-            </Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              {hasDraft && (
+                <Button variant="ghost" size="sm" onClick={handleClearDraft} className="text-muted-foreground">
+                  Clear Draft
+                </Button>
+              )}
+              <Button variant="outline" onClick={() => setIsOpen(false)}>
+                Cancel
+              </Button>
+            </div>
             <Button 
               variant="gold" 
               onClick={handleSubmit}
-              disabled={!formData.title || !formData.description}
             >
               Continue to Full Submission
               <ArrowRight className="w-4 h-4 ml-2" />
