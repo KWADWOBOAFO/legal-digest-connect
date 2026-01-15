@@ -205,6 +205,48 @@ export type Database = {
           },
         ]
       }
+      conversations: {
+        Row: {
+          case_id: string | null
+          client_id: string
+          created_at: string
+          firm_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          case_id?: string | null
+          client_id: string
+          created_at?: string
+          firm_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string | null
+          client_id?: string
+          created_at?: string
+          firm_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "law_firms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       law_firms: {
         Row: {
           address: string | null
@@ -317,6 +359,44 @@ export type Database = {
             columns: ["firm_id"]
             isOneToOne: false
             referencedRelation: "law_firms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          sender_id: string
+          sender_type: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          sender_id: string
+          sender_type: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          sender_id?: string
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]
@@ -473,6 +553,69 @@ export type Database = {
             columns: ["firm_id"]
             isOneToOne: false
             referencedRelation: "law_firms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shared_documents: {
+        Row: {
+          case_id: string | null
+          conversation_id: string | null
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          is_encrypted: boolean
+          mime_type: string | null
+          shared_with_client: boolean
+          shared_with_firm: boolean
+          uploaded_by: string
+          uploader_type: string
+        }
+        Insert: {
+          case_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          is_encrypted?: boolean
+          mime_type?: string | null
+          shared_with_client?: boolean
+          shared_with_firm?: boolean
+          uploaded_by: string
+          uploader_type: string
+        }
+        Update: {
+          case_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          is_encrypted?: boolean
+          mime_type?: string | null
+          shared_with_client?: boolean
+          shared_with_firm?: boolean
+          uploaded_by?: string
+          uploader_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_documents_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shared_documents_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]

@@ -17,7 +17,8 @@ import {
   LogOut,
   Star,
   Building2,
-  ExternalLink
+  ExternalLink,
+  BarChart3
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { FirmInterestCard } from './FirmInterestCard';
@@ -25,6 +26,10 @@ import { ScheduleConsultationDialog } from './ScheduleConsultationDialog';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { generateMeetingUrl } from '@/lib/meetingUtils';
 import NotificationBell from '@/components/layout/NotificationBell';
+import { AnalyticsSection } from './AnalyticsSection';
+import { MessagingPanel } from '@/components/messaging/MessagingPanel';
+import { SecureDocumentShare } from '@/components/documents/SecureDocumentShare';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface Case {
   id: string;
@@ -72,6 +77,7 @@ const IndividualDashboard = () => {
   const [firmInterests, setFirmInterests] = useState<FirmInterest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const { data: analyticsData, isLoading: analyticsLoading } = useAnalytics();
   
   // Scheduling dialog state
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
@@ -402,7 +408,7 @@ const IndividualDashboard = () => {
         </div>
 
         <Tabs defaultValue="cases" className="space-y-4">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="cases">My Cases</TabsTrigger>
             <TabsTrigger value="interests" className="relative">
               Firm Interest
@@ -413,6 +419,9 @@ const IndividualDashboard = () => {
               )}
             </TabsTrigger>
             <TabsTrigger value="consultations">Consultations</TabsTrigger>
+            <TabsTrigger value="messages">Messages</TabsTrigger>
+            <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="cases" className="space-y-4">
@@ -622,6 +631,32 @@ const IndividualDashboard = () => {
                   </CardContent>
                 </Card>
               ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="messages">
+            <MessagingPanel />
+          </TabsContent>
+
+          <TabsContent value="documents">
+            <SecureDocumentShare />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            {analyticsLoading ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  Loading analytics...
+                </CardContent>
+              </Card>
+            ) : analyticsData ? (
+              <AnalyticsSection data={analyticsData} userType="individual" />
+            ) : (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  No analytics data available
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
         </Tabs>

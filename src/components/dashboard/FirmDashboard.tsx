@@ -19,12 +19,18 @@ import {
   Star,
   Users,
   Building2,
-  Settings
+  Settings,
+  BarChart3,
+  MessageSquare
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import FirmOnboarding from './FirmOnboarding';
 import CaseCard from './CaseCard';
 import NotificationBell from '@/components/layout/NotificationBell';
+import { AnalyticsSection } from './AnalyticsSection';
+import { MessagingPanel } from '@/components/messaging/MessagingPanel';
+import { SecureDocumentShare } from '@/components/documents/SecureDocumentShare';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface Case {
   id: string;
@@ -74,6 +80,7 @@ const FirmDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [practiceAreaFilter, setPracticeAreaFilter] = useState<string>('all');
+  const { data: analyticsData, isLoading: analyticsLoading } = useAnalytics();
 
   useEffect(() => {
     if (lawFirm?.is_verified && lawFirm?.nda_signed) {
@@ -317,12 +324,14 @@ const FirmDashboard = () => {
           </Card>
         </div>
 
-        {/* Main Content */}
         <Tabs defaultValue="browse" className="space-y-4">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="browse">Browse Cases</TabsTrigger>
             <TabsTrigger value="matches">My Matches</TabsTrigger>
             <TabsTrigger value="consultations">Consultations</TabsTrigger>
+            <TabsTrigger value="messages">Messages</TabsTrigger>
+            <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="team">Team</TabsTrigger>
           </TabsList>
 
@@ -471,6 +480,32 @@ const FirmDashboard = () => {
                   </CardContent>
                 </Card>
               ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="messages">
+            <MessagingPanel />
+          </TabsContent>
+
+          <TabsContent value="documents">
+            <SecureDocumentShare />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            {analyticsLoading ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  Loading analytics...
+                </CardContent>
+              </Card>
+            ) : analyticsData ? (
+              <AnalyticsSection data={analyticsData} userType="firm" />
+            ) : (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  No analytics data available
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
 
