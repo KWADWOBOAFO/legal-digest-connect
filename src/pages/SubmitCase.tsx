@@ -29,14 +29,23 @@ const caseSchema = z.object({
   facts: z.string().max(10000, 'Facts section is too long').optional(),
 });
 
+interface IracAnalysis {
+  issue: string;
+  rule: string;
+  application: string;
+  conclusion: string;
+}
+
 interface AIAnalysis {
   summary: string;
+  iracAnalysis: IracAnalysis;
   primaryPracticeArea: string;
   secondaryPracticeAreas: string[];
   legalElements: string[];
   preparationQuestions: string[];
   urgencyAssessment: string;
   complexityLevel: string;
+  estimatedTimeframe?: string;
 }
 
 const SubmitCase = () => {
@@ -341,9 +350,38 @@ const SubmitCase = () => {
               <CardContent className="space-y-6">
                 {/* Summary */}
                 <div>
-                  <h4 className="font-semibold mb-2">Summary</h4>
+                  <h4 className="font-semibold mb-2">Executive Summary</h4>
                   <p className="text-muted-foreground">{analysis.summary}</p>
                 </div>
+
+                {/* IRAC Analysis */}
+                {analysis.iracAnalysis && (
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-4">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Legal Brief (IRAC Analysis)
+                    </h4>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm font-medium text-primary">Issue</p>
+                        <p className="text-sm text-muted-foreground">{analysis.iracAnalysis.issue}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-primary">Rule / Principle</p>
+                        <p className="text-sm text-muted-foreground">{analysis.iracAnalysis.rule}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-primary">Application</p>
+                        <p className="text-sm text-muted-foreground">{analysis.iracAnalysis.application}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-primary">Conclusion</p>
+                        <p className="text-sm text-muted-foreground">{analysis.iracAnalysis.conclusion}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Practice Areas */}
                 <div>
@@ -376,7 +414,7 @@ const SubmitCase = () => {
                 {/* Preparation Questions */}
                 {analysis.preparationQuestions.length > 0 && (
                   <div>
-                    <h4 className="font-semibold mb-2">Questions to Prepare For</h4>
+                    <h4 className="font-semibold mb-2">Questions for 30-Minute Consultation</h4>
                     <ul className="list-disc list-inside text-muted-foreground space-y-1">
                       {analysis.preparationQuestions.map((q, idx) => (
                         <li key={idx}>{q}</li>
@@ -386,7 +424,7 @@ const SubmitCase = () => {
                 )}
 
                 {/* Assessment */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div className="p-3 bg-muted rounded-lg">
                     <p className="text-sm text-muted-foreground">Urgency</p>
                     <p className="font-semibold capitalize">{analysis.urgencyAssessment}</p>
@@ -395,6 +433,12 @@ const SubmitCase = () => {
                     <p className="text-sm text-muted-foreground">Complexity</p>
                     <p className="font-semibold capitalize">{analysis.complexityLevel}</p>
                   </div>
+                  {analysis.estimatedTimeframe && (
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className="text-sm text-muted-foreground">Est. Timeframe</p>
+                      <p className="font-semibold">{analysis.estimatedTimeframe}</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

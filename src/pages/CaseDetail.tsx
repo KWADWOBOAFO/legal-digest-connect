@@ -26,6 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 import { FirmInterestCard } from '@/components/dashboard/FirmInterestCard';
 import { ScheduleConsultationDialog } from '@/components/dashboard/ScheduleConsultationDialog';
 import DocumentUpload from '@/components/case/DocumentUpload';
+import { MatchedFirmsList } from '@/components/case/MatchedFirmsList';
 
 interface CaseDetails {
   id: string;
@@ -514,6 +515,29 @@ const CaseDetail = () => {
                       </div>
                     ))}
                   </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Matched Firms - For pending cases with no interests */}
+            {caseDetails.status === 'pending' && firmInterests.length === 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Building2 className="h-5 w-5" />
+                    Find a Law Firm
+                  </CardTitle>
+                  <CardDescription>
+                    Connect with specialized firms that match your case
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <MatchedFirmsList
+                    caseId={caseDetails.id}
+                    casePracticeArea={caseDetails.assigned_practice_area}
+                    caseName={caseDetails.title}
+                    onFirmSelected={() => fetchCaseData()}
+                  />
                 </CardContent>
               </Card>
             )}
