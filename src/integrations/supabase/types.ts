@@ -247,6 +247,45 @@ export type Database = {
           },
         ]
       }
+      document_firm_shares: {
+        Row: {
+          document_id: string
+          firm_id: string
+          id: string
+          shared_at: string
+          shared_by: string
+        }
+        Insert: {
+          document_id: string
+          firm_id: string
+          id?: string
+          shared_at?: string
+          shared_by: string
+        }
+        Update: {
+          document_id?: string
+          firm_id?: string
+          id?: string
+          shared_at?: string
+          shared_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_firm_shares_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "shared_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_firm_shares_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "law_firms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       law_firms: {
         Row: {
           address: string | null
@@ -560,6 +599,7 @@ export type Database = {
       shared_documents: {
         Row: {
           case_id: string | null
+          category: string | null
           conversation_id: string | null
           created_at: string
           file_name: string
@@ -575,6 +615,7 @@ export type Database = {
         }
         Insert: {
           case_id?: string | null
+          category?: string | null
           conversation_id?: string | null
           created_at?: string
           file_name: string
@@ -590,6 +631,7 @@ export type Database = {
         }
         Update: {
           case_id?: string | null
+          category?: string | null
           conversation_id?: string | null
           created_at?: string
           file_name?: string

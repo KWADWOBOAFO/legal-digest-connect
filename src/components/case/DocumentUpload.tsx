@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Label } from '@/components/ui/label';
 import { 
   Upload, 
   FileText, 
@@ -14,12 +15,14 @@ import {
   FileImage
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { DocumentCategorySelect, type DocumentCategory } from '@/components/documents/DocumentCategorySelect';
 
 interface UploadedFile {
   name: string;
   path: string;
   size: number;
   type: string;
+  category?: DocumentCategory;
 }
 
 interface DocumentUploadProps {
@@ -28,6 +31,7 @@ interface DocumentUploadProps {
   onUploadComplete?: (files: UploadedFile[]) => void;
   maxFiles?: number;
   maxSizeMB?: number;
+  showCategories?: boolean;
 }
 
 const DocumentUpload = ({ 
@@ -35,12 +39,14 @@ const DocumentUpload = ({
   caseId,
   onUploadComplete,
   maxFiles = 5,
-  maxSizeMB = 10
+  maxSizeMB = 10,
+  showCategories = true
 }: DocumentUploadProps) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [files, setFiles] = useState<File[]>([]);
+  const [fileCategories, setFileCategories] = useState<Map<number, DocumentCategory>>(new Map());
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -107,6 +113,19 @@ const DocumentUpload = ({
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
+    setFileCategories(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(index);
+      return newMap;
+    });
+  };
+
+  const setFileCategory = (index: number, category: DocumentCategory) => {
+    setFileCategories(prev => {
+      const newMap = new Map(prev);
+      newMap.set(index, category);
+      return newMap;
+    });
   };
 
   const handleUpload = async () => {
@@ -139,7 +158,8 @@ const DocumentUpload = ({
           name: file.name,
           path: data.path,
           size: file.size,
-          type: file.type
+          type: file.type,
+          category: fileCategories.get(i) || 'general'
         });
 
         setUploadProgress(((i + 1) / files.length) * 100);
@@ -151,6 +171,7 @@ const DocumentUpload = ({
 
     setIsUploading(false);
     setFiles([]);
+    setFileCategories(new Map());
     setUploadedFiles(prev => [...prev, ...uploaded]);
     
     if (uploadErrors.length > 0) {
@@ -245,22 +266,34 @@ const DocumentUpload = ({
           <div className="space-y-2">
             <p className="text-sm font-medium">Selected files:</p>
             {files.map((file, idx) => (
-              <div key={idx} className="flex items-center justify-between p-2 bg-muted rounded-lg">
-                <div className="flex items-center gap-2">
-                  {getFileIcon(file.type)}
-                  <span className="text-sm truncate max-w-[200px]">{file.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    ({formatFileSize(file.size)})
-                  </span>
+              <div key={idx} className="p-3 bg-muted rounded-lg space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {getFileIcon(file.type)}
+                    <span className="text-sm truncate max-w-[200px]">{file.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      ({formatFileSize(file.size)})
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeFile(idx)}
+                    disabled={isUploading}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeFile(idx)}
-                  disabled={isUploading}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                {showCategories && (
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs text-muted-foreground whitespace-nowrap">Category:</Label>
+                    <DocumentCategorySelect
+                      value={fileCategories.get(idx) || 'general'}
+                      onValueChange={(cat) => setFileCategory(idx, cat)}
+                      disabled={isUploading}
+                    />
+                  </div>
+                )}
               </div>
             ))}
 
