@@ -33,6 +33,7 @@ import { useAnalytics } from '@/hooks/useAnalytics';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationPermissionButton } from '@/components/notifications/NotificationPermissionButton';
 import DraftCard from './DraftCard';
+import { getDrafts } from '@/lib/draftUtils';
 
 interface Case {
   id: string;
@@ -315,6 +316,7 @@ const IndividualDashboard = () => {
 
   const pendingInterests = firmInterests.filter(i => i.status === 'interested');
   const acceptedInterests = firmInterests.filter(i => i.status === 'accepted');
+  const draftCount = getDrafts().length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -417,7 +419,14 @@ const IndividualDashboard = () => {
         <Tabs defaultValue="cases" className="space-y-4">
           <TabsList className="flex-wrap">
             <TabsTrigger value="cases">My Cases</TabsTrigger>
-            <TabsTrigger value="drafts">Drafts</TabsTrigger>
+            <TabsTrigger value="drafts" className="relative">
+              Drafts
+              {draftCount > 0 && (
+                <Badge className="ml-2 bg-accent text-accent-foreground text-xs px-1.5">
+                  {draftCount}
+                </Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="interests" className="relative">
               Firm Interest
               {pendingInterests.length > 0 && (

@@ -82,6 +82,7 @@ const DraftCard = () => {
   const [editedDraft, setEditedDraft] = useState<Partial<Draft>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("date-desc");
+  const [focusedDraftIndex, setFocusedDraftIndex] = useState<number>(-1);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -100,6 +101,72 @@ const DraftCard = () => {
     
     loadDrafts();
   }, [toast]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in inputs
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      // Get filtered and sorted drafts for keyboard navigation
+      const currentDrafts = getSortedDrafts();
+      
+      if (currentDrafts.length === 0) return;
+
+      // Arrow keys for navigation
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setFocusedDraftIndex((prev) =>
+          prev < currentDrafts.length - 1 ? prev + 1 : 0
+        );
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setFocusedDraftIndex((prev) =>
+          prev > 0 ? prev - 1 : currentDrafts.length - 1
+        );
+      }
+
+      // If no draft is focused, use first one for shortcuts
+      const targetIndex = focusedDraftIndex >= 0 ? focusedDraftIndex : 0;
+      const targetDraft = currentDrafts[targetIndex];
+      
+      if (!targetDraft) return;
+
+      // Ctrl+D or Cmd+D to duplicate
+      if ((e.ctrlKey || e.metaKey) && e.key === "d") {
+        e.preventDefault();
+        handleDuplicate(targetDraft);
+      }
+
+      // Delete key to delete (with confirmation)
+      if (e.key === "Delete" || e.key === "Backspace") {
+        if (!e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          handleDeleteClick(targetDraft);
+        }
+      }
+
+      // Enter to continue submission
+      if (e.key === "Enter" && focusedDraftIndex >= 0) {
+        e.preventDefault();
+        handleContinueToSubmission(targetDraft);
+      }
+
+      // E to edit
+      if (e.key === "e" && focusedDraftIndex >= 0) {
+        e.preventDefault();
+        handleEdit(targetDraft);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [focusedDraftIndex, drafts, searchQuery, sortBy]);
 
   const loadDrafts = () => {
     setDrafts(getDrafts());
@@ -209,6 +276,9 @@ const DraftCard = () => {
     }
   });
 
+  // Helper for keyboard shortcuts
+  const getSortedDrafts = () => sortedDrafts;
+
   if (drafts.length === 0) {
     return (
       <Card className="border-dashed">
@@ -234,6 +304,18 @@ const DraftCard = () => {
 
   return (
     <>
+      {/* Keyboard shortcuts hint */}
+      <p className="text-xs text-muted-foreground mb-4">
+        <kbd className="px-1.5 py-0.5 text-xs bg-muted rounded border">↑↓</kbd> Navigate
+        {" · "}
+        <kbd className="px-1.5 py-0.5 text-xs bg-muted rounded border">Enter</kbd> Continue
+        {" · "}
+        <kbd className="px-1.5 py-0.5 text-xs bg-muted rounded border">E</kbd> Edit
+        {" · "}
+        <kbd className="px-1.5 py-0.5 text-xs bg-muted rounded border">Ctrl+D</kbd> Duplicate
+        {" · "}
+        <kbd className="px-1.5 py-0.5 text-xs bg-muted rounded border">Del</kbd> Delete
+      </p>
       {/* Search and Sort Controls */}
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
@@ -286,18 +368,20 @@ const DraftCard = () => {
 
       {/* Drafts list */}
       <div className="space-y-4">
-        {sortedDrafts.map((draft) => {
+        {sortedDrafts.map((draft, index) => {
           const isExpiring = isDraftExpiring(draft);
           const ageInDays = getDraftAge(draft);
+          const isFocused = focusedDraftIndex === index;
 
           return (
             <Card
               key={draft.id}
-              className={`animate-fade-in transition-all ${
+              onClick={() => setFocusedDraftIndex(index)}
+              className={`animate-fade-in transition-all cursor-pointer ${
                 isExpiring
                   ? "border-destructive/50 bg-destructive/5"
                   : "border-accent/20 bg-accent/5"
-              }`}
+              } ${isFocused ? "ring-2 ring-primary ring-offset-2" : ""}`}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-4">
