@@ -242,7 +242,16 @@ const FirmDashboard = () => {
                 We'll send you an email notification once your verification is complete.
                 If you have any questions, please contact support.
               </p>
-              <Button variant="outline" onClick={() => window.location.reload()}>
+              <Button 
+                variant="outline" 
+                onClick={async () => {
+                  toast({
+                    title: "Checking status...",
+                    description: "Refreshing your verification status."
+                  });
+                  await refreshProfile();
+                }}
+              >
                 Check Status
               </Button>
             </CardContent>
