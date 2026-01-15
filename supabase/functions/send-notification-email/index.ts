@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 interface NotificationEmailRequest {
-  type: "firm_interest" | "consultation_scheduled" | "consultation_reminder";
+  type: "firm_interest" | "consultation_scheduled" | "consultation_reminder" | "firm_verified" | "firm_rejected";
   recipientEmail: string;
   recipientName: string;
   data: {
@@ -18,6 +18,7 @@ interface NotificationEmailRequest {
     consultationDate?: string;
     consultationTime?: string;
     meetingUrl?: string;
+    rejectionReason?: string;
   };
 }
 
@@ -88,6 +89,79 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
                 </a>
               </div>
               ` : ''}
+              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+            </div>
+          </body>
+          </html>
+        `,
+      };
+
+    case "firm_verified":
+      return {
+        subject: `✅ Congratulations! Your law firm has been verified`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+            </div>
+            <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+              <h2 style="color: #1a365d; margin-top: 0;">Congratulations, ${recipientName}!</h2>
+              <div style="background: #dcfce7; padding: 20px; border-radius: 8px; border-left: 4px solid #22c55e; margin: 20px 0;">
+                <p style="margin: 0; font-size: 18px; font-weight: 600; color: #166534;">✓ ${data.firmName} has been verified!</p>
+              </div>
+              <p style="font-size: 16px;">Your law firm has been successfully verified by our team. You can now:</p>
+              <ul style="font-size: 16px; color: #4b5563;">
+                <li>View and express interest in client cases</li>
+                <li>Schedule consultations with potential clients</li>
+                <li>Build your reputation on the platform</li>
+              </ul>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="https://id-preview--4096479d-6eed-4e22-8b7a-257836d49b76.lovable.app/dashboard" 
+                   style="background: #d4a84b; color: #1a365d; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+                  Go to Dashboard
+                </a>
+              </div>
+              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+            </div>
+          </body>
+          </html>
+        `,
+      };
+
+    case "firm_rejected":
+      return {
+        subject: `⚠️ Your law firm verification requires attention`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+            </div>
+            <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+              <h2 style="color: #1a365d; margin-top: 0;">Hello ${recipientName},</h2>
+              <p style="font-size: 16px;">We've reviewed your verification request for <strong>${data.firmName}</strong>.</p>
+              <div style="background: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444; margin: 20px 0;">
+                <p style="margin: 0 0 10px 0; font-weight: 600; color: #991b1b;">Verification Not Approved</p>
+                ${data.rejectionReason ? `<p style="margin: 0; color: #7f1d1d;">${data.rejectionReason}</p>` : '<p style="margin: 0; color: #7f1d1d;">Your application did not meet our verification criteria at this time.</p>'}
+              </div>
+              <p style="font-size: 16px;">If you believe this was in error or would like to provide additional information, please contact our support team.</p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="https://id-preview--4096479d-6eed-4e22-8b7a-257836d49b76.lovable.app/dashboard" 
+                   style="background: #6b7280; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+                  View Dashboard
+                </a>
+              </div>
               <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
             </div>
           </body>
