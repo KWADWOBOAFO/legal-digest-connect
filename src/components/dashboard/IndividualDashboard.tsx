@@ -24,6 +24,7 @@ import { FirmInterestCard } from './FirmInterestCard';
 import { ScheduleConsultationDialog } from './ScheduleConsultationDialog';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { generateMeetingUrl } from '@/lib/meetingUtils';
+import NotificationBell from '@/components/layout/NotificationBell';
 
 interface Case {
   id: string;
@@ -300,6 +301,7 @@ const IndividualDashboard = () => {
             <span className="text-sm text-muted-foreground">
               Welcome, {profile?.full_name || 'User'}
             </span>
+            <NotificationBell />
             <Button variant="ghost" size="sm" onClick={handleSignOut}>
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out

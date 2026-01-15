@@ -32,6 +32,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from '@/components/ui/textarea';
+import CaseModerationQueue from '@/components/admin/CaseModerationQueue';
 
 interface LawFirm {
   id: string;
@@ -440,15 +441,7 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="cases" className="space-y-4">
-            <Card>
-              <CardContent className="py-12 text-center">
-                <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">Cases Overview</h3>
-                <p className="text-muted-foreground">
-                  Case management features coming soon
-                </p>
-              </CardContent>
-            </Card>
+            <CaseModerationQueue />
           </TabsContent>
         </Tabs>
       </main>
