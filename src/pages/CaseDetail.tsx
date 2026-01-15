@@ -27,6 +27,7 @@ import { FirmInterestCard } from '@/components/dashboard/FirmInterestCard';
 import { ScheduleConsultationDialog } from '@/components/dashboard/ScheduleConsultationDialog';
 import DocumentUpload from '@/components/case/DocumentUpload';
 import { MatchedFirmsList } from '@/components/case/MatchedFirmsList';
+import { CaseDocumentsViewer } from '@/components/case/CaseDocumentsViewer';
 
 interface CaseDetails {
   id: string;
@@ -457,24 +458,13 @@ const CaseDetail = () => {
                   </div>
                 )}
 
+                {/* Documents Viewer */}
                 {caseDetails.documents_url && caseDetails.documents_url.length > 0 && (
                   <div>
                     <h4 className="font-medium text-sm text-muted-foreground mb-2">Documents</h4>
-                    <div className="space-y-2">
-                      {caseDetails.documents_url.map((url, index) => (
-                        <a 
-                          key={index}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-primary hover:underline"
-                        >
-                          <FileText className="h-4 w-4" />
-                          Document {index + 1}
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      ))}
-                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {caseDetails.documents_url.length} document{caseDetails.documents_url.length !== 1 ? 's' : ''} uploaded
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -661,6 +651,13 @@ const CaseDetail = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Documents Viewer */}
+            <CaseDocumentsViewer
+              caseId={caseDetails.id}
+              documentPaths={caseDetails.documents_url || []}
+              isOwner={true}
+            />
           </div>
         </div>
       </main>
