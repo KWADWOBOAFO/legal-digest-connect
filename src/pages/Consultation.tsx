@@ -16,9 +16,11 @@ import {
   Wand2,
   Loader2,
   CheckCircle2,
-  Send
+  Send,
+  Star
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ReviewDialog from '@/components/review/ReviewDialog';
 
 interface ConsultationData {
   id: string;
@@ -28,11 +30,16 @@ interface ConsultationData {
   ai_notes: string | null;
   meeting_url: string | null;
   user_id: string;
+  firm_id: string;
   cases: {
     id: string;
     title: string;
     description: string;
     assigned_practice_area: string | null;
+  } | null;
+  law_firms?: {
+    id: string;
+    firm_name: string;
   } | null;
 }
 
@@ -54,6 +61,8 @@ const Consultation = () => {
   const [aiNotes, setAiNotes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -69,7 +78,7 @@ const Consultation = () => {
     try {
       const { data, error } = await supabase
         .from('consultations')
-        .select('*, cases(id, title, description, assigned_practice_area)')
+        .select('*, cases(id, title, description, assigned_practice_area), law_firms(id, firm_name)')
         .eq('id', id)
         .maybeSingle();
 
@@ -98,6 +107,18 @@ const Consultation = () => {
         if (profileData) {
           setClientProfile(profileData);
         }
+      }
+
+      // Check if user has already reviewed this consultation
+      if (user?.id) {
+        const { data: reviewData } = await supabase
+          .from('reviews')
+          .select('id')
+          .eq('consultation_id', id)
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        setHasReviewed(!!reviewData);
       }
     } catch (error) {
       toast({
@@ -421,9 +442,48 @@ const Consultation = () => {
                 Complete Consultation & Send Notes
               </Button>
             )}
+
+            {/* Review Button - Only for clients after consultation is completed */}
+            {isCompleted && consultation.user_id === user?.id && !hasReviewed && (
+              <Card className="border-yellow-200 bg-yellow-50">
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <Star className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
+                    <h3 className="font-semibold mb-2">How was your experience?</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Help others by sharing your feedback about {consultation.law_firms?.firm_name}
+                    </p>
+                    <Button onClick={() => setReviewDialogOpen(true)}>
+                      <Star className="h-4 w-4 mr-2" />
+                      Leave a Review
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {hasReviewed && (
+              <div className="flex items-center gap-2 text-green-600 justify-center py-4">
+                <CheckCircle2 className="h-5 w-5" />
+                <span className="font-medium">Thanks for your review!</span>
+              </div>
+            )}
           </div>
         </div>
       </main>
+
+      {/* Review Dialog */}
+      {consultation && consultation.law_firms && (
+        <ReviewDialog
+          open={reviewDialogOpen}
+          onOpenChange={setReviewDialogOpen}
+          consultationId={consultation.id}
+          firmId={consultation.firm_id}
+          firmName={consultation.law_firms.firm_name}
+          userId={user?.id || ''}
+          onReviewSubmitted={() => setHasReviewed(true)}
+        />
+      )}
     </div>
   );
 };

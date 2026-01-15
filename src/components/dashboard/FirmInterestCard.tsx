@@ -1,7 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Building2, Calendar, MessageSquare } from "lucide-react";
+import { Check, X, Building2, Calendar, MessageSquare, ExternalLink } from "lucide-react";
 
 interface FirmInterest {
   id: string;
@@ -28,6 +29,7 @@ interface FirmInterestCardProps {
   onSchedule: (matchId: string, firmId: string) => void;
   isLoading?: boolean;
   compact?: boolean;
+  hideActions?: boolean;
 }
 
 export function FirmInterestCard({
@@ -37,8 +39,15 @@ export function FirmInterestCard({
   onReject,
   onSchedule,
   isLoading,
-  compact = false
+  compact = false,
+  hideActions = false
 }: FirmInterestCardProps) {
+  const navigate = useNavigate();
+  
+  const viewFirmProfile = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/firm/${interest.law_firm.id}`);
+  };
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'accepted':
@@ -56,7 +65,12 @@ export function FirmInterestCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Building2 className="h-4 w-4 text-primary" />
-            <span className="font-medium text-sm">{interest.law_firm.firm_name}</span>
+            <button 
+              onClick={viewFirmProfile}
+              className="font-medium text-sm hover:text-primary hover:underline"
+            >
+              {interest.law_firm.firm_name}
+            </button>
             {interest.law_firm.is_verified && (
               <Badge variant="secondary" className="text-xs">✓</Badge>
             )}
@@ -76,7 +90,17 @@ export function FirmInterestCard({
           </p>
         )}
 
-        {interest.status === 'interested' && (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={viewFirmProfile}
+          className="w-full text-xs"
+        >
+          <ExternalLink className="h-3 w-3 mr-1" />
+          View Firm Profile
+        </Button>
+
+        {!hideActions && interest.status === 'interested' && (
           <div className="flex gap-2 pt-1">
             <Button
               size="sm"
@@ -100,7 +124,7 @@ export function FirmInterestCard({
           </div>
         )}
 
-        {interest.status === 'accepted' && (
+        {!hideActions && interest.status === 'accepted' && (
           <Button
             size="sm"
             onClick={() => onSchedule(interest.id, interest.firm_id)}
@@ -120,7 +144,9 @@ export function FirmInterestCard({
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">{interest.law_firm.firm_name}</CardTitle>
+            <button onClick={viewFirmProfile} className="hover:text-primary hover:underline">
+              <CardTitle className="text-lg">{interest.law_firm.firm_name}</CardTitle>
+            </button>
             {interest.law_firm.is_verified && (
               <Badge variant="secondary" className="text-xs">Verified</Badge>
             )}
@@ -156,7 +182,17 @@ export function FirmInterestCard({
           </div>
         )}
 
-        {interest.status === 'interested' && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={viewFirmProfile}
+          className="w-full"
+        >
+          <ExternalLink className="h-4 w-4 mr-2" />
+          View Firm Profile
+        </Button>
+
+        {!hideActions && interest.status === 'interested' && (
           <div className="flex gap-2 pt-2">
             <Button
               onClick={() => onAccept(interest.id, interest.firm_id)}
@@ -178,7 +214,7 @@ export function FirmInterestCard({
           </div>
         )}
 
-        {interest.status === 'accepted' && (
+        {!hideActions && interest.status === 'accepted' && (
           <Button
             onClick={() => onSchedule(interest.id, interest.firm_id)}
             className="w-full"

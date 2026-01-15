@@ -255,6 +255,22 @@ const IndividualDashboard = () => {
         .update({ status: 'consultation_scheduled' })
         .eq('id', interest.case_id);
 
+      // Send email notification (fire and forget)
+      supabase.functions.invoke('send-notification-email', {
+        body: {
+          type: 'consultation_scheduled',
+          recipientEmail: profile?.email,
+          recipientName: profile?.full_name || 'User',
+          data: {
+            firmName: selectedMatch.firmName,
+            caseTitle: interest.case_title,
+            consultationDate: scheduledAt.toLocaleDateString(),
+            consultationTime: scheduledAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            meetingUrl
+          }
+        }
+      }).catch(err => console.error('Failed to send email notification:', err));
+
       toast({
         title: "Consultation scheduled",
         description: `Your consultation with ${selectedMatch.firmName} has been scheduled.`
