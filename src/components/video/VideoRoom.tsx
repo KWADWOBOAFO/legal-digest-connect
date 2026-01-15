@@ -9,7 +9,9 @@ import {
   PhoneOff, 
   Maximize2,
   Minimize2,
-  Users
+  Users,
+  Monitor,
+  MonitorOff
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,11 +37,14 @@ export function VideoRoom({ roomId, onLeave }: VideoRoomProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [participantCount, setParticipantCount] = useState(1);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
   
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const screenShareRef = useRef<HTMLVideoElement>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
+  const screenStreamRef = useRef<MediaStream | null>(null);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   const createPeerConnection = useCallback(() => {
@@ -255,12 +260,103 @@ export function VideoRoom({ roomId, onLeave }: VideoRoomProps) {
     setIsFullscreen(!isFullscreen);
   };
 
+  const toggleScreenShare = async () => {
+    if (isScreenSharing) {
+      // Stop screen sharing
+      screenStreamRef.current?.getTracks().forEach(track => track.stop());
+      screenStreamRef.current = null;
+      setIsScreenSharing(false);
+      
+      // Notify other participants
+      channelRef.current?.send({
+        type: 'broadcast',
+        event: 'screen-share',
+        payload: { sharing: false, sender: user?.id }
+      });
+      
+      toast({
+        title: 'Screen sharing stopped',
+        description: 'You are no longer sharing your screen'
+      });
+    } else {
+      try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({
+          video: { cursor: 'always' } as MediaTrackConstraints,
+          audio: false
+        });
+        
+        screenStreamRef.current = screenStream;
+        
+        if (screenShareRef.current) {
+          screenShareRef.current.srcObject = screenStream;
+        }
+        
+        // Add screen track to peer connection
+        const pc = peerConnectionRef.current;
+        if (pc) {
+          screenStream.getTracks().forEach(track => {
+            pc.addTrack(track, screenStream);
+          });
+        }
+        
+        // Handle when user stops sharing via browser UI
+        screenStream.getVideoTracks()[0].onended = () => {
+          setIsScreenSharing(false);
+          screenStreamRef.current = null;
+          channelRef.current?.send({
+            type: 'broadcast',
+            event: 'screen-share',
+            payload: { sharing: false, sender: user?.id }
+          });
+        };
+        
+        setIsScreenSharing(true);
+        
+        // Notify other participants
+        channelRef.current?.send({
+          type: 'broadcast',
+          event: 'screen-share',
+          payload: { sharing: true, sender: user?.id }
+        });
+        
+        toast({
+          title: 'Screen sharing started',
+          description: 'Your screen is now visible to other participants'
+        });
+      } catch (error) {
+        console.error('Error sharing screen:', error);
+        toast({
+          title: 'Screen sharing failed',
+          description: 'Could not start screen sharing',
+          variant: 'destructive'
+        });
+      }
+    }
+  };
+
   return (
     <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-background' : ''}`}>
       <Card className={`${isFullscreen ? 'h-full rounded-none' : ''}`}>
         <CardContent className="p-4">
           {/* Video Grid */}
-          <div className={`grid gap-4 ${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[400px]'} ${isConnected ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          <div className={`grid gap-4 ${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[400px]'} ${isScreenSharing ? 'grid-cols-3' : isConnected ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            {/* Screen Share */}
+            {isScreenSharing && (
+              <div className="relative bg-muted rounded-lg overflow-hidden col-span-2">
+                <video
+                  ref={screenShareRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-contain"
+                />
+                <div className="absolute bottom-2 left-2 bg-primary/80 px-2 py-1 rounded text-primary-foreground text-xs flex items-center gap-1">
+                  <Monitor className="h-3 w-3" />
+                  Screen Share
+                </div>
+              </div>
+            )}
+            
             {/* Remote Video */}
             {isConnected && (
               <div className="relative bg-muted rounded-lg overflow-hidden">
@@ -277,7 +373,7 @@ export function VideoRoom({ roomId, onLeave }: VideoRoomProps) {
             )}
             
             {/* Local Video */}
-            <div className={`relative bg-muted rounded-lg overflow-hidden ${!isConnected ? 'max-w-2xl mx-auto w-full' : ''}`}>
+            <div className={`relative bg-muted rounded-lg overflow-hidden ${!isConnected && !isScreenSharing ? 'max-w-2xl mx-auto w-full' : ''}`}>
               <video
                 ref={localVideoRef}
                 autoPlay
@@ -306,6 +402,9 @@ export function VideoRoom({ roomId, onLeave }: VideoRoomProps) {
               )}
               {isConnected && (
                 <span className="text-green-500 ml-2">● Connected</span>
+              )}
+              {isScreenSharing && (
+                <span className="text-blue-500 ml-2">● Sharing screen</span>
               )}
             </div>
           </div>
@@ -337,6 +436,16 @@ export function VideoRoom({ roomId, onLeave }: VideoRoomProps) {
               className="h-12 w-12 rounded-full"
             >
               <PhoneOff className="h-5 w-5" />
+            </Button>
+            
+            <Button
+              variant={isScreenSharing ? 'default' : 'outline'}
+              size="icon"
+              onClick={toggleScreenShare}
+              className="h-12 w-12 rounded-full"
+              title={isScreenSharing ? 'Stop sharing' : 'Share screen'}
+            >
+              {isScreenSharing ? <MonitorOff className="h-5 w-5" /> : <Monitor className="h-5 w-5" />}
             </Button>
             
             <Button
