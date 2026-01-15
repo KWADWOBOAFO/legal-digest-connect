@@ -13,12 +13,14 @@ import {
 } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Scale, Building2, User } from 'lucide-react';
+import { Scale, Building2, User, ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 const nameSchema = z.string().min(2, 'Name must be at least 2 characters');
+
+type AuthView = 'login' | 'signup' | 'forgot-password';
 
 interface AuthDialogProps {
   open: boolean;
@@ -26,7 +28,7 @@ interface AuthDialogProps {
 }
 
 const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [view, setView] = useState<AuthView>('login');
   const [userType, setUserType] = useState<'individual' | 'firm'>('individual');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,7 +36,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string }>({});
   
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -53,12 +55,14 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
       newErrors.email = emailResult.error.errors[0].message;
     }
     
-    const passwordResult = passwordSchema.safeParse(password);
-    if (!passwordResult.success) {
-      newErrors.password = passwordResult.error.errors[0].message;
+    if (view !== 'forgot-password') {
+      const passwordResult = passwordSchema.safeParse(password);
+      if (!passwordResult.success) {
+        newErrors.password = passwordResult.error.errors[0].message;
+      }
     }
     
-    if (!isLogin) {
+    if (view === 'signup') {
       const nameResult = nameSchema.safeParse(fullName);
       if (!nameResult.success) {
         newErrors.fullName = nameResult.error.errors[0].message;
@@ -77,7 +81,23 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     setIsSubmitting(true);
 
     try {
-      if (isLogin) {
+      if (view === 'forgot-password') {
+        const { error } = await resetPassword(email);
+        if (error) {
+          toast({
+            title: "Reset failed",
+            description: error.message,
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Check your email",
+            description: "We've sent you a password reset link."
+          });
+          setView('login');
+          resetForm();
+        }
+      } else if (view === 'login') {
         const { error } = await signIn(email, password);
         if (error) {
           toast({
@@ -132,9 +152,31 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       resetForm();
-      setIsLogin(true);
+      setView('login');
     }
     onOpenChange(newOpen);
+  };
+
+  const getDialogTitle = () => {
+    switch (view) {
+      case 'login':
+        return 'Welcome Back';
+      case 'signup':
+        return 'Join DEBRIEFED';
+      case 'forgot-password':
+        return 'Reset Password';
+    }
+  };
+
+  const getDialogDescription = () => {
+    switch (view) {
+      case 'login':
+        return 'Sign in to access your dashboard';
+      case 'signup':
+        return 'Create your account to get started';
+      case 'forgot-password':
+        return "Enter your email and we'll send you a reset link";
+    }
   };
 
   return (
@@ -145,17 +187,30 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
             <Scale className="h-10 w-10 text-primary" />
           </div>
           <DialogTitle className="text-2xl text-center">
-            {isLogin ? 'Welcome Back' : 'Join DEBRIEFED'}
+            {getDialogTitle()}
           </DialogTitle>
           <DialogDescription className="text-center">
-            {isLogin 
-              ? 'Sign in to access your dashboard' 
-              : 'Create your account to get started'}
+            {getDialogDescription()}
           </DialogDescription>
         </DialogHeader>
         
         <div className="mt-4">
-          {!isLogin && (
+          {view === 'forgot-password' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mb-4 -ml-2"
+              onClick={() => {
+                setView('login');
+                setErrors({});
+              }}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to login
+            </Button>
+          )}
+
+          {view === 'signup' && (
             <Tabs value={userType} onValueChange={(v) => setUserType(v as 'individual' | 'firm')} className="mb-6">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="individual" className="flex items-center gap-2">
@@ -181,7 +236,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
+            {view === 'signup' && (
               <div className="space-y-2">
                 <Label htmlFor="dialog-fullName">
                   {userType === 'firm' ? 'Firm Name' : 'Full Name'}
@@ -215,20 +270,35 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
               )}
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="dialog-password">Password</Label>
-              <Input
-                id="dialog-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password}</p>
-              )}
-            </div>
+            {view !== 'forgot-password' && (
+              <div className="space-y-2">
+                <Label htmlFor="dialog-password">Password</Label>
+                <Input
+                  id="dialog-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                />
+                {errors.password && (
+                  <p className="text-sm text-destructive">{errors.password}</p>
+                )}
+              </div>
+            )}
+
+            {view === 'login' && (
+              <button
+                type="button"
+                onClick={() => {
+                  setView('forgot-password');
+                  setErrors({});
+                }}
+                className="text-sm text-primary hover:underline"
+              >
+                Forgot your password?
+              </button>
+            )}
             
             <Button 
               type="submit" 
@@ -236,24 +306,33 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
               variant="gold"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
+              {isSubmitting 
+                ? 'Please wait...' 
+                : view === 'login' 
+                  ? 'Sign In' 
+                  : view === 'signup' 
+                    ? 'Create Account' 
+                    : 'Send Reset Link'
+              }
             </Button>
           </form>
           
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setErrors({});
-              }}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {isLogin 
-                ? "Don't have an account? Sign up" 
-                : 'Already have an account? Sign in'}
-            </button>
-          </div>
+          {view !== 'forgot-password' && (
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setView(view === 'login' ? 'signup' : 'login');
+                  setErrors({});
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {view === 'login' 
+                  ? "Don't have an account? Sign up" 
+                  : 'Already have an account? Sign in'}
+              </button>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
