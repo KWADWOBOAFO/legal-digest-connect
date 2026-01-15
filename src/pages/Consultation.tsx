@@ -23,6 +23,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import ReviewDialog from '@/components/review/ReviewDialog';
 import { VideoRoom } from '@/components/video/VideoRoom';
+import { PostConsultationDecision } from '@/components/case/PostConsultationDecision';
 
 interface ConsultationData {
   id: string;
@@ -454,6 +455,17 @@ const Consultation = () => {
                 )}
                 Complete Consultation & Send Notes
               </Button>
+            )}
+
+            {/* Post-Consultation Decision - Only for clients after consultation is completed */}
+            {isCompleted && consultation.user_id === user?.id && consultation.cases && (
+              <PostConsultationDecision
+                consultationId={consultation.id}
+                caseId={consultation.cases.id}
+                firmId={consultation.firm_id}
+                firmName={consultation.law_firms?.firm_name || 'the firm'}
+                onDecisionMade={() => navigate('/dashboard')}
+              />
             )}
 
             {/* Review Button - Only for clients after consultation is completed */}
