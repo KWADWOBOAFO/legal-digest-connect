@@ -31,8 +31,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { FileText, Pencil, Trash2, ArrowRight, Clock, AlertTriangle, Plus, Copy } from "lucide-react";
+import { FileText, Pencil, Trash2, ArrowRight, Clock, AlertTriangle, Plus, Copy, Search, SortAsc } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Draft,
   getDrafts,
@@ -58,12 +64,24 @@ const practiceAreas = [
   "Other",
 ];
 
+type SortOption = "date-desc" | "date-asc" | "title-asc" | "title-desc" | "practice-area";
+
+const sortLabels: Record<SortOption, string> = {
+  "date-desc": "Newest first",
+  "date-asc": "Oldest first",
+  "title-asc": "Title (A-Z)",
+  "title-desc": "Title (Z-A)",
+  "practice-area": "Practice Area",
+};
+
 const DraftCard = () => {
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDraft, setSelectedDraft] = useState<Draft | null>(null);
   const [editedDraft, setEditedDraft] = useState<Partial<Draft>>({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("date-desc");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -160,6 +178,37 @@ const DraftCard = () => {
     return area || value;
   };
 
+  // Filter drafts based on search query
+  const filteredDrafts = drafts.filter((draft) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      draft.title.toLowerCase().includes(query) ||
+      draft.description.toLowerCase().includes(query) ||
+      getPracticeAreaLabel(draft.practiceArea).toLowerCase().includes(query)
+    );
+  });
+
+  // Sort filtered drafts
+  const sortedDrafts = [...filteredDrafts].sort((a, b) => {
+    switch (sortBy) {
+      case "date-desc":
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      case "date-asc":
+        return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
+      case "title-asc":
+        return (a.title || "Untitled").localeCompare(b.title || "Untitled");
+      case "title-desc":
+        return (b.title || "Untitled").localeCompare(a.title || "Untitled");
+      case "practice-area":
+        return getPracticeAreaLabel(a.practiceArea).localeCompare(
+          getPracticeAreaLabel(b.practiceArea)
+        );
+      default:
+        return 0;
+    }
+  });
+
   if (drafts.length === 0) {
     return (
       <Card className="border-dashed">
@@ -185,8 +234,59 @@ const DraftCard = () => {
 
   return (
     <>
+      {/* Search and Sort Controls */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search drafts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="shrink-0">
+              <SortAsc className="h-4 w-4 mr-2" />
+              {sortLabels[sortBy]}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background">
+            {(Object.keys(sortLabels) as SortOption[]).map((option) => (
+              <DropdownMenuItem
+                key={option}
+                onClick={() => setSortBy(option)}
+                className={sortBy === option ? "bg-accent" : ""}
+              >
+                {sortLabels[option]}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Empty state for search */}
+      {sortedDrafts.length === 0 && searchQuery && (
+        <Card className="border-dashed">
+          <CardContent className="py-8 text-center">
+            <Search className="h-10 w-10 mx-auto mb-3 text-muted-foreground/50" />
+            <p className="text-muted-foreground text-sm">No drafts match "{searchQuery}"</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-2"
+              onClick={() => setSearchQuery("")}
+            >
+              Clear search
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Drafts list */}
       <div className="space-y-4">
-        {drafts.map((draft) => {
+        {sortedDrafts.map((draft) => {
           const isExpiring = isDraftExpiring(draft);
           const ageInDays = getDraftAge(draft);
 
