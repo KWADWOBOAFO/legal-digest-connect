@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, Clock, CheckCircle, Scale, AlertCircle } from "lucide-react";
@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
 
 const DRAFT_STORAGE_KEY = "legal-matter-draft";
 
@@ -39,7 +40,11 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 type FormErrors = Partial<Record<keyof FormData, string>>;
 
-const CTASection = () => {
+export interface CTASectionRef {
+  openDialog: () => void;
+}
+
+const CTASection = forwardRef<CTASectionRef>((_, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     title: "",
@@ -49,6 +54,11 @@ const CTASection = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof FormData, boolean>>>({});
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useImperativeHandle(ref, () => ({
+    openDialog: () => setIsOpen(true),
+  }));
 
   const practiceAreas = [
     "Family Law",
@@ -69,12 +79,18 @@ const CTASection = () => {
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
-        setFormData(parsed);
+        if (parsed.title || parsed.description || parsed.practiceArea) {
+          setFormData(parsed);
+          toast({
+            title: "Draft restored",
+            description: "Your previous case submission has been recovered.",
+          });
+        }
       } catch (e) {
         console.error("Failed to parse saved draft");
       }
     }
-  }, []);
+  }, [toast]);
 
   // Save draft to localStorage when form changes
   useEffect(() => {
@@ -324,6 +340,8 @@ const CTASection = () => {
       </Dialog>
     </>
   );
-};
+});
+
+CTASection.displayName = "CTASection";
 
 export default CTASection;
