@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, Clock, CheckCircle, Scale, AlertCircle } from "lucide-react";
@@ -22,8 +22,7 @@ import {
 } from "@/components/ui/select";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-
-const DRAFT_STORAGE_KEY = "legal-matter-draft";
+import { saveDraft, getDrafts, migrateOldDraft } from "@/lib/draftUtils";
 
 const formSchema = z.object({
   title: z
@@ -53,8 +52,10 @@ const CTASection = forwardRef<CTASectionRef>((_, ref) => {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof FormData, boolean>>>({});
+  const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useImperativeHandle(ref, () => ({
     openDialog: () => setIsOpen(true),
@@ -73,31 +74,36 @@ const CTASection = forwardRef<CTASectionRef>((_, ref) => {
     "Other",
   ];
 
-  // Load draft from localStorage on mount
+  // Migrate old draft format on mount
   useEffect(() => {
-    const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
-    if (savedDraft) {
-      try {
-        const parsed = JSON.parse(savedDraft);
-        if (parsed.title || parsed.description || parsed.practiceArea) {
-          setFormData(parsed);
-          toast({
-            title: "Draft restored",
-            description: "Your previous case submission has been recovered.",
-          });
-        }
-      } catch (e) {
-        console.error("Failed to parse saved draft");
-      }
-    }
-  }, [toast]);
+    migrateOldDraft();
+  }, []);
 
-  // Save draft to localStorage when form changes
+  // Auto-save draft with debounce
   useEffect(() => {
     if (formData.title || formData.description || formData.practiceArea) {
-      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formData));
+      if (autoSaveTimeout.current) {
+        clearTimeout(autoSaveTimeout.current);
+      }
+      
+      autoSaveTimeout.current = setTimeout(() => {
+        if (!currentDraftId) {
+          const newDraft = saveDraft({
+            title: formData.title,
+            description: formData.description,
+            practiceArea: formData.practiceArea,
+          });
+          setCurrentDraftId(newDraft.id);
+        }
+      }, 2000); // Auto-save after 2 seconds of inactivity
     }
-  }, [formData]);
+    
+    return () => {
+      if (autoSaveTimeout.current) {
+        clearTimeout(autoSaveTimeout.current);
+      }
+    };
+  }, [formData, currentDraftId]);
 
   const validateField = (field: keyof FormData, value: string): string | undefined => {
     try {
@@ -144,25 +150,29 @@ const CTASection = forwardRef<CTASectionRef>((_, ref) => {
   const handleSubmit = () => {
     if (!validateForm()) return;
     
-    // Clear draft on successful submission
-    localStorage.removeItem(DRAFT_STORAGE_KEY);
-    
     navigate("/submit-case", { 
       state: { 
-        prefill: formData 
+        prefill: formData,
+        draftId: currentDraftId,
       } 
     });
     setIsOpen(false);
+    // Reset form for next time
+    setFormData({ title: "", description: "", practiceArea: "" });
+    setCurrentDraftId(null);
+    setErrors({});
+    setTouched({});
   };
 
-  const handleClearDraft = () => {
-    localStorage.removeItem(DRAFT_STORAGE_KEY);
+  const handleClearForm = () => {
     setFormData({ title: "", description: "", practiceArea: "" });
+    setCurrentDraftId(null);
     setErrors({});
     setTouched({});
   };
 
   const hasDraft = formData.title || formData.description || formData.practiceArea;
+  const draftCount = getDrafts().length;
 
   return (
     <>
@@ -320,8 +330,8 @@ const CTASection = forwardRef<CTASectionRef>((_, ref) => {
           <DialogFooter className="flex-col sm:flex-row gap-2">
             <div className="flex gap-2 w-full sm:w-auto">
               {hasDraft && (
-                <Button variant="ghost" size="sm" onClick={handleClearDraft} className="text-muted-foreground">
-                  Clear Draft
+                <Button variant="ghost" size="sm" onClick={handleClearForm} className="text-muted-foreground">
+                  Clear Form
                 </Button>
               )}
               <Button variant="outline" onClick={() => setIsOpen(false)}>

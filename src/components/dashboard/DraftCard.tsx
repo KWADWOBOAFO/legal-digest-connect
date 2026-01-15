@@ -21,17 +21,27 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { FileText, Pencil, Trash2, ArrowRight, Clock } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { FileText, Pencil, Trash2, ArrowRight, Clock, AlertTriangle, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-const DRAFT_STORAGE_KEY = "legal-matter-draft";
-
-interface DraftData {
-  title: string;
-  description: string;
-  practiceArea: string;
-  savedAt?: string;
-}
+import {
+  Draft,
+  getDrafts,
+  updateDraft,
+  deleteDraft,
+  isDraftExpiring,
+  getDraftAge,
+  migrateOldDraft,
+} from "@/lib/draftUtils";
 
 const practiceAreas = [
   "Family Law",
@@ -47,68 +57,75 @@ const practiceAreas = [
 ];
 
 const DraftCard = () => {
-  const [draft, setDraft] = useState<DraftData | null>(null);
+  const [drafts, setDrafts] = useState<Draft[]>([]);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editedDraft, setEditedDraft] = useState<DraftData>({
-    title: "",
-    description: "",
-    practiceArea: "",
-  });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedDraft, setSelectedDraft] = useState<Draft | null>(null);
+  const [editedDraft, setEditedDraft] = useState<Partial<Draft>>({});
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    loadDraft();
+    // Migrate old single draft format
+    migrateOldDraft();
+    loadDrafts();
   }, []);
 
-  const loadDraft = () => {
-    const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
-    if (savedDraft) {
-      try {
-        const parsed = JSON.parse(savedDraft);
-        if (parsed.title || parsed.description || parsed.practiceArea) {
-          setDraft(parsed);
-        }
-      } catch (e) {
-        console.error("Failed to parse saved draft");
-      }
-    }
+  const loadDrafts = () => {
+    setDrafts(getDrafts());
   };
 
-  const handleEdit = () => {
-    if (draft) {
-      setEditedDraft(draft);
-      setIsEditDialogOpen(true);
-    }
+  const handleEdit = (draft: Draft) => {
+    setSelectedDraft(draft);
+    setEditedDraft(draft);
+    setIsEditDialogOpen(true);
   };
 
   const handleSaveEdit = () => {
-    const updatedDraft = {
-      ...editedDraft,
-      savedAt: new Date().toISOString(),
-    };
-    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(updatedDraft));
-    setDraft(updatedDraft);
+    if (!selectedDraft) return;
+    
+    updateDraft(selectedDraft.id, {
+      title: editedDraft.title,
+      description: editedDraft.description,
+      practiceArea: editedDraft.practiceArea,
+    });
+    
+    loadDrafts();
     setIsEditDialogOpen(false);
+    setSelectedDraft(null);
     toast({
       title: "Draft updated",
       description: "Your changes have been saved.",
     });
   };
 
-  const handleDelete = () => {
-    localStorage.removeItem(DRAFT_STORAGE_KEY);
-    setDraft(null);
+  const handleDeleteClick = (draft: Draft) => {
+    setSelectedDraft(draft);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!selectedDraft) return;
+    
+    deleteDraft(selectedDraft.id);
+    loadDrafts();
+    setDeleteDialogOpen(false);
+    setSelectedDraft(null);
     toast({
       title: "Draft deleted",
       description: "Your draft has been removed.",
     });
   };
 
-  const handleContinueToSubmission = () => {
+  const handleContinueToSubmission = (draft: Draft) => {
     navigate("/submit-case", {
       state: {
-        prefill: draft,
+        prefill: {
+          title: draft.title,
+          description: draft.description,
+          practiceArea: draft.practiceArea,
+        },
+        draftId: draft.id,
       },
     });
   };
@@ -120,7 +137,7 @@ const DraftCard = () => {
     return area || value;
   };
 
-  if (!draft) {
+  if (drafts.length === 0) {
     return (
       <Card className="border-dashed">
         <CardContent className="py-8 text-center">
@@ -129,6 +146,15 @@ const DraftCard = () => {
           <p className="text-muted-foreground text-xs mt-1">
             Start a case submission and your progress will be saved automatically
           </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-4"
+            onClick={() => navigate("/submit-case")}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Start New Case
+          </Button>
         </CardContent>
       </Card>
     );
@@ -136,69 +162,111 @@ const DraftCard = () => {
 
   return (
     <>
-      <Card className="animate-fade-in border-accent/20 bg-accent/5">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-accent/20 rounded-lg">
-                <FileText className="h-4 w-4 text-accent" />
-              </div>
-              <div>
-                <CardTitle className="text-base">
-                  {draft.title || "Untitled Draft"}
-                </CardTitle>
-                <CardDescription className="text-xs flex items-center gap-1 mt-1">
-                  <Clock className="h-3 w-3" />
-                  {draft.savedAt
-                    ? `Last edited ${new Date(draft.savedAt).toLocaleDateString()}`
-                    : "Auto-saved"}
-                </CardDescription>
-              </div>
-            </div>
-            <Badge variant="secondary" className="text-xs">
-              Draft
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {draft.practiceArea && (
-            <Badge variant="outline" className="text-xs">
-              {getPracticeAreaLabel(draft.practiceArea)}
-            </Badge>
-          )}
-          {draft.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {draft.description}
-            </p>
-          )}
-          <div className="flex items-center gap-2 pt-2">
-            <Button
-              variant="gold"
-              size="sm"
-              onClick={handleContinueToSubmission}
-              className="flex-1"
+      <div className="space-y-4">
+        {drafts.map((draft) => {
+          const isExpiring = isDraftExpiring(draft);
+          const ageInDays = getDraftAge(draft);
+
+          return (
+            <Card
+              key={draft.id}
+              className={`animate-fade-in transition-all ${
+                isExpiring
+                  ? "border-destructive/50 bg-destructive/5"
+                  : "border-accent/20 bg-accent/5"
+              }`}
             >
-              Continue Submission
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleEdit}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleDelete}
-              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div
+                      className={`p-2 rounded-lg shrink-0 ${
+                        isExpiring ? "bg-destructive/20" : "bg-accent/20"
+                      }`}
+                    >
+                      {isExpiring ? (
+                        <AlertTriangle className="h-4 w-4 text-destructive" />
+                      ) : (
+                        <FileText className="h-4 w-4 text-accent" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <CardTitle className="text-base truncate">
+                        {draft.title || "Untitled Draft"}
+                      </CardTitle>
+                      <CardDescription className="text-xs flex items-center gap-1 mt-1">
+                        <Clock className="h-3 w-3 shrink-0" />
+                        Last edited {new Date(draft.updatedAt).toLocaleDateString()}
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {isExpiring && (
+                      <Badge variant="destructive" className="text-xs">
+                        Expires soon
+                      </Badge>
+                    )}
+                    <Badge variant="secondary" className="text-xs">
+                      Draft
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {isExpiring && (
+                  <div className="flex items-start gap-2 p-3 bg-destructive/10 rounded-lg text-sm">
+                    <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-destructive">
+                        This draft is {ageInDays} days old
+                      </p>
+                      <p className="text-muted-foreground text-xs mt-1">
+                        Drafts older than 30 days may be automatically removed. Continue your
+                        submission to preserve your work.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {draft.practiceArea && (
+                  <Badge variant="outline" className="text-xs">
+                    {getPracticeAreaLabel(draft.practiceArea)}
+                  </Badge>
+                )}
+                
+                {draft.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {draft.description}
+                  </p>
+                )}
+                
+                <div className="flex items-center gap-2 pt-2">
+                  <Button
+                    variant="gold"
+                    size="sm"
+                    onClick={() => handleContinueToSubmission(draft)}
+                    className="flex-1"
+                  >
+                    Continue Submission
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(draft)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteClick(draft)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -215,7 +283,7 @@ const DraftCard = () => {
               <Label htmlFor="edit-title">Title</Label>
               <Input
                 id="edit-title"
-                value={editedDraft.title}
+                value={editedDraft.title || ""}
                 onChange={(e) =>
                   setEditedDraft({ ...editedDraft, title: e.target.value })
                 }
@@ -226,7 +294,7 @@ const DraftCard = () => {
             <div className="space-y-2">
               <Label htmlFor="edit-practice-area">Practice Area</Label>
               <Select
-                value={editedDraft.practiceArea}
+                value={editedDraft.practiceArea || ""}
                 onValueChange={(value) =>
                   setEditedDraft({ ...editedDraft, practiceArea: value })
                 }
@@ -251,7 +319,7 @@ const DraftCard = () => {
               <Label htmlFor="edit-description">Description</Label>
               <Textarea
                 id="edit-description"
-                value={editedDraft.description}
+                value={editedDraft.description || ""}
                 onChange={(e) =>
                   setEditedDraft({ ...editedDraft, description: e.target.value })
                 }
@@ -271,6 +339,28 @@ const DraftCard = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Draft?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{selectedDraft?.title || "Untitled Draft"}"?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
