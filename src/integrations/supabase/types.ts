@@ -247,6 +247,108 @@ export type Database = {
           },
         ]
       }
+      document_annotations: {
+        Row: {
+          annotation_data: Json
+          annotation_type: string
+          color: string | null
+          created_at: string
+          created_by: string
+          document_id: string
+          id: string
+          page_number: number
+          updated_at: string
+        }
+        Insert: {
+          annotation_data: Json
+          annotation_type: string
+          color?: string | null
+          created_at?: string
+          created_by: string
+          document_id: string
+          id?: string
+          page_number?: number
+          updated_at?: string
+        }
+        Update: {
+          annotation_data?: Json
+          annotation_type?: string
+          color?: string | null
+          created_at?: string
+          created_by?: string
+          document_id?: string
+          id?: string
+          page_number?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_annotations_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "shared_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_comments: {
+        Row: {
+          annotation_id: string | null
+          content: string
+          created_at: string
+          created_by: string
+          document_id: string
+          id: string
+          is_resolved: boolean
+          parent_comment_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          annotation_id?: string | null
+          content: string
+          created_at?: string
+          created_by: string
+          document_id: string
+          id?: string
+          is_resolved?: boolean
+          parent_comment_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          annotation_id?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string
+          document_id?: string
+          id?: string
+          is_resolved?: boolean
+          parent_comment_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_comments_annotation_id_fkey"
+            columns: ["annotation_id"]
+            isOneToOne: false
+            referencedRelation: "document_annotations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_comments_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "shared_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "document_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_firm_shares: {
         Row: {
           document_id: string
@@ -282,6 +384,47 @@ export type Database = {
             columns: ["firm_id"]
             isOneToOne: false
             referencedRelation: "law_firms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_versions: {
+        Row: {
+          document_id: string
+          file_path: string
+          file_size: number | null
+          id: string
+          is_current: boolean
+          uploaded_at: string
+          uploaded_by: string
+          version_number: number
+        }
+        Insert: {
+          document_id: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          is_current?: boolean
+          uploaded_at?: string
+          uploaded_by: string
+          version_number?: number
+        }
+        Update: {
+          document_id?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          is_current?: boolean
+          uploaded_at?: string
+          uploaded_by?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "shared_documents"
             referencedColumns: ["id"]
           },
         ]
@@ -602,6 +745,7 @@ export type Database = {
           category: string | null
           conversation_id: string | null
           created_at: string
+          display_order: number | null
           file_name: string
           file_path: string
           file_size: number | null
@@ -618,6 +762,7 @@ export type Database = {
           category?: string | null
           conversation_id?: string | null
           created_at?: string
+          display_order?: number | null
           file_name: string
           file_path: string
           file_size?: number | null
@@ -634,6 +779,7 @@ export type Database = {
           category?: string | null
           conversation_id?: string | null
           created_at?: string
+          display_order?: number | null
           file_name?: string
           file_path?: string
           file_size?: number | null
