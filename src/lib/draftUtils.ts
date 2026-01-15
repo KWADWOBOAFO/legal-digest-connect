@@ -1,4 +1,6 @@
 const DRAFTS_STORAGE_KEY = "legal-matter-drafts";
+const CLEANUP_KEY = "drafts-last-cleanup";
+const EXPIRY_DAYS = 60;
 
 export interface Draft {
   id: string;
@@ -65,6 +67,27 @@ export const getDraftById = (id: string): Draft | null => {
   return drafts.find((d) => d.id === id) || null;
 };
 
+export const duplicateDraft = (id: string): Draft | null => {
+  const original = getDraftById(id);
+  if (!original) return null;
+
+  const duplicated: Draft = {
+    id: generateDraftId(),
+    title: `${original.title} (Copy)`,
+    description: original.description,
+    practiceArea: original.practiceArea,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  const drafts = getDrafts();
+  const originalIndex = drafts.findIndex((d) => d.id === id);
+  // Insert after the original
+  drafts.splice(originalIndex + 1, 0, duplicated);
+  localStorage.setItem(DRAFTS_STORAGE_KEY, JSON.stringify(drafts));
+  return duplicated;
+};
+
 export const isDraftExpiring = (draft: Draft, daysThreshold = 30): boolean => {
   const updatedAt = new Date(draft.updatedAt);
   const now = new Date();
@@ -85,6 +108,42 @@ export const hasDrafts = (): boolean => {
 export const getMostRecentDraft = (): Draft | null => {
   const drafts = getDrafts();
   return drafts.length > 0 ? drafts[0] : null;
+};
+
+// Cleanup expired drafts older than 60 days
+export const cleanupExpiredDrafts = (): number => {
+  const drafts = getDrafts();
+  const now = new Date();
+  
+  const validDrafts = drafts.filter((draft) => {
+    const updatedAt = new Date(draft.updatedAt);
+    const diffInDays = Math.floor((now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60 * 24));
+    return diffInDays < EXPIRY_DAYS;
+  });
+
+  const removedCount = drafts.length - validDrafts.length;
+  
+  if (removedCount > 0) {
+    localStorage.setItem(DRAFTS_STORAGE_KEY, JSON.stringify(validDrafts));
+  }
+  
+  return removedCount;
+};
+
+// Run cleanup once per day
+export const runStartupCleanup = (): { cleaned: boolean; removedCount: number } => {
+  const lastCleanup = localStorage.getItem(CLEANUP_KEY);
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+
+  if (lastCleanup === today) {
+    return { cleaned: false, removedCount: 0 };
+  }
+
+  const removedCount = cleanupExpiredDrafts();
+  localStorage.setItem(CLEANUP_KEY, today);
+  
+  return { cleaned: true, removedCount };
 };
 
 // Migration function for old single-draft format
