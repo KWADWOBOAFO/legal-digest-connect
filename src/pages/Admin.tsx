@@ -135,6 +135,9 @@ const Admin = () => {
 
   const handleVerifyFirm = async (firmId: string) => {
     try {
+      const firm = firms.find(f => f.id === firmId);
+      if (!firm) return;
+
       const { error } = await supabase
         .from('law_firms')
         .update({ is_verified: true })
@@ -142,9 +145,28 @@ const Admin = () => {
 
       if (error) throw error;
 
+      // Send verification email
+      const profile = profiles[firm.user_id];
+      if (profile?.email) {
+        try {
+          await supabase.functions.invoke('send-notification-email', {
+            body: {
+              type: 'firm_verified',
+              recipientEmail: profile.email,
+              recipientName: profile.full_name || 'Law Firm Representative',
+              data: {
+                firmName: firm.firm_name
+              }
+            }
+          });
+        } catch (emailError) {
+          console.error('Failed to send verification email:', emailError);
+        }
+      }
+
       toast({
         title: "Firm verified",
-        description: "The law firm has been successfully verified."
+        description: "The law firm has been successfully verified and notified via email."
       });
 
       setFirms(firms.map(f => f.id === firmId ? { ...f, is_verified: true } : f));
@@ -162,8 +184,6 @@ const Admin = () => {
     if (!selectedFirm) return;
     
     try {
-      // For now, we just unverify them. In a full implementation,
-      // you might want to store the rejection reason and notify the firm.
       const { error } = await supabase
         .from('law_firms')
         .update({ is_verified: false })
@@ -171,9 +191,29 @@ const Admin = () => {
 
       if (error) throw error;
 
+      // Send rejection email
+      const profile = profiles[selectedFirm.user_id];
+      if (profile?.email) {
+        try {
+          await supabase.functions.invoke('send-notification-email', {
+            body: {
+              type: 'firm_rejected',
+              recipientEmail: profile.email,
+              recipientName: profile.full_name || 'Law Firm Representative',
+              data: {
+                firmName: selectedFirm.firm_name,
+                rejectionReason: rejectReason || undefined
+              }
+            }
+          });
+        } catch (emailError) {
+          console.error('Failed to send rejection email:', emailError);
+        }
+      }
+
       toast({
         title: "Firm rejected",
-        description: "The verification has been denied."
+        description: "The verification has been denied and the firm has been notified."
       });
 
       setFirms(firms.map(f => f.id === selectedFirm.id ? { ...f, is_verified: false } : f));
