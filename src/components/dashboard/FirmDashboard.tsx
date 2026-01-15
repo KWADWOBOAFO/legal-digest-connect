@@ -24,6 +24,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import FirmOnboarding from './FirmOnboarding';
 import CaseCard from './CaseCard';
+import NotificationBell from '@/components/layout/NotificationBell';
 
 interface Case {
   id: string;
@@ -253,6 +254,7 @@ const FirmDashboard = () => {
             <span className="text-sm text-muted-foreground">
               {lawFirm.firm_name}
             </span>
+            <NotificationBell />
             <Button variant="ghost" size="sm" onClick={() => navigate('/firm-settings')}>
               <Settings className="h-4 w-4" />
             </Button>
