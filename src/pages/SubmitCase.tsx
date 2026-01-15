@@ -145,7 +145,14 @@ const SubmitCase = () => {
     
     setIsSubmitting(true);
     try {
-      const { error } = await supabase
+      // Get user's location for firm notifications
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('latitude, longitude, location')
+        .eq('user_id', user.id)
+        .single();
+
+      const { data: newCase, error } = await supabase
         .from('cases')
         .insert({
           user_id: user.id,
@@ -160,9 +167,37 @@ const SubmitCase = () => {
           budget_range: budgetRange,
           status: 'pending',
           documents_url: uploadedDocuments.map(d => d.path)
-        });
+        })
+        .select('id')
+        .single();
 
       if (error) throw error;
+
+      // Notify matching law firms via edge function
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/notify-matching-firms`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session?.access_token}`,
+            },
+            body: JSON.stringify({
+              caseId: newCase?.id,
+              caseTitle: title,
+              practiceArea: analysis.primaryPracticeArea,
+              userLatitude: userProfile?.latitude,
+              userLongitude: userProfile?.longitude,
+              userCity: userProfile?.location
+            }),
+          }
+        );
+      } catch (notifyError) {
+        console.error('Error notifying firms:', notifyError);
+        // Don't fail the submission if notifications fail
+      }
 
       toast({
         title: "Case submitted successfully!",
