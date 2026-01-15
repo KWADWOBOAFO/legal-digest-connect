@@ -1,35 +1,45 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   FileText, 
-  File, 
-  FileImage, 
   Download,
-  ExternalLink,
   Lock,
   Folder,
   Share2,
   Eye,
   Grid,
-  List
+  List,
+  GripVertical,
+  CheckSquare,
+  History,
+  MessageSquare,
+  Edit3,
+  Tag
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { DocumentPreviewModal } from '@/components/documents/DocumentPreviewModal';
 import { DocumentThumbnail } from '@/components/documents/DocumentThumbnail';
 import { DocumentSharingControls } from '@/components/documents/DocumentSharingControls';
 import { getCategoryBadge, type DocumentCategory, documentCategories } from '@/components/documents/DocumentCategorySelect';
+import { DraggableDocumentList, type DraggableDocument } from '@/components/documents/DraggableDocumentList';
+import { BulkCategoryAssignment } from '@/components/documents/BulkCategoryAssignment';
+import { DocumentVersionHistory } from '@/components/documents/DocumentVersionHistory';
+import { DocumentAnnotator } from '@/components/documents/DocumentAnnotator';
+import { DocumentComments } from '@/components/documents/DocumentComments';
 
-interface CaseDocument {
+interface SharedDocument {
+  id: string;
   name: string;
   path: string;
   size?: number;
   type?: string;
   category?: DocumentCategory;
+  display_order?: number;
 }
 
 interface CaseDocumentsViewerProps {
@@ -46,55 +56,99 @@ export function CaseDocumentsViewer({
   isFirm = false 
 }: CaseDocumentsViewerProps) {
   const { toast } = useToast();
-  const [documents, setDocuments] = useState<CaseDocument[]>([]);
+  const [documents, setDocuments] = useState<SharedDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'reorder'>('grid');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   
+  // Selection state for bulk operations
+  const [selectedDocIds, setSelectedDocIds] = useState<Set<string>>(new Set());
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  
   // Preview modal state
-  const [previewDocument, setPreviewDocument] = useState<CaseDocument | null>(null);
+  const [previewDocument, setPreviewDocument] = useState<SharedDocument | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   
   // Sharing modal state
   const [sharingDocument, setSharingDocument] = useState<{ id: string; name: string } | null>(null);
   const [isSharingOpen, setIsSharingOpen] = useState(false);
+  
+  // Version history modal state
+  const [versionDocument, setVersionDocument] = useState<SharedDocument | null>(null);
+  const [isVersionOpen, setIsVersionOpen] = useState(false);
+  
+  // Annotation modal state
+  const [annotateDocument, setAnnotateDocument] = useState<SharedDocument | null>(null);
+  const [isAnnotateOpen, setIsAnnotateOpen] = useState(false);
+  
+  // Comments panel state
+  const [commentsDocument, setCommentsDocument] = useState<SharedDocument | null>(null);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+
+  // Load documents from shared_documents table or fallback to paths
+  const loadDocuments = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // Try to fetch from shared_documents table first
+      const { data: sharedDocs, error } = await supabase
+        .from('shared_documents')
+        .select('*')
+        .eq('case_id', caseId)
+        .order('display_order', { ascending: true, nullsFirst: false });
+      
+      if (!error && sharedDocs && sharedDocs.length > 0) {
+        const docs: SharedDocument[] = sharedDocs.map(doc => ({
+          id: doc.id,
+          name: doc.file_name,
+          path: doc.file_path,
+          size: doc.file_size || undefined,
+          type: doc.mime_type || 'application/octet-stream',
+          category: (doc.category as DocumentCategory) || 'general',
+          display_order: doc.display_order || undefined
+        }));
+        setDocuments(docs);
+      } else if (documentPaths && documentPaths.length > 0) {
+        // Fallback to documentPaths if no shared_documents records
+        const docs = documentPaths.map((path, idx) => {
+          const fileName = path.split('/').pop() || path;
+          const cleanName = fileName.replace(/^\d+_/, '');
+          const extension = cleanName.split('.').pop()?.toLowerCase() || '';
+          
+          let type = 'application/octet-stream';
+          if (['pdf'].includes(extension)) type = 'application/pdf';
+          else if (['jpg', 'jpeg'].includes(extension)) type = 'image/jpeg';
+          else if (['png'].includes(extension)) type = 'image/png';
+          else if (['doc', 'docx'].includes(extension)) type = 'application/msword';
+          else if (['txt'].includes(extension)) type = 'text/plain';
+          
+          return {
+            id: `legacy-${idx}`,
+            name: cleanName,
+            path,
+            type,
+            category: 'general' as DocumentCategory,
+            display_order: idx
+          };
+        });
+        setDocuments(docs);
+      }
+    } catch (error) {
+      console.error('Error loading documents:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [caseId, documentPaths]);
 
   useEffect(() => {
-    if (documentPaths && documentPaths.length > 0) {
-      const docs = documentPaths.map(path => {
-        const fileName = path.split('/').pop() || path;
-        // Remove timestamp prefix if present (e.g., "1234567890_filename.pdf" -> "filename.pdf")
-        const cleanName = fileName.replace(/^\d+_/, '');
-        const extension = cleanName.split('.').pop()?.toLowerCase() || '';
-        
-        let type = 'application/octet-stream';
-        if (['pdf'].includes(extension)) type = 'application/pdf';
-        else if (['jpg', 'jpeg'].includes(extension)) type = 'image/jpeg';
-        else if (['png'].includes(extension)) type = 'image/png';
-        else if (['doc', 'docx'].includes(extension)) type = 'application/msword';
-        else if (['txt'].includes(extension)) type = 'text/plain';
-        
-        // Try to extract category from path or default to general
-        const category: DocumentCategory = 'general';
-        
-        return {
-          name: cleanName,
-          path,
-          type,
-          category
-        };
-      });
-      setDocuments(docs);
-    }
-    setIsLoading(false);
-  }, [documentPaths]);
+    loadDocuments();
+  }, [loadDocuments]);
 
-  const handlePreview = (doc: CaseDocument) => {
+  const handlePreview = (doc: SharedDocument) => {
     setPreviewDocument(doc);
     setIsPreviewOpen(true);
   };
 
-  const handleDownload = async (document: CaseDocument) => {
+  const handleDownload = async (document: SharedDocument) => {
     try {
       const { data, error } = await supabase.storage
         .from('case-documents')
@@ -125,11 +179,104 @@ export function CaseDocumentsViewer({
     }
   };
 
-  const handleShare = (doc: CaseDocument) => {
-    // Generate a temporary ID for the document based on path
-    setSharingDocument({ id: doc.path, name: doc.name });
+  const handleShare = (doc: SharedDocument) => {
+    setSharingDocument({ id: doc.id, name: doc.name });
     setIsSharingOpen(true);
   };
+
+  const handleVersionHistory = (doc: SharedDocument) => {
+    setVersionDocument(doc);
+    setIsVersionOpen(true);
+  };
+
+  const handleAnnotate = (doc: SharedDocument) => {
+    setAnnotateDocument(doc);
+    setIsAnnotateOpen(true);
+  };
+
+  const handleComments = (doc: SharedDocument) => {
+    setCommentsDocument(doc);
+    setIsCommentsOpen(true);
+  };
+
+  const handleReorder = async (reorderedDocs: DraggableDocument[]) => {
+    // Convert back to SharedDocument format
+    const updatedDocs: SharedDocument[] = reorderedDocs.map(doc => ({
+      id: doc.id,
+      name: doc.name,
+      path: doc.path,
+      type: doc.type,
+      category: doc.category,
+      display_order: doc.displayOrder
+    }));
+    
+    setDocuments(updatedDocs);
+    
+    // Update display_order in database
+    for (let i = 0; i < reorderedDocs.length; i++) {
+      const doc = reorderedDocs[i];
+      if (!doc.id.startsWith('legacy-')) {
+        await supabase
+          .from('shared_documents')
+          .update({ display_order: i })
+          .eq('id', doc.id);
+      }
+    }
+    
+    toast({
+      title: "Order saved",
+      description: "Document order has been updated"
+    });
+  };
+
+  const handleBulkCategoryAssign = async (category: DocumentCategory) => {
+    // Update documents in state
+    setDocuments(prev => 
+      prev.map(doc => 
+        selectedDocIds.has(doc.id) ? { ...doc, category } : doc
+      )
+    );
+    
+    // Update in database
+    for (const docId of Array.from(selectedDocIds)) {
+      if (!docId.startsWith('legacy-')) {
+        await supabase
+          .from('shared_documents')
+          .update({ category })
+          .eq('id', docId);
+      }
+    }
+    
+    setSelectedDocIds(new Set());
+    setIsBulkModalOpen(false);
+    
+    toast({
+      title: "Categories updated",
+      description: `Updated ${selectedDocIds.size} document(s)`
+    });
+  };
+
+  const toggleDocSelection = (docId: string) => {
+    setSelectedDocIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(docId)) {
+        newSet.delete(docId);
+      } else {
+        newSet.add(docId);
+      }
+      return newSet;
+    });
+  };
+
+  // Convert SharedDocument to DraggableDocument for the draggable list
+  const toDraggableDocument = (doc: SharedDocument): DraggableDocument => ({
+    id: doc.id,
+    name: doc.name,
+    path: doc.path,
+    type: doc.type,
+    category: doc.category,
+    displayOrder: doc.display_order || 0
+  });
 
   const filteredDocuments = selectedCategory === 'all' 
     ? documents 
@@ -187,7 +334,7 @@ export function CaseDocumentsViewer({
     <>
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Folder className="h-5 w-5" />
@@ -206,6 +353,26 @@ export function CaseDocumentsViewer({
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              {isOwner && selectedDocIds.size > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsBulkModalOpen(true)}
+                >
+                  <Tag className="h-4 w-4 mr-1" />
+                  Assign Category ({selectedDocIds.size})
+                </Button>
+              )}
+              {isOwner && (
+                <Button
+                  variant={viewMode === 'reorder' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode(viewMode === 'reorder' ? 'grid' : 'reorder')}
+                  title="Reorder documents"
+                >
+                  <GripVertical className="h-4 w-4" />
+                </Button>
+              )}
               <Button
                 variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
                 size="sm"
@@ -240,14 +407,48 @@ export function CaseDocumentsViewer({
             </TabsList>
           </Tabs>
 
-          {/* Grid View */}
-          {viewMode === 'grid' ? (
+          {/* Reorder View */}
+          {viewMode === 'reorder' && isOwner ? (
+            <DraggableDocumentList
+              documents={filteredDocuments.map(toDraggableDocument)}
+              onReorder={handleReorder}
+              selectedIds={selectedDocIds}
+              onSelectionChange={setSelectedDocIds}
+              onPreview={(doc) => handlePreview({ ...doc, display_order: doc.displayOrder })}
+              onDownload={(doc) => handleDownload({ ...doc, display_order: doc.displayOrder })}
+              onShare={isOwner ? (doc) => handleShare({ ...doc, display_order: doc.displayOrder }) : undefined}
+              onVersionHistory={isOwner ? (doc) => handleVersionHistory({ ...doc, display_order: doc.displayOrder }) : undefined}
+              onAnnotate={(isFirm || isOwner) ? (doc) => handleAnnotate({ ...doc, display_order: doc.displayOrder }) : undefined}
+              showActions={true}
+            />
+          ) : viewMode === 'grid' ? (
+            /* Grid View */
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {filteredDocuments.map((doc, idx) => (
+              {filteredDocuments.map((doc) => (
                 <div 
-                  key={idx} 
-                  className="group relative bg-muted/50 rounded-lg border p-3 hover:border-primary/30 transition-colors"
+                  key={doc.id} 
+                  className={`group relative bg-muted/50 rounded-lg border p-3 hover:border-primary/30 transition-colors ${
+                    selectedDocIds.has(doc.id) ? 'ring-2 ring-primary' : ''
+                  }`}
                 >
+                  {isOwner && (
+                    <div 
+                      className="absolute top-2 left-2 z-10 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleDocSelection(doc.id);
+                      }}
+                    >
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                        selectedDocIds.has(doc.id) 
+                          ? 'bg-primary border-primary text-primary-foreground' 
+                          : 'border-muted-foreground/50 hover:border-primary'
+                      }`}>
+                        {selectedDocIds.has(doc.id) && <CheckSquare className="h-3 w-3" />}
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="flex flex-col items-center gap-2">
                     <DocumentThumbnail
                       path={doc.path}
@@ -266,32 +467,66 @@ export function CaseDocumentsViewer({
                   </div>
                   
                   {/* Hover Actions */}
-                  <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded-lg">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handlePreview(doc)}
-                      title="Preview"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleDownload(doc)}
-                      title="Download"
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    {isOwner && (
+                  <div className="absolute inset-0 bg-background/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 rounded-lg p-2">
+                    <div className="flex items-center gap-1">
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => handleShare(doc)}
-                        title="Share"
+                        onClick={() => handlePreview(doc)}
+                        title="Preview"
                       >
-                        <Share2 className="h-4 w-4" />
+                        <Eye className="h-4 w-4" />
                       </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleDownload(doc)}
+                        title="Download"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {(isFirm || isOwner) && !doc.id.startsWith('legacy-') && (
+                        <>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleAnnotate(doc)}
+                            title="Annotate"
+                          >
+                            <Edit3 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleComments(doc)}
+                            title="Comments"
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                    {isOwner && !doc.id.startsWith('legacy-') && (
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleVersionHistory(doc)}
+                          title="Version History"
+                        >
+                          <History className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleShare(doc)}
+                          title="Share"
+                        >
+                          <Share2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -300,12 +535,28 @@ export function CaseDocumentsViewer({
           ) : (
             /* List View */
             <div className="space-y-2">
-              {filteredDocuments.map((doc, idx) => (
+              {filteredDocuments.map((doc) => (
                 <div 
-                  key={idx} 
-                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border hover:border-primary/30 transition-colors"
+                  key={doc.id} 
+                  className={`flex items-center justify-between p-3 bg-muted/50 rounded-lg border hover:border-primary/30 transition-colors ${
+                    selectedDocIds.has(doc.id) ? 'ring-2 ring-primary' : ''
+                  }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
+                    {isOwner && (
+                      <div 
+                        className="cursor-pointer"
+                        onClick={() => toggleDocSelection(doc.id)}
+                      >
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                          selectedDocIds.has(doc.id) 
+                            ? 'bg-primary border-primary text-primary-foreground' 
+                            : 'border-muted-foreground/50 hover:border-primary'
+                        }`}>
+                          {selectedDocIds.has(doc.id) && <CheckSquare className="h-3 w-3" />}
+                        </div>
+                      </div>
+                    )}
                     <DocumentThumbnail
                       path={doc.path}
                       type={doc.type}
@@ -324,12 +575,12 @@ export function CaseDocumentsViewer({
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handlePreview(doc)}
-                      title="Preview document"
+                      title="Preview"
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
@@ -337,19 +588,49 @@ export function CaseDocumentsViewer({
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDownload(doc)}
-                      title="Download document"
+                      title="Download"
                     >
                       <Download className="h-4 w-4" />
                     </Button>
-                    {isOwner && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleShare(doc)}
-                        title="Share document"
-                      >
-                        <Share2 className="h-4 w-4" />
-                      </Button>
+                    {(isFirm || isOwner) && !doc.id.startsWith('legacy-') && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleAnnotate(doc)}
+                          title="Annotate"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleComments(doc)}
+                          title="Comments"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                    {isOwner && !doc.id.startsWith('legacy-') && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleVersionHistory(doc)}
+                          title="Version History"
+                        >
+                          <History className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleShare(doc)}
+                          title="Share"
+                        >
+                          <Share2 className="h-4 w-4" />
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -375,7 +656,11 @@ export function CaseDocumentsViewer({
           setIsPreviewOpen(false);
           setPreviewDocument(null);
         }}
-        document={previewDocument}
+        document={previewDocument ? {
+          name: previewDocument.name,
+          path: previewDocument.path,
+          type: previewDocument.type
+        } : null}
       />
 
       {/* Sharing Controls Modal */}
@@ -389,6 +674,60 @@ export function CaseDocumentsViewer({
           documentId={sharingDocument.id}
           documentName={sharingDocument.name}
           caseId={caseId}
+        />
+      )}
+
+      {/* Bulk Category Assignment Modal */}
+      <BulkCategoryAssignment
+        isOpen={isBulkModalOpen}
+        onClose={() => {
+          setIsBulkModalOpen(false);
+          setSelectedDocIds(new Set());
+        }}
+        selectedCount={selectedDocIds.size}
+        onAssign={handleBulkCategoryAssign}
+      />
+
+      {/* Version History Modal */}
+      {isOwner && versionDocument && !versionDocument.id.startsWith('legacy-') && (
+        <DocumentVersionHistory
+          isOpen={isVersionOpen}
+          onClose={() => {
+            setIsVersionOpen(false);
+            setVersionDocument(null);
+          }}
+          documentId={versionDocument.id}
+          documentName={versionDocument.name}
+          currentPath={versionDocument.path}
+          onVersionChange={loadDocuments}
+        />
+      )}
+
+      {/* Annotation Modal */}
+      {annotateDocument && !annotateDocument.id.startsWith('legacy-') && (
+        <DocumentAnnotator
+          isOpen={isAnnotateOpen}
+          onClose={() => {
+            setIsAnnotateOpen(false);
+            setAnnotateDocument(null);
+          }}
+          documentId={annotateDocument.id}
+          documentName={annotateDocument.name}
+          documentPath={annotateDocument.path}
+          documentType={annotateDocument.type}
+        />
+      )}
+
+      {/* Comments Panel */}
+      {commentsDocument && !commentsDocument.id.startsWith('legacy-') && (
+        <DocumentComments
+          isOpen={isCommentsOpen}
+          onClose={() => {
+            setIsCommentsOpen(false);
+            setCommentsDocument(null);
+          }}
+          documentId={commentsDocument.id}
+          documentName={commentsDocument.name}
         />
       )}
     </>
