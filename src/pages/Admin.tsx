@@ -20,7 +20,8 @@ import {
   ExternalLink,
   Eye,
   FileText,
-  Users
+  Users,
+  BarChart3
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -33,6 +34,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from '@/components/ui/textarea';
 import CaseModerationQueue from '@/components/admin/CaseModerationQueue';
+import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
 
 interface LawFirm {
   id: string;
@@ -298,11 +300,16 @@ const Admin = () => {
         </div>
 
         {/* Tabs and Filters */}
-        <Tabs defaultValue="firms" className="space-y-4">
+        <Tabs defaultValue="analytics" className="space-y-4">
           <TabsList>
+            <TabsTrigger value="analytics">Platform Analytics</TabsTrigger>
             <TabsTrigger value="firms">Law Firms</TabsTrigger>
             <TabsTrigger value="cases">Cases Overview</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="analytics">
+            <AdminAnalytics />
+          </TabsContent>
 
           <TabsContent value="firms" className="space-y-4">
             {/* Search and Filter */}

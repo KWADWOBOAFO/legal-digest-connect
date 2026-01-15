@@ -17,10 +17,12 @@ import {
   Loader2,
   CheckCircle2,
   Send,
-  Star
+  Star,
+  VideoIcon
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ReviewDialog from '@/components/review/ReviewDialog';
+import { VideoRoom } from '@/components/video/VideoRoom';
 
 interface ConsultationData {
   id: string;
@@ -63,6 +65,7 @@ const Consultation = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [showVideoRoom, setShowVideoRoom] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -324,19 +327,29 @@ const Consultation = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {consultation.meeting_url ? (
-                    <Button variant="gold" className="w-full" asChild>
-                      <a href={consultation.meeting_url} target="_blank" rel="noopener noreferrer">
-                        <Video className="h-4 w-4 mr-2" />
-                        Join Video Meeting
-                      </a>
-                    </Button>
+                  {showVideoRoom ? (
+                    <VideoRoom 
+                      roomId={consultation.id} 
+                      onLeave={() => setShowVideoRoom(false)} 
+                    />
                   ) : (
-                    <div className="text-center py-8 bg-muted rounded-lg">
-                      <Video className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-muted-foreground">
-                        Video meeting room will be available when the consultation starts
-                      </p>
+                    <div className="space-y-4">
+                      <Button 
+                        variant="gold" 
+                        className="w-full" 
+                        onClick={() => setShowVideoRoom(true)}
+                      >
+                        <VideoIcon className="h-4 w-4 mr-2" />
+                        Start Video Call
+                      </Button>
+                      {consultation.meeting_url && (
+                        <Button variant="outline" className="w-full" asChild>
+                          <a href={consultation.meeting_url} target="_blank" rel="noopener noreferrer">
+                            <Video className="h-4 w-4 mr-2" />
+                            Join External Meeting
+                          </a>
+                        </Button>
+                      )}
                     </div>
                   )}
                 </CardContent>
