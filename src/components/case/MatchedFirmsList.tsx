@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,8 @@ import { calculateDistance, formatDistance, RADIUS_OPTIONS, DEFAULT_SEARCH_RADIU
 import { ScheduleConsultationDialog } from '@/components/dashboard/ScheduleConsultationDialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFirmRatings } from '@/hooks/useFirmRatings';
+import { FirmRatingDisplay } from '@/components/case/FirmRatingDisplay';
 
 interface LawFirm {
   id: string;
@@ -59,6 +61,10 @@ export function MatchedFirmsList({
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const [selectedFirm, setSelectedFirm] = useState<LawFirm | null>(null);
   const [isScheduling, setIsScheduling] = useState(false);
+
+  // Fetch ratings for all displayed firms
+  const firmIds = useMemo(() => firms.map(f => f.id), [firms]);
+  const { ratings } = useFirmRatings(firmIds);
 
   useEffect(() => {
     fetchMatchingFirms();
@@ -312,7 +318,7 @@ export function MatchedFirmsList({
                       </p>
                     )}
                     
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-3">
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-2">
                       {(firm.city || firm.country) && (
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
@@ -323,6 +329,22 @@ export function MatchedFirmsList({
                         <Badge variant="secondary" className="text-xs">
                           {formatDistance(firm.distance)} away
                         </Badge>
+                      )}
+                    </div>
+                    
+                    {/* Firm Rating Display */}
+                    <div className="mb-3">
+                      {ratings[firm.id] ? (
+                        <FirmRatingDisplay
+                          averageRating={ratings[firm.id].averageRating}
+                          totalReviews={ratings[firm.id].totalReviews}
+                          recentReviews={ratings[firm.id].recentReviews}
+                        />
+                      ) : (
+                        <FirmRatingDisplay
+                          averageRating={0}
+                          totalReviews={0}
+                        />
                       )}
                     </div>
                     

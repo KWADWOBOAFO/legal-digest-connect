@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.send-weekly-digest]
 verify_jwt = false
+
+[functions.notify-matching-firms]
+verify_jwt = false
+
+[functions.send-consultation-reminders]
+verify_jwt = false
