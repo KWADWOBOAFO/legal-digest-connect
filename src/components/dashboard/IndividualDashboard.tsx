@@ -30,6 +30,8 @@ import { AnalyticsSection } from './AnalyticsSection';
 import { MessagingPanel } from '@/components/messaging/MessagingPanel';
 import { SecureDocumentShare } from '@/components/documents/SecureDocumentShare';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { NotificationPermissionButton } from '@/components/notifications/NotificationPermissionButton';
 
 interface Case {
   id: string;
@@ -78,6 +80,9 @@ const IndividualDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const { data: analyticsData, isLoading: analyticsLoading } = useAnalytics();
+  
+  // Enable push notifications
+  usePushNotifications();
   
   // Scheduling dialog state
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
@@ -320,9 +325,10 @@ const IndividualDashboard = () => {
             <span className="text-xl font-bold text-primary">DEBRIEFED</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-muted-foreground hidden md:inline">
               Welcome, {profile?.full_name || 'User'}
             </span>
+            <NotificationPermissionButton />
             <NotificationBell />
             <Button variant="ghost" size="sm" onClick={handleSignOut}>
               <LogOut className="h-4 w-4 mr-2" />

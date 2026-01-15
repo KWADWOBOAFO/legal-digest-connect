@@ -31,6 +31,8 @@ import { AnalyticsSection } from './AnalyticsSection';
 import { MessagingPanel } from '@/components/messaging/MessagingPanel';
 import { SecureDocumentShare } from '@/components/documents/SecureDocumentShare';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { NotificationPermissionButton } from '@/components/notifications/NotificationPermissionButton';
 
 interface Case {
   id: string;
@@ -81,6 +83,9 @@ const FirmDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [practiceAreaFilter, setPracticeAreaFilter] = useState<string>('all');
   const { data: analyticsData, isLoading: analyticsLoading } = useAnalytics();
+  
+  // Enable push notifications
+  usePushNotifications();
 
   useEffect(() => {
     if (lawFirm?.is_verified && lawFirm?.nda_signed) {
@@ -261,6 +266,7 @@ const FirmDashboard = () => {
             <span className="text-sm text-muted-foreground">
               {lawFirm.firm_name}
             </span>
+            <NotificationPermissionButton />
             <NotificationBell />
             <Button variant="ghost" size="sm" onClick={() => navigate('/firm-settings')}>
               <Settings className="h-4 w-4" />
