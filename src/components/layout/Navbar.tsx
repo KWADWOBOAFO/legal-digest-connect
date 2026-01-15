@@ -1,11 +1,23 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Scale } from "lucide-react";
+import { Menu, X, Scale, LogOut, User } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AuthDialog from "@/components/auth/AuthDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const { user, profile, signOut, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   const navLinks = [
     { label: "How It Works", href: "#how-it-works" },
@@ -13,6 +25,23 @@ const Navbar = () => {
     { label: "For Law Firms", href: "#for-firms" },
     { label: "About", href: "#about" },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return 'U';
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const displayName = profile?.full_name || user?.email?.split('@')[0] || 'User';
 
   return (
     <>
@@ -42,14 +71,47 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons / User Menu */}
             <div className="hidden md:flex items-center gap-4">
-              <Button variant="ghost" onClick={() => setAuthDialogOpen(true)}>
-                Sign In
-              </Button>
-              <Button variant="gold" onClick={() => setAuthDialogOpen(true)}>
-                Get Started
-              </Button>
+              {isLoading ? (
+                <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+              ) : user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-2 px-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={profile?.avatar_url || undefined} />
+                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                          {getInitials(profile?.full_name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="font-medium max-w-[150px] truncate">
+                        {displayName}
+                      </span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                      <User className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <>
+                  <Button variant="ghost" onClick={() => setAuthDialogOpen(true)}>
+                    Sign In
+                  </Button>
+                  <Button variant="gold" onClick={() => setAuthDialogOpen(true)}>
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Toggle */}
@@ -81,26 +143,67 @@ const Navbar = () => {
                   </a>
                 ))}
                 <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-center"
-                    onClick={() => {
-                      setIsOpen(false);
-                      setAuthDialogOpen(true);
-                    }}
-                  >
-                    Sign In
-                  </Button>
-                  <Button 
-                    variant="gold" 
-                    className="w-full justify-center"
-                    onClick={() => {
-                      setIsOpen(false);
-                      setAuthDialogOpen(true);
-                    }}
-                  >
-                    Get Started
-                  </Button>
+                  {user ? (
+                    <>
+                      <div className="flex items-center gap-3 px-2 py-2">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={profile?.avatar_url || undefined} />
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {getInitials(profile?.full_name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{displayName}</span>
+                          <span className="text-sm text-muted-foreground">{user.email}</span>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start"
+                        onClick={() => {
+                          setIsOpen(false);
+                          navigate('/dashboard');
+                        }}
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start text-destructive hover:text-destructive"
+                        onClick={() => {
+                          setIsOpen(false);
+                          handleSignOut();
+                        }}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sign Out
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-center"
+                        onClick={() => {
+                          setIsOpen(false);
+                          setAuthDialogOpen(true);
+                        }}
+                      >
+                        Sign In
+                      </Button>
+                      <Button 
+                        variant="gold" 
+                        className="w-full justify-center"
+                        onClick={() => {
+                          setIsOpen(false);
+                          setAuthDialogOpen(true);
+                        }}
+                      >
+                        Get Started
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
