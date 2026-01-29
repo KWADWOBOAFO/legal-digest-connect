@@ -54,6 +54,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "case_matches_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_pending_anonymized"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "case_matches_firm_id_fkey"
             columns: ["firm_id"]
             isOneToOne: false
@@ -190,6 +197,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "consultations_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_pending_anonymized"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "consultations_firm_id_fkey"
             columns: ["firm_id"]
             isOneToOne: false
@@ -236,6 +250,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_pending_anonymized"
             referencedColumns: ["id"]
           },
           {
@@ -800,6 +821,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "shared_documents_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_pending_anonymized"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "shared_documents_conversation_id_fkey"
             columns: ["conversation_id"]
             isOneToOne: false
@@ -828,7 +856,60 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      cases_pending_anonymized: {
+        Row: {
+          ai_analysis_status: string | null
+          ai_suggested_practice_areas: string[] | null
+          assigned_practice_area: string | null
+          budget_range: string | null
+          created_at: string | null
+          facts: string | null
+          id: string | null
+          moderation_notes: string | null
+          moderation_status: string | null
+          preferred_consultation_type: string | null
+          status: Database["public"]["Enums"]["case_status"] | null
+          summary: string | null
+          title: string | null
+          urgency_level: string | null
+          user_id: string | null
+        }
+        Insert: {
+          ai_analysis_status?: never
+          ai_suggested_practice_areas?: string[] | null
+          assigned_practice_area?: string | null
+          budget_range?: string | null
+          created_at?: string | null
+          facts?: never
+          id?: string | null
+          moderation_notes?: never
+          moderation_status?: never
+          preferred_consultation_type?: string | null
+          status?: Database["public"]["Enums"]["case_status"] | null
+          summary?: never
+          title?: string | null
+          urgency_level?: string | null
+          user_id?: never
+        }
+        Update: {
+          ai_analysis_status?: never
+          ai_suggested_practice_areas?: string[] | null
+          assigned_practice_area?: string | null
+          budget_range?: string | null
+          created_at?: string | null
+          facts?: never
+          id?: string | null
+          moderation_notes?: never
+          moderation_status?: never
+          preferred_consultation_type?: string | null
+          status?: Database["public"]["Enums"]["case_status"] | null
+          summary?: never
+          title?: string | null
+          urgency_level?: string | null
+          user_id?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
       firm_can_view_pending_case: {

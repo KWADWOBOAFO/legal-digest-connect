@@ -4,15 +4,22 @@ import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
+// Restricted CORS - this is a service-only endpoint
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-internal-key",
 };
 
 interface ReminderRequest {
   consultationId?: string; // Optional - if provided, sends reminder for specific consultation
   hoursBeforeReminder?: number; // How many hours before to look for consultations (default: 24)
 }
+
+// Generic error messages
+const ErrorMessages = {
+  UNAUTHORIZED: "Unauthorized access",
+  INTERNAL_ERROR: "An error occurred processing your request",
+};
 
 const handler = async (req: Request): Promise<Response> => {
   console.log("send-consultation-reminders function called");
@@ -22,39 +29,132 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // This function should only be called by internal systems (cron jobs)
+    // For user-initiated requests, require authentication
+    const authHeader = req.headers.get("Authorization");
+    const internalKey = req.headers.get("X-Internal-Key");
+    const expectedInternalKey = Deno.env.get("INTERNAL_API_KEY");
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    let userId: string | null = null;
+    let isInternalCall = false;
+
+    // Check for internal API key (for scheduled/cron invocations)
+    if (expectedInternalKey && internalKey === expectedInternalKey) {
+      isInternalCall = true;
+      console.log("Internal API key verified");
+    } 
+    // Check for user authentication (for user-initiated specific reminder)
+    else if (authHeader?.startsWith("Bearer ")) {
+      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } }
+      });
+
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+      
+      if (claimsError || !claimsData?.claims) {
+        console.error("Auth verification failed:", claimsError);
+        return new Response(
+          JSON.stringify({ error: ErrorMessages.UNAUTHORIZED }),
+          { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+
+      userId = claimsData.claims.sub;
+      console.log("Authenticated user:", userId);
+    } else {
+      console.error("No valid authentication provided");
+      return new Response(
+        JSON.stringify({ error: ErrorMessages.UNAUTHORIZED }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const body = await req.json().catch(() => ({})) as ReminderRequest;
     const hoursBeforeReminder = body.hoursBeforeReminder || 24;
 
-    let consultations;
+    let consultations: any[] = [];
 
     if (body.consultationId) {
-      // Send reminder for specific consultation
-      const { data, error } = await supabase
-        .from('consultations')
-        .select(`
-          id,
-          scheduled_at,
-          duration_minutes,
-          meeting_url,
-          notes,
-          status,
-          user_id,
-          firm_id,
-          case_id,
-          cases!inner(title),
-          law_firms!inner(firm_name, user_id)
-        `)
-        .eq('id', body.consultationId)
-        .eq('status', 'scheduled')
-        .single();
+      // For specific consultation, verify user has access
+      if (userId) {
+        // Check if user is part of this consultation
+        const { data, error } = await supabase
+          .from('consultations')
+          .select(`
+            id,
+            scheduled_at,
+            duration_minutes,
+            meeting_url,
+            notes,
+            status,
+            user_id,
+            firm_id,
+            case_id,
+            cases!inner(title),
+            law_firms!inner(firm_name, user_id)
+          `)
+          .eq('id', body.consultationId)
+          .eq('status', 'scheduled')
+          .single();
 
-      if (error) throw error;
-      consultations = data ? [data] : [];
+        if (error) throw error;
+        
+        // Verify the user is either the client or the firm owner
+        if (data) {
+          const lawFirm = data.law_firms as unknown as { firm_name: string; user_id: string };
+          const isFirmOwner = lawFirm?.user_id === userId;
+          const isClient = data.user_id === userId;
+          
+          if (!isFirmOwner && !isClient) {
+            return new Response(
+              JSON.stringify({ error: "You don't have access to this consultation" }),
+              { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+            );
+          }
+          consultations = [data];
+        }
+      } else if (isInternalCall) {
+        // Internal call can access any consultation
+        const { data, error } = await supabase
+          .from('consultations')
+          .select(`
+            id,
+            scheduled_at,
+            duration_minutes,
+            meeting_url,
+            notes,
+            status,
+            user_id,
+            firm_id,
+            case_id,
+            cases!inner(title),
+            law_firms!inner(firm_name, user_id)
+          `)
+          .eq('id', body.consultationId)
+          .eq('status', 'scheduled')
+          .single();
+
+        if (error) throw error;
+        if (data) {
+          consultations = [data];
+        }
+      }
     } else {
+      // Batch processing - only allowed for internal calls
+      if (!isInternalCall) {
+        return new Response(
+          JSON.stringify({ error: "Batch processing requires internal API key" }),
+          { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+
       // Find consultations happening within the reminder window
       const now = new Date();
       const reminderWindowStart = new Date(now.getTime() + (hoursBeforeReminder - 1) * 60 * 60 * 1000);
@@ -85,9 +185,9 @@ const handler = async (req: Request): Promise<Response> => {
       consultations = data || [];
     }
 
-    console.log(`Found ${consultations.length} consultations to send reminders for`);
+    console.log(`Found ${consultations?.length || 0} consultations to send reminders for`);
 
-    const emailPromises = consultations.flatMap(async (consultation: any) => {
+    const emailPromises = (consultations || []).flatMap(async (consultation: any) => {
       const scheduledDate = new Date(consultation.scheduled_at);
       const formattedDate = scheduledDate.toLocaleDateString('en-US', {
         weekday: 'long',
@@ -186,7 +286,7 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(JSON.stringify({ 
       success: true, 
       reminders_sent: successCount,
-      total_consultations: consultations.length 
+      total_consultations: consultations?.length || 0 
     }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -194,7 +294,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-consultation-reminders:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: ErrorMessages.INTERNAL_ERROR }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

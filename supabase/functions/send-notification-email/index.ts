@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
@@ -6,6 +7,13 @@ const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// Generic error messages
+const ErrorMessages = {
+  UNAUTHORIZED: "Authentication required",
+  FORBIDDEN: "Access denied",
+  INTERNAL_ERROR: "An error occurred processing your request",
 };
 
 interface NotificationEmailRequest {
@@ -185,7 +193,83 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Authenticate the request
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      console.error("Missing or invalid authorization header");
+      return new Response(
+        JSON.stringify({ error: ErrorMessages.UNAUTHORIZED }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    // Create client with user's token to verify authentication
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      console.error("Auth verification failed:", claimsError);
+      return new Response(
+        JSON.stringify({ error: ErrorMessages.UNAUTHORIZED }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+    console.log("Authenticated user:", userId);
+
     const { type, recipientEmail, recipientName, data }: NotificationEmailRequest = await req.json();
+
+    // Validate input
+    if (!type || !recipientEmail || !recipientName) {
+      return new Response(
+        JSON.stringify({ error: "Missing required fields: type, recipientEmail, recipientName" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Authorization: Check if user is allowed to send this type of notification
+    // For admin-only notifications (firm_verified, firm_rejected), verify admin role
+    if (type === "firm_verified" || type === "firm_rejected") {
+      // Check if user has admin role using the has_role function
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
+      
+      const { data: roleCheck, error: roleError } = await serviceClient
+        .rpc('has_role', { _user_id: userId, _role: 'admin' });
+
+      if (roleError || !roleCheck) {
+        console.error("User is not an admin:", userId);
+        return new Response(
+          JSON.stringify({ error: ErrorMessages.FORBIDDEN }),
+          { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+    }
+
+    // For firm_interest notifications, verify the firm belongs to the user
+    if (type === "firm_interest") {
+      const { data: firmCheck, error: firmError } = await userClient
+        .from('law_firms')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (firmError || !firmCheck) {
+        console.error("User does not own a law firm:", userId);
+        return new Response(
+          JSON.stringify({ error: ErrorMessages.FORBIDDEN }),
+          { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+    }
     
     console.log(`Sending ${type} email to ${recipientEmail}`);
 
@@ -207,7 +291,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error sending notification email:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: ErrorMessages.INTERNAL_ERROR }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

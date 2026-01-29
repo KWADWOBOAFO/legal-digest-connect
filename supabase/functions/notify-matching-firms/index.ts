@@ -39,11 +39,74 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Authenticate the request
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      console.error("Missing or invalid authorization header");
+      return new Response(
+        JSON.stringify({ error: "Authentication required" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    
+    // Create client with user's token to verify authentication
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      console.error("Auth verification failed:", claimsError);
+      return new Response(
+        JSON.stringify({ error: "Invalid authentication" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+    console.log("Authenticated user:", userId);
 
     const { caseId, caseTitle, practiceArea, userLatitude, userLongitude, userCity }: NotifyFirmsRequest = await req.json();
+
+    // Validate input
+    if (!caseId || !caseTitle) {
+      return new Response(
+        JSON.stringify({ error: "Case ID and title are required" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Verify the user owns this case
+    const { data: caseData, error: caseError } = await userClient
+      .from('cases')
+      .select('id, user_id')
+      .eq('id', caseId)
+      .single();
+
+    if (caseError || !caseData) {
+      console.error("Case not found:", caseError);
+      return new Response(
+        JSON.stringify({ error: "Case not found" }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (caseData.user_id !== userId) {
+      console.error("User does not own this case");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized access to case" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Use service role for privileged operations (sending emails to firms)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     console.log(`Finding matching firms for case: ${caseTitle}, practice area: ${practiceArea}`);
 
@@ -166,7 +229,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in notify-matching-firms:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "An error occurred processing your request" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
