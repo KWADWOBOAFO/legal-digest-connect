@@ -4,10 +4,16 @@ import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
+// Restricted CORS - this is a service-only endpoint
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-internal-key",
+};
+
+// Generic error messages
+const ErrorMessages = {
+  UNAUTHORIZED: "Unauthorized access",
+  INTERNAL_ERROR: "An error occurred processing your request",
 };
 
 interface UserDigest {
@@ -294,6 +300,21 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // This function should ONLY be called by internal systems (cron jobs)
+    // Verify internal API key
+    const internalKey = req.headers.get("X-Internal-Key");
+    const expectedInternalKey = Deno.env.get("INTERNAL_API_KEY");
+
+    if (!expectedInternalKey || internalKey !== expectedInternalKey) {
+      console.error("Invalid or missing internal API key");
+      return new Response(
+        JSON.stringify({ error: ErrorMessages.UNAUTHORIZED }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log("Internal API key verified");
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
@@ -337,7 +358,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-weekly-digest function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: ErrorMessages.INTERNAL_ERROR }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
