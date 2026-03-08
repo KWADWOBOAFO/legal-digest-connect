@@ -7,7 +7,8 @@ interface CaseCardProps {
   caseData: {
     id: string;
     title: string;
-    description: string;
+    description?: string;
+    summary?: string | null;
     status: string;
     assigned_practice_area: string | null;
     ai_suggested_practice_areas: string[];
