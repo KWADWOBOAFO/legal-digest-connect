@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   Loader2,
   Building2,
-  Briefcase
+  Briefcase,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
