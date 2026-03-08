@@ -443,11 +443,17 @@ const Admin = () => {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-2 mb-2">
                         {firm.practice_areas?.map((area, idx) => (
                           <Badge key={idx} variant="outline">{area}</Badge>
                         ))}
                       </div>
+                      {(firm.regulatory_body || firm.regulatory_number) && (
+                        <p className="text-sm text-muted-foreground mb-4">
+                          <Shield className="h-3 w-3 inline mr-1" />
+                          {firm.regulatory_body}: <span className="font-mono">{firm.regulatory_number}</span>
+                        </p>
+                      )}
                       <div className="flex gap-2">
                         <Button 
                           variant="outline" 
