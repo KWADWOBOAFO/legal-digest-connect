@@ -518,29 +518,32 @@ const Admin = () => {
                               className="mt-1"
                             />
                           )}
-                            {firm.firm_name}
-                            {firm.is_verified && (
-                              <Badge variant="default" className="bg-green-600">
-                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                Verified
-                              </Badge>
-                            )}
-                            {firm.nda_signed && !firm.is_verified && (
-                              <Badge variant="outline" className="border-amber-500 text-amber-700">
-                                <Clock className="h-3 w-3 mr-1" />
-                                Pending Review
-                              </Badge>
-                            )}
-                            {!firm.nda_signed && (
-                              <Badge variant="secondary">
-                                NDA Not Signed
-                              </Badge>
-                            )}
-                          </CardTitle>
-                          <CardDescription className="mt-1">
-                            {profiles[firm.user_id]?.email || 'No email'} • 
-                            Registered: {new Date(firm.created_at).toLocaleDateString()}
-                          </CardDescription>
+                          <div>
+                            <CardTitle className="text-lg flex items-center gap-2">
+                              {firm.firm_name}
+                              {firm.is_verified && (
+                                <Badge variant="default" className="bg-green-600">
+                                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                                  Verified
+                                </Badge>
+                              )}
+                              {firm.nda_signed && !firm.is_verified && (
+                                <Badge variant="outline" className="border-amber-500 text-amber-700">
+                                  <Clock className="h-3 w-3 mr-1" />
+                                  Pending Review
+                                </Badge>
+                              )}
+                              {!firm.nda_signed && (
+                                <Badge variant="secondary">
+                                  NDA Not Signed
+                                </Badge>
+                              )}
+                            </CardTitle>
+                            <CardDescription className="mt-1">
+                              {profiles[firm.user_id]?.email || 'No email'} • 
+                              Registered: {new Date(firm.created_at).toLocaleDateString()}
+                            </CardDescription>
+                          </div>
                         </div>
                       </div>
                     </CardHeader>
