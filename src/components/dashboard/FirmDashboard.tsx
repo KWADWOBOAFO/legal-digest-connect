@@ -287,7 +287,8 @@ const FirmDashboard = () => {
             <NotificationPermissionButton />
             <NotificationBell />
             <Button variant="ghost" size="sm" onClick={() => navigate('/firm-settings')}>
-              <Settings className="h-4 w-4" />
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
             </Button>
             <Button variant="ghost" size="sm" onClick={handleSignOut}>
               <LogOut className="h-4 w-4 mr-2" />
