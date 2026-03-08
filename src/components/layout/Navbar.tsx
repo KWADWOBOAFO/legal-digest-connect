@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Scale, LogOut, User } from "lucide-react";
+import { Menu, X, Scale, LogOut, User, Shield } from "lucide-react";
+import { useUserRole } from "@/hooks/useUserRole";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { user, profile, signOut, isLoading } = useAuth();
+  const { isAdmin } = useUserRole();
   const navigate = useNavigate();
 
   const navLinks = [
@@ -95,6 +97,12 @@ const Navbar = () => {
                       <User className="mr-2 h-4 w-4" />
                       Dashboard
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate('/admin')}>
+                        <Shield className="mr-2 h-4 w-4" />
+                        Admin Panel
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
                       <LogOut className="mr-2 h-4 w-4" />
@@ -168,6 +176,19 @@ const Navbar = () => {
                         <User className="mr-2 h-4 w-4" />
                         Dashboard
                       </Button>
+                      {isAdmin && (
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start"
+                          onClick={() => {
+                            setIsOpen(false);
+                            navigate('/admin');
+                          }}
+                        >
+                          <Shield className="mr-2 h-4 w-4" />
+                          Admin Panel
+                        </Button>
+                      )}
                       <Button 
                         variant="ghost" 
                         className="w-full justify-start text-destructive hover:text-destructive"
