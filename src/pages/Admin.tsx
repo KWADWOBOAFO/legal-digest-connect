@@ -601,24 +601,67 @@ const Admin = () => {
               </div>
 
               {/* Regulatory Information */}
-              {(selectedFirm.regulatory_body || selectedFirm.regulatory_number) && (
-                <div className="pt-4 border-t">
-                  <p className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+              <div className="pt-4 border-t">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                     <Shield className="h-4 w-4" />
                     Regulatory Information
                   </p>
+                  {!isEditingRegulatory ? (
+                    <Button variant="ghost" size="sm" onClick={() => {
+                      setEditRegulatoryBody(selectedFirm.regulatory_body || '');
+                      setEditRegulatoryNumber(selectedFirm.regulatory_number || '');
+                      setIsEditingRegulatory(true);
+                    }}>
+                      <Pencil className="h-3 w-3 mr-1" /> Edit
+                    </Button>
+                  ) : (
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => setIsEditingRegulatory(false)}>Cancel</Button>
+                      <Button variant="default" size="sm" onClick={handleSaveRegulatory}>
+                        <Save className="h-3 w-3 mr-1" /> Save
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                {isEditingRegulatory ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Regulatory Body</p>
+                      <select 
+                        value={editRegulatoryBody} 
+                        onChange={(e) => setEditRegulatoryBody(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md bg-background text-sm"
+                      >
+                        <option value="">None</option>
+                        <option value="SRA">SRA</option>
+                        <option value="BSB">BSB</option>
+                        <option value="CILEx">CILEx</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Registration Number</p>
+                      <Input 
+                        value={editRegulatoryNumber} 
+                        onChange={(e) => setEditRegulatoryNumber(e.target.value)}
+                        placeholder="e.g. 123456"
+                      />
+                    </div>
+                  </div>
+                ) : (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Regulatory Body</p>
-                      <p className="font-medium">{selectedFirm.regulatory_body || 'N/A'}</p>
+                      <p className="font-medium">{selectedFirm.regulatory_body || 'Not set'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Registration Number</p>
-                      <p className="font-medium font-mono">{selectedFirm.regulatory_number || 'N/A'}</p>
+                      <p className="font-medium font-mono">{selectedFirm.regulatory_number || 'Not set'}</p>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 <div>
