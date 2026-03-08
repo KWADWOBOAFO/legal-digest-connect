@@ -251,18 +251,27 @@ const FirmDashboard = () => {
                 We'll send you an email notification once your verification is complete.
                 If you have any questions, please contact support.
               </p>
-              <Button 
-                variant="outline" 
-                onClick={async () => {
-                  toast({
-                    title: "Checking status...",
-                    description: "Refreshing your verification status."
-                  });
-                  await refreshProfile();
-                }}
-              >
-                Check Status
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button 
+                  variant="outline" 
+                  onClick={async () => {
+                    toast({
+                      title: "Checking status...",
+                      description: "Refreshing your verification status."
+                    });
+                    await refreshProfile();
+                  }}
+                >
+                  Check Status
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => navigate('/firm-settings')}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Firm Settings
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </main>
