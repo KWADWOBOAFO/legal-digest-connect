@@ -83,7 +83,7 @@ const ForFirms = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="gold" size="lg">
+              <Button variant="gold" size="lg" onClick={() => setAuthOpen(true)}>
                 Join as a Firm
                 <ArrowRight className="w-5 h-5" />
               </Button>
