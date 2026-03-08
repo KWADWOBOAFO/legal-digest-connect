@@ -350,18 +350,54 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
                   <Label htmlFor="regulatoryNumber">
                     Registration / Authorisation Number *
                   </Label>
-                  <Input
-                    id="regulatoryNumber"
-                    value={regulatoryNumber}
-                    onChange={(e) => setRegulatoryNumber(e.target.value)}
-                    placeholder={
-                      regulatoryBody === 'sra' ? 'e.g. 123456' :
-                      regulatoryBody === 'bsb' ? 'e.g. 12345678' :
-                      regulatoryBody === 'iaa' ? 'e.g. IAA-202XXXXX' :
-                      'Enter your registration number'
-                    }
-                    required
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="regulatoryNumber"
+                      value={regulatoryNumber}
+                      onChange={(e) => {
+                        setRegulatoryNumber(e.target.value);
+                        setSraValidation({ status: 'idle' });
+                      }}
+                      placeholder={
+                        regulatoryBody === 'sra' ? 'e.g. 123456' :
+                        regulatoryBody === 'bsb' ? 'e.g. 12345678' :
+                        regulatoryBody === 'iaa' ? 'e.g. IAA-202XXXXX' :
+                        'Enter your registration number'
+                      }
+                      required
+                    />
+                    {regulatoryBody === 'sra' && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleValidateSRA}
+                        disabled={!regulatoryNumber.trim() || sraValidation.status === 'loading'}
+                      >
+                        {sraValidation.status === 'loading' ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          'Verify'
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {/* SRA Validation Result */}
+                  {regulatoryBody === 'sra' && sraValidation.status === 'valid' && (
+                    <div className="flex items-center gap-2 text-green-600 bg-green-50 dark:bg-green-950/30 p-2 rounded-md">
+                      <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+                      <span className="text-sm">
+                        Verified{sraValidation.firmName ? ` — ${sraValidation.firmName}` : ''}
+                      </span>
+                    </div>
+                  )}
+                  {regulatoryBody === 'sra' && (sraValidation.status === 'not_found' || sraValidation.status === 'error') && (
+                    <div className="flex items-center gap-2 text-amber-600 bg-amber-50 dark:bg-amber-950/30 p-2 rounded-md">
+                      <XCircle className="h-4 w-4 flex-shrink-0" />
+                      <span className="text-sm">{sraValidation.message}</span>
+                    </div>
+                  )}
+                  
                   <p className="text-xs text-muted-foreground">
                     Your {REGULATORY_BODIES.find(b => b.value === regulatoryBody)?.label || 'regulatory'} registration number will be verified by our team.
                   </p>
