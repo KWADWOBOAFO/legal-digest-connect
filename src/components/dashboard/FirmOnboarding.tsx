@@ -9,7 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Scale, Building2, FileCheck, Shield, ArrowRight, LogOut } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Scale, Building2, FileCheck, Shield, ArrowRight, LogOut, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const REGULATORY_BODIES = [
@@ -63,6 +64,49 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
   
   // NDA acceptance
   const [ndaAccepted, setNdaAccepted] = useState(false);
+  
+  // SRA validation
+  const [sraValidation, setSraValidation] = useState<{
+    status: 'idle' | 'loading' | 'valid' | 'not_found' | 'error';
+    firmName?: string | null;
+    message?: string;
+  }>({ status: 'idle' });
+
+  const handleValidateSRA = async () => {
+    if (!regulatoryNumber.trim()) return;
+    
+    setSraValidation({ status: 'loading' });
+    try {
+      const { data, error } = await supabase.functions.invoke('validate-sra-number', {
+        body: { sraNumber: regulatoryNumber.trim() },
+      });
+
+      if (error) throw error;
+
+      if (data?.valid) {
+        setSraValidation({
+          status: 'valid',
+          firmName: data.firmName,
+        });
+        toast({
+          title: "SRA Number Verified",
+          description: data.firmName 
+            ? `Matched to: ${data.firmName}` 
+            : "Your SRA number has been verified.",
+        });
+      } else {
+        setSraValidation({
+          status: 'not_found',
+          message: data?.message || 'Could not verify this SRA number automatically.',
+        });
+      }
+    } catch (error) {
+      setSraValidation({
+        status: 'error',
+        message: 'Verification service unavailable. Your number will be manually reviewed.',
+      });
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -306,18 +350,54 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
                   <Label htmlFor="regulatoryNumber">
                     Registration / Authorisation Number *
                   </Label>
-                  <Input
-                    id="regulatoryNumber"
-                    value={regulatoryNumber}
-                    onChange={(e) => setRegulatoryNumber(e.target.value)}
-                    placeholder={
-                      regulatoryBody === 'sra' ? 'e.g. 123456' :
-                      regulatoryBody === 'bsb' ? 'e.g. 12345678' :
-                      regulatoryBody === 'iaa' ? 'e.g. IAA-202XXXXX' :
-                      'Enter your registration number'
-                    }
-                    required
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="regulatoryNumber"
+                      value={regulatoryNumber}
+                      onChange={(e) => {
+                        setRegulatoryNumber(e.target.value);
+                        setSraValidation({ status: 'idle' });
+                      }}
+                      placeholder={
+                        regulatoryBody === 'sra' ? 'e.g. 123456' :
+                        regulatoryBody === 'bsb' ? 'e.g. 12345678' :
+                        regulatoryBody === 'iaa' ? 'e.g. IAA-202XXXXX' :
+                        'Enter your registration number'
+                      }
+                      required
+                    />
+                    {regulatoryBody === 'sra' && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleValidateSRA}
+                        disabled={!regulatoryNumber.trim() || sraValidation.status === 'loading'}
+                      >
+                        {sraValidation.status === 'loading' ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          'Verify'
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {/* SRA Validation Result */}
+                  {regulatoryBody === 'sra' && sraValidation.status === 'valid' && (
+                    <div className="flex items-center gap-2 text-green-600 bg-green-50 dark:bg-green-950/30 p-2 rounded-md">
+                      <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+                      <span className="text-sm">
+                        Verified{sraValidation.firmName ? ` — ${sraValidation.firmName}` : ''}
+                      </span>
+                    </div>
+                  )}
+                  {regulatoryBody === 'sra' && (sraValidation.status === 'not_found' || sraValidation.status === 'error') && (
+                    <div className="flex items-center gap-2 text-amber-600 bg-amber-50 dark:bg-amber-950/30 p-2 rounded-md">
+                      <XCircle className="h-4 w-4 flex-shrink-0" />
+                      <span className="text-sm">{sraValidation.message}</span>
+                    </div>
+                  )}
+                  
                   <p className="text-xs text-muted-foreground">
                     Your {REGULATORY_BODIES.find(b => b.value === regulatoryBody)?.label || 'regulatory'} registration number will be verified by our team.
                   </p>

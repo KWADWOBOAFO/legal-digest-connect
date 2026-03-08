@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   Loader2,
   Building2,
-  Briefcase
+  Briefcase,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -29,7 +30,20 @@ interface LawFirm {
   practice_areas: string[];
   is_verified: boolean;
   logo_url: string | null;
+  regulatory_body: string | null;
+  regulatory_number: string | null;
 }
+
+const REGULATORY_BODY_LABELS: Record<string, string> = {
+  sra: 'SRA — Solicitors Regulation Authority',
+  bsb: 'BSB — Bar Standards Board',
+  cilex: 'CILEx Regulation',
+  law_society: 'The Law Society',
+  lsra: 'LSRA — Legal Services Regulatory Authority',
+  iaa: 'IAA — Immigration Advisers Authority',
+  oisc: 'OISC — Office of the Immigration Services Commissioner',
+  other: 'Other Regulatory Body',
+};
 
 interface LegalProfessional {
   id: string;
@@ -220,6 +234,22 @@ const FirmProfile = () => {
                     >
                       {firm.website.replace(/^https?:\/\//, '')}
                     </a>
+                  </div>
+                )}
+
+                {/* Regulatory Info */}
+                {firm.regulatory_body && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      Regulated by{' '}
+                      <span className="font-medium">
+                        {REGULATORY_BODY_LABELS[firm.regulatory_body] || firm.regulatory_body}
+                      </span>
+                      {firm.regulatory_number && (
+                        <span className="text-muted-foreground"> — Reg. No. {firm.regulatory_number}</span>
+                      )}
+                    </span>
                   </div>
                 )}
                 
