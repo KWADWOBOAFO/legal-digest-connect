@@ -80,6 +80,9 @@ const Admin = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isRejectOpen, setIsRejectOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [isEditingRegulatory, setIsEditingRegulatory] = useState(false);
+  const [editRegulatoryBody, setEditRegulatoryBody] = useState('');
+  const [editRegulatoryNumber, setEditRegulatoryNumber] = useState('');
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
