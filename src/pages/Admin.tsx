@@ -278,7 +278,54 @@ const Admin = () => {
     }
   };
 
-  const filteredFirms = firms.filter(firm => {
+  const pendingFirmIds = filteredFirms.filter(f => f.nda_signed && !f.is_verified).map(f => f.id);
+  const allPendingSelected = pendingFirmIds.length > 0 && pendingFirmIds.every(id => selectedFirmIds.has(id));
+
+  const toggleFirmSelection = (firmId: string) => {
+    setSelectedFirmIds(prev => {
+      const next = new Set(prev);
+      if (next.has(firmId)) next.delete(firmId); else next.add(firmId);
+      return next;
+    });
+  };
+
+  const toggleAllPending = () => {
+    if (allPendingSelected) {
+      setSelectedFirmIds(new Set());
+    } else {
+      setSelectedFirmIds(new Set(pendingFirmIds));
+    }
+  };
+
+  const handleBulkVerify = async () => {
+    if (selectedFirmIds.size === 0) return;
+    try {
+      const ids = Array.from(selectedFirmIds);
+      const { error } = await supabase
+        .from('law_firms')
+        .update({ is_verified: true })
+        .in('id', ids);
+      if (error) throw error;
+
+      for (const id of ids) {
+        const firm = firms.find(f => f.id === id);
+        const profile = firm ? profiles[firm.user_id] : null;
+        if (profile?.email && firm) {
+          supabase.functions.invoke('send-notification-email', {
+            body: { type: 'firm_verified', recipientEmail: profile.email, recipientName: profile.full_name || 'Law Firm Representative', data: { firmName: firm.firm_name } }
+          }).catch(console.error);
+        }
+      }
+
+      setFirms(firms.map(f => ids.includes(f.id) ? { ...f, is_verified: true } : f));
+      setSelectedFirmIds(new Set());
+      toast({ title: `${ids.length} firm(s) verified`, description: "Notification emails have been sent." });
+    } catch (error) {
+      toast({ title: "Bulk verification failed", variant: "destructive" });
+    }
+  };
+
+
     const matchesSearch = 
       firm.firm_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (profiles[firm.user_id]?.email || '').toLowerCase().includes(searchTerm.toLowerCase());
