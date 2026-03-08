@@ -59,6 +59,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
   const [country, setCountry] = useState('');
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [regulatoryBody, setRegulatoryBody] = useState('');
+  const [regulatoryNumber, setRegulatoryNumber] = useState('');
   
   // NDA acceptance
   const [ndaAccepted, setNdaAccepted] = useState(false);
@@ -92,6 +93,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
           country,
           practice_areas: selectedAreas,
           regulatory_body: regulatoryBody || null,
+          regulatory_number: regulatoryNumber || null,
           is_verified: false,
           nda_signed: false
         });
@@ -299,11 +301,34 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
                 </p>
               </div>
 
+              {regulatoryBody && (
+                <div className="space-y-2">
+                  <Label htmlFor="regulatoryNumber">
+                    Registration / Authorisation Number *
+                  </Label>
+                  <Input
+                    id="regulatoryNumber"
+                    value={regulatoryNumber}
+                    onChange={(e) => setRegulatoryNumber(e.target.value)}
+                    placeholder={
+                      regulatoryBody === 'sra' ? 'e.g. 123456' :
+                      regulatoryBody === 'bsb' ? 'e.g. 12345678' :
+                      regulatoryBody === 'iaa' ? 'e.g. IAA-202XXXXX' :
+                      'Enter your registration number'
+                    }
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Your {REGULATORY_BODIES.find(b => b.value === regulatoryBody)?.label || 'regulatory'} registration number will be verified by our team.
+                  </p>
+                </div>
+              )}
+
               <Button 
                 variant="gold" 
                 className="w-full"
                 onClick={handleCreateFirm}
-                disabled={isSubmitting || !firmName || selectedAreas.length === 0 || !regulatoryBody}
+                disabled={isSubmitting || !firmName || selectedAreas.length === 0 || !regulatoryBody || !regulatoryNumber}
               >
                 {isSubmitting ? 'Creating Profile...' : 'Continue to NDA'}
                 <ArrowRight className="h-4 w-4 ml-2" />
