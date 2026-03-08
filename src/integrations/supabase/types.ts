@@ -878,7 +878,7 @@ export type Database = {
           ai_analysis_status?: never
           ai_suggested_practice_areas?: string[] | null
           assigned_practice_area?: string | null
-          budget_range?: string | null
+          budget_range?: never
           created_at?: string | null
           facts?: never
           id?: string | null
@@ -895,7 +895,7 @@ export type Database = {
           ai_analysis_status?: never
           ai_suggested_practice_areas?: string[] | null
           assigned_practice_area?: string | null
-          budget_range?: string | null
+          budget_range?: never
           created_at?: string | null
           facts?: never
           id?: string | null
