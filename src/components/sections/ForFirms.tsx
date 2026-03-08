@@ -48,7 +48,11 @@ const features = [
 ];
 
 const ForFirms = () => {
+  const [authOpen, setAuthOpen] = useState(false);
+
   return (
+    <>
+      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
     <section id="for-firms" className="py-24 bg-primary text-primary-foreground">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
