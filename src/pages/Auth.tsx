@@ -19,6 +19,7 @@ const Auth = () => {
   const isPasswordReset = searchParams.get('reset') === 'true';
   
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [userType, setUserType] = useState<'individual' | 'firm'>('individual');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
