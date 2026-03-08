@@ -39,6 +39,8 @@ import { Textarea } from '@/components/ui/textarea';
 import CaseModerationQueue from '@/components/admin/CaseModerationQueue';
 import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
 import UserRoleManagement from '@/components/admin/UserRoleManagement';
+import AdminActivityLog from '@/components/admin/AdminActivityLog';
+import { logAdminAction } from '@/hooks/useAdminActivityLog';
 
 interface LawFirm {
   id: string;
@@ -190,6 +192,8 @@ const Admin = () => {
         description: "The law firm has been successfully verified and notified via email."
       });
 
+      await logAdminAction('firm_verified', 'firm', firmId, { firmName: firm.firm_name });
+
       setFirms(firms.map(f => f.id === firmId ? { ...f, is_verified: true } : f));
       setIsDetailOpen(false);
     } catch (error) {
@@ -236,6 +240,8 @@ const Admin = () => {
         title: "Firm rejected",
         description: "The verification has been denied and the firm has been notified."
       });
+
+      await logAdminAction('firm_rejected', 'firm', selectedFirm.id, { firmName: selectedFirm.firm_name, reason: rejectReason });
 
       setFirms(firms.map(f => f.id === selectedFirm.id ? { ...f, is_verified: false } : f));
       setIsRejectOpen(false);
@@ -439,6 +445,7 @@ const Admin = () => {
             <TabsTrigger value="firms">Law Firms</TabsTrigger>
             <TabsTrigger value="cases">Cases Overview</TabsTrigger>
             <TabsTrigger value="roles">User Roles</TabsTrigger>
+            <TabsTrigger value="activity">Activity Log</TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics">
@@ -619,6 +626,10 @@ const Admin = () => {
 
           <TabsContent value="roles" className="space-y-4">
             <UserRoleManagement />
+          </TabsContent>
+
+          <TabsContent value="activity" className="space-y-4">
+            <AdminActivityLog />
           </TabsContent>
         </Tabs>
       </main>

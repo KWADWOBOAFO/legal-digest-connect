@@ -14,7 +14,6 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
-    // Verify the caller is an admin
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -25,7 +24,6 @@ Deno.serve(async (req) => {
 
     const supabaseClient = createClient(supabaseUrl, serviceRoleKey)
     
-    // Verify caller's token
     const userClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
       global: { headers: { Authorization: authHeader } },
     })
@@ -37,7 +35,6 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Check if caller is admin
     const { data: callerRoles } = await supabaseClient
       .from('user_roles')
       .select('role')
@@ -51,10 +48,20 @@ Deno.serve(async (req) => {
       })
     }
 
-    const { action, user_id, role } = await req.json()
+    const logActivity = async (actionType: string, targetType: string, targetId: string | null, details: Record<string, unknown> = {}) => {
+      await supabaseClient.from('admin_activity_log').insert({
+        admin_id: caller.id,
+        action_type: actionType,
+        target_type: targetType,
+        target_id: targetId,
+        details,
+      })
+    }
+
+    const body = await req.json()
+    const { action, user_id, role, action_type, target_type, target_id, details: bodyDetails } = body
 
     if (action === 'list') {
-      // List all users with their roles
       const { data: profiles, error: profilesError } = await supabaseClient
         .from('profiles')
         .select('user_id, email, full_name, user_type')
@@ -86,7 +93,6 @@ Deno.serve(async (req) => {
         })
       }
 
-      // Prevent admins from removing their own admin role
       if (user_id === caller.id && role === 'admin') {
         return new Response(JSON.stringify({ error: 'Cannot modify your own admin role' }), {
           status: 400,
@@ -99,6 +105,8 @@ Deno.serve(async (req) => {
         .upsert({ user_id, role }, { onConflict: 'user_id,role' })
 
       if (error) throw error
+
+      await logActivity('role_added', 'user', user_id, { role })
 
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -128,9 +136,44 @@ Deno.serve(async (req) => {
 
       if (error) throw error
 
+      await logActivity('role_removed', 'user', user_id, { role })
+
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
+    }
+
+    if (action === 'get_activity_log') {
+      const { data: logs, error: logsError } = await supabaseClient
+        .from('admin_activity_log')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100)
+
+      if (logsError) throw logsError
+
+      // Get admin profiles for display
+      const adminIds = [...new Set((logs || []).map(l => l.admin_id))]
+      const { data: adminProfiles } = await supabaseClient
+        .from('profiles')
+        .select('user_id, email, full_name')
+        .in('user_id', adminIds.length > 0 ? adminIds : ['none'])
+
+      return new Response(JSON.stringify({ 
+        logs: logs || [], 
+        admins: adminProfiles || [] 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (action === 'log_action') {
+      if (action_type && target_type) {
+        await logActivity(action_type, target_type, target_id || null, bodyDetails || {})
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
     }
 
     return new Response(JSON.stringify({ error: 'Invalid action' }), {
