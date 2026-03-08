@@ -83,6 +83,7 @@ const Admin = () => {
   const [isEditingRegulatory, setIsEditingRegulatory] = useState(false);
   const [editRegulatoryBody, setEditRegulatoryBody] = useState('');
   const [editRegulatoryNumber, setEditRegulatoryNumber] = useState('');
+  const [selectedFirmIds, setSelectedFirmIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
