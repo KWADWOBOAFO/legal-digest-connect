@@ -437,7 +437,7 @@ const FirmDashboard = () => {
                       <div>
                         <CardTitle className="text-lg">{match.cases.title}</CardTitle>
                         <CardDescription>
-                          {match.cases.description.substring(0, 150)}...
+                          {(match.cases.description || '').substring(0, 150)}...
                         </CardDescription>
                       </div>
                       <Badge>{match.status}</Badge>
