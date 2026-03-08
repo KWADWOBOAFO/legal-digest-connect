@@ -58,7 +58,8 @@ Deno.serve(async (req) => {
       })
     }
 
-    const { action, user_id, role } = await req.json()
+    const body = await req.json()
+    const { action, user_id, role, action_type, target_type, target_id, details: bodyDetails } = body
 
     if (action === 'list') {
       const { data: profiles, error: profilesError } = await supabaseClient
