@@ -29,7 +29,8 @@ const Auth = () => {
   const [passwordUpdated, setPasswordUpdated] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string; confirmPassword?: string }>({});
   
-  const { signIn, signUp, signInWithGoogle, updatePassword, user, isLoading } = useAuth();
+  const [resetEmailSent, setResetEmailSent] = useState(false);
+  const { signIn, signUp, signInWithGoogle, updatePassword, resetPassword, user, isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
