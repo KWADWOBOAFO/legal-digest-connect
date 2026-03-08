@@ -88,6 +88,12 @@ const Admin = () => {
     }
   }, [isAdmin, roleLoading, navigate, toast]);
 
+  useEffect(() => {
+    if (isAdmin) {
+      fetchFirms();
+    }
+  }, [isAdmin]);
+
   // Show nothing while role is loading or if not admin - prevents UI flash
   if (roleLoading || !isAdmin) {
     return (
@@ -98,12 +104,6 @@ const Admin = () => {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (isAdmin) {
-      fetchFirms();
-    }
-  }, [isAdmin]);
 
   const fetchFirms = async () => {
     try {
