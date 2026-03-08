@@ -97,11 +97,10 @@ const FirmDashboard = () => {
 
   const fetchFirmData = async () => {
     try {
-      // Fetch available cases (pending status)
+      // Fetch available cases (pending status) using anonymized view
       const { data: casesData } = await supabase
-        .from('cases')
+        .from('cases_pending_anonymized')
         .select('*')
-        .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       // Fetch firm's matched cases

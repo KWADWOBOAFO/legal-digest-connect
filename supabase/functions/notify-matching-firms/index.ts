@@ -58,18 +58,17 @@ const handler = async (req: Request): Promise<Response> => {
       global: { headers: { Authorization: authHeader } }
     });
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+    const { data: { user: authUser }, error: authError } = await userClient.auth.getUser();
     
-    if (claimsError || !claimsData?.claims) {
-      console.error("Auth verification failed:", claimsError);
+    if (authError || !authUser) {
+      console.error("Auth verification failed:", authError);
       return new Response(
         JSON.stringify({ error: "Invalid authentication" }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const userId = claimsData.claims.sub;
+    const userId = authUser.id;
     console.log("Authenticated user:", userId);
 
     const { caseId, caseTitle, practiceArea, userLatitude, userLongitude, userCity }: NotifyFirmsRequest = await req.json();
