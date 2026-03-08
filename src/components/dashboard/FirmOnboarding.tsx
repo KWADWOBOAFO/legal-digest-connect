@@ -91,6 +91,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
           city,
           country,
           practice_areas: selectedAreas,
+          regulatory_body: regulatoryBody || null,
           is_verified: false,
           nda_signed: false
         });
