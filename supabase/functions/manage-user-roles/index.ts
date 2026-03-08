@@ -168,10 +168,8 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'log_action') {
-      const { action_type, target_type, target_id, details } = await req.json().catch(() => ({}))
-      // This is called from the frontend for non-role actions
       if (action_type && target_type) {
-        await logActivity(action_type, target_type, target_id || null, details || {})
+        await logActivity(action_type, target_type, target_id || null, bodyDetails || {})
         return new Response(JSON.stringify({ success: true }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
