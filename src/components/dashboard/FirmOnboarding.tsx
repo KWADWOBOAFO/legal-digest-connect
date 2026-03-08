@@ -64,6 +64,49 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
   
   // NDA acceptance
   const [ndaAccepted, setNdaAccepted] = useState(false);
+  
+  // SRA validation
+  const [sraValidation, setSraValidation] = useState<{
+    status: 'idle' | 'loading' | 'valid' | 'not_found' | 'error';
+    firmName?: string | null;
+    message?: string;
+  }>({ status: 'idle' });
+
+  const handleValidateSRA = async () => {
+    if (!regulatoryNumber.trim()) return;
+    
+    setSraValidation({ status: 'loading' });
+    try {
+      const { data, error } = await supabase.functions.invoke('validate-sra-number', {
+        body: { sraNumber: regulatoryNumber.trim() },
+      });
+
+      if (error) throw error;
+
+      if (data?.valid) {
+        setSraValidation({
+          status: 'valid',
+          firmName: data.firmName,
+        });
+        toast({
+          title: "SRA Number Verified",
+          description: data.firmName 
+            ? `Matched to: ${data.firmName}` 
+            : "Your SRA number has been verified.",
+        });
+      } else {
+        setSraValidation({
+          status: 'not_found',
+          message: data?.message || 'Could not verify this SRA number automatically.',
+        });
+      }
+    } catch (error) {
+      setSraValidation({
+        status: 'error',
+        message: 'Verification service unavailable. Your number will be manually reviewed.',
+      });
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
