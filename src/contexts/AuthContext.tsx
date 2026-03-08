@@ -21,6 +21,11 @@ interface LawFirm {
   practice_areas: string[];
   is_verified: boolean;
   nda_signed: boolean;
+  website: string | null;
+  address: string | null;
+  city: string | null;
+  country: string | null;
+  logo_url: string | null;
 }
 
 interface AuthContextType {
