@@ -280,6 +280,25 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
                 </p>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="regulatoryBody">Regulatory Body *</Label>
+                <Select value={regulatoryBody} onValueChange={setRegulatoryBody}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your regulatory body" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REGULATORY_BODIES.map((body) => (
+                      <SelectItem key={body.value} value={body.value}>
+                        {body.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  All firms must be regulated by an approved legal regulatory authority.
+                </p>
+              </div>
+
               <Button 
                 variant="gold" 
                 className="w-full"
