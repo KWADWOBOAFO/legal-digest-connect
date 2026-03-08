@@ -384,6 +384,18 @@ const Auth = () => {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Home
         </Button>
+
+        {signupSuccess && (
+          <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 p-4 flex items-start gap-3">
+            <CheckCircle className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <p className="font-medium text-foreground">Verification email sent!</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Check your inbox and click the verification link to activate your account. Didn't get it? Check your spam folder.
+              </p>
+            </div>
+          </div>
+        )}
         
         <Card className="shadow-card">
           <CardHeader className="text-center">

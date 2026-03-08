@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Scale, ArrowLeft, Save, Loader2, Plus, X } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Scale, ArrowLeft, Save, Loader2, Plus, X, Upload, Building2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const PRACTICE_AREA_OPTIONS = [
@@ -22,6 +23,7 @@ const FirmSettings = () => {
   const { user, lawFirm, profile, isLoading: authLoading, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [firmName, setFirmName] = useState('');
   const [description, setDescription] = useState('');
@@ -31,7 +33,9 @@ const FirmSettings = () => {
   const [country, setCountry] = useState('');
   const [practiceAreas, setPracticeAreas] = useState<string[]>([]);
   const [phone, setPhone] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -53,11 +57,60 @@ const FirmSettings = () => {
       setCity((lawFirm as any).city || '');
       setCountry((lawFirm as any).country || '');
       setPracticeAreas(lawFirm.practice_areas || []);
+      setLogoUrl((lawFirm as any).logo_url || '');
     }
     if (profile) {
       setPhone(profile.phone || '');
     }
   }, [lawFirm, profile]);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !lawFirm) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Invalid file', description: 'Please upload an image file.', variant: 'destructive' });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Logo must be under 2MB.', variant: 'destructive' });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `${user!.id}/logo.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('firm-logos')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('firm-logos')
+        .getPublicUrl(filePath);
+
+      // Add cache-buster
+      const urlWithCacheBust = `${publicUrl}?t=${Date.now()}`;
+
+      const { error: updateError } = await supabase
+        .from('law_firms')
+        .update({ logo_url: publicUrl })
+        .eq('id', lawFirm.id);
+
+      if (updateError) throw updateError;
+
+      setLogoUrl(urlWithCacheBust);
+      await refreshProfile();
+      toast({ title: 'Logo uploaded', description: 'Your firm logo has been updated.' });
+    } catch (error: any) {
+      toast({ title: 'Upload failed', description: error.message || 'Could not upload logo.', variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!lawFirm) return;
@@ -79,7 +132,6 @@ const FirmSettings = () => {
 
       if (firmError) throw firmError;
 
-      // Update phone on profile
       if (profile) {
         const { error: profileError } = await supabase
           .from('profiles')
@@ -137,6 +189,43 @@ const FirmSettings = () => {
 
       <main className="container mx-auto px-4 py-8 max-w-2xl space-y-6">
         <h1 className="text-3xl font-bold text-foreground">Firm Settings</h1>
+
+        {/* Logo Upload */}
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle>Firm Logo</CardTitle>
+            <CardDescription>Upload your firm's logo to brand your profile.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center gap-6">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={logoUrl} alt={firmName} />
+              <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                <Building2 className="h-8 w-8" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="space-y-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                className="hidden"
+              />
+              <Button
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+              >
+                {isUploading ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Uploading...</>
+                ) : (
+                  <><Upload className="h-4 w-4 mr-2" />Upload Logo</>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground">PNG, JPG up to 2MB</p>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Basic Info */}
         <Card className="shadow-card">
@@ -198,7 +287,7 @@ const FirmSettings = () => {
         <Card className="shadow-card">
           <CardHeader>
             <CardTitle>Practice Areas</CardTitle>
-            <CardDescription>Select the areas of law your firm specializes in. This determines which cases you'll see.</CardDescription>
+            <CardDescription>Select the areas of law your firm specializes in.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
@@ -231,15 +320,9 @@ const FirmSettings = () => {
           disabled={isSaving || practiceAreas.length === 0}
         >
           {isSaving ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Saving...
-            </>
+            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving...</>
           ) : (
-            <>
-              <Save className="h-4 w-4 mr-2" />
-              Save Settings
-            </>
+            <><Save className="h-4 w-4 mr-2" />Save Settings</>
           )}
         </Button>
       </main>
