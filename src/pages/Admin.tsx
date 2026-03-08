@@ -251,6 +251,31 @@ const Admin = () => {
     navigate('/');
   };
 
+  const handleSaveRegulatory = async () => {
+    if (!selectedFirm) return;
+    try {
+      const { error } = await supabase
+        .from('law_firms')
+        .update({ 
+          regulatory_body: editRegulatoryBody || null, 
+          regulatory_number: editRegulatoryNumber || null 
+        })
+        .eq('id', selectedFirm.id);
+
+      if (error) throw error;
+
+      setFirms(firms.map(f => f.id === selectedFirm.id 
+        ? { ...f, regulatory_body: editRegulatoryBody || null, regulatory_number: editRegulatoryNumber || null } 
+        : f
+      ));
+      setSelectedFirm({ ...selectedFirm, regulatory_body: editRegulatoryBody || null, regulatory_number: editRegulatoryNumber || null });
+      setIsEditingRegulatory(false);
+      toast({ title: "Regulatory info updated" });
+    } catch (error) {
+      toast({ title: "Update failed", variant: "destructive" });
+    }
+  };
+
   const filteredFirms = firms.filter(firm => {
     const matchesSearch = 
       firm.firm_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
