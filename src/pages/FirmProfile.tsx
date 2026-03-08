@@ -236,6 +236,22 @@ const FirmProfile = () => {
                     </a>
                   </div>
                 )}
+
+                {/* Regulatory Info */}
+                {firm.regulatory_body && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      Regulated by{' '}
+                      <span className="font-medium">
+                        {REGULATORY_BODY_LABELS[firm.regulatory_body] || firm.regulatory_body}
+                      </span>
+                      {firm.regulatory_number && (
+                        <span className="text-muted-foreground"> — Reg. No. {firm.regulatory_number}</span>
+                      )}
+                    </span>
+                  </div>
+                )}
                 
                 {/* Practice Areas */}
                 <div className="flex flex-wrap gap-2 mt-4">
