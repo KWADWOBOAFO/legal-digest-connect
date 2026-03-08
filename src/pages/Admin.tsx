@@ -543,7 +543,7 @@ const Admin = () => {
       </main>
 
       {/* Firm Detail Dialog */}
-      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+      <Dialog open={isDetailOpen} onOpenChange={(open) => { setIsDetailOpen(open); if (!open) setIsEditingRegulatory(false); }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{selectedFirm?.firm_name}</DialogTitle>
