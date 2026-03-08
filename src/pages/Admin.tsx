@@ -241,6 +241,8 @@ const Admin = () => {
         description: "The verification has been denied and the firm has been notified."
       });
 
+      await logAdminAction('firm_rejected', 'firm', selectedFirm.id, { firmName: selectedFirm.firm_name, reason: rejectReason });
+
       setFirms(firms.map(f => f.id === selectedFirm.id ? { ...f, is_verified: false } : f));
       setIsRejectOpen(false);
       setRejectReason('');
