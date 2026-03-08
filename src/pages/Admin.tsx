@@ -564,6 +564,26 @@ const Admin = () => {
                 </div>
               </div>
 
+              {/* Regulatory Information */}
+              {(selectedFirm.regulatory_body || selectedFirm.regulatory_number) && (
+                <div className="pt-4 border-t">
+                  <p className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    Regulatory Information
+                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Regulatory Body</p>
+                      <p className="font-medium">{selectedFirm.regulatory_body || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Registration Number</p>
+                      <p className="font-medium font-mono">{selectedFirm.regulatory_number || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 <div>
                   <p className="text-sm text-muted-foreground">NDA Signed</p>
