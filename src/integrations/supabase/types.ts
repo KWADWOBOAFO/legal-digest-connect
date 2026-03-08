@@ -466,6 +466,7 @@ export type Database = {
           nda_signed: boolean | null
           nda_signed_at: string | null
           practice_areas: string[] | null
+          regulatory_body: string | null
           subscription_tier: string | null
           updated_at: string
           user_id: string
@@ -486,6 +487,7 @@ export type Database = {
           nda_signed?: boolean | null
           nda_signed_at?: string | null
           practice_areas?: string[] | null
+          regulatory_body?: string | null
           subscription_tier?: string | null
           updated_at?: string
           user_id: string
@@ -506,6 +508,7 @@ export type Database = {
           nda_signed?: boolean | null
           nda_signed_at?: string | null
           practice_areas?: string[] | null
+          regulatory_body?: string | null
           subscription_tier?: string | null
           updated_at?: string
           user_id?: string

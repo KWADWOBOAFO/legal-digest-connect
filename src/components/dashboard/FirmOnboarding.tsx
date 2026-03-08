@@ -8,8 +8,20 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Scale, Building2, FileCheck, Shield, ArrowRight, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+const REGULATORY_BODIES = [
+  { value: 'sra', label: 'SRA — Solicitors Regulation Authority' },
+  { value: 'bsb', label: 'BSB — Bar Standards Board' },
+  { value: 'cilex', label: 'CILEx Regulation' },
+  { value: 'law_society', label: 'The Law Society' },
+  { value: 'lsra', label: 'LSRA — Legal Services Regulatory Authority (Ireland)' },
+  { value: 'iaa', label: 'IAA — Immigration Advisers Authority' },
+  { value: 'oisc', label: 'OISC — Office of the Immigration Services Commissioner' },
+  { value: 'other', label: 'Other Regulatory Body' },
+];
 
 const PRACTICE_AREAS = [
   "Criminal Law", "Contract Law", "Family Law", "Property Law", "Tax Law",
@@ -46,6 +58,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [regulatoryBody, setRegulatoryBody] = useState('');
   
   // NDA acceptance
   const [ndaAccepted, setNdaAccepted] = useState(false);
@@ -78,6 +91,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
           city,
           country,
           practice_areas: selectedAreas,
+          regulatory_body: regulatoryBody || null,
           is_verified: false,
           nda_signed: false
         });
@@ -266,11 +280,30 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
                 </p>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="regulatoryBody">Regulatory Body *</Label>
+                <Select value={regulatoryBody} onValueChange={setRegulatoryBody}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your regulatory body" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REGULATORY_BODIES.map((body) => (
+                      <SelectItem key={body.value} value={body.value}>
+                        {body.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  All firms must be regulated by an approved legal regulatory authority.
+                </p>
+              </div>
+
               <Button 
                 variant="gold" 
                 className="w-full"
                 onClick={handleCreateFirm}
-                disabled={isSubmitting || !firmName || selectedAreas.length === 0}
+                disabled={isSubmitting || !firmName || selectedAreas.length === 0 || !regulatoryBody}
               >
                 {isSubmitting ? 'Creating Profile...' : 'Continue to NDA'}
                 <ArrowRight className="h-4 w-4 ml-2" />
@@ -307,7 +340,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
                     <strong>Security Obligations:</strong> You shall maintain reasonable security practices and promptly report any data breaches or security incidents.
                   </li>
                   <li>
-                    <strong>Professional Standards:</strong> You confirm that all legal professionals in your firm are properly licensed and will adhere to professional conduct standards.
+                    <strong>Professional Standards:</strong> You confirm that all legal professionals in your firm are properly regulated by their respective governing body (e.g., SRA — Solicitors Regulation Authority, The Law Society, BSB — Bar Standards Board, CILEx Regulation, or equivalent regulatory authority) and will adhere to their professional conduct rules and codes of practice.
                   </li>
                   <li>
                     <strong>Term:</strong> This agreement remains in effect for the duration of your subscription and continues after termination with respect to information received during the subscription period.
