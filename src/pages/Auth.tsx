@@ -413,6 +413,16 @@ const Auth = () => {
                   <p className="text-sm text-destructive">{errors.password}</p>
                 )}
               </div>
+
+              {isLogin && (
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(true)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot your password?
+                </button>
+              )}
               
               <Button 
                 type="submit" 
