@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { 
+import AuthDialog from "@/components/auth/AuthDialog";
   Users, Filter, Video, FileText, Star, Shield, 
   ArrowRight, Check 
 } from "lucide-react";
