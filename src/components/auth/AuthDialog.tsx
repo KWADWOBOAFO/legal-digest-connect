@@ -162,10 +162,18 @@ const AuthDialog = ({ open, onOpenChange, initialView, initialUserType }: AuthDi
     }
   };
 
+  // Sync initial props when dialog opens
+  React.useEffect(() => {
+    if (open) {
+      if (initialView) setView(initialView);
+      if (initialUserType) setUserType(initialUserType);
+    }
+  }, [open, initialView, initialUserType]);
+
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       resetForm();
-      setView('login');
+      setView(initialView || 'login');
     }
     onOpenChange(newOpen);
   };
