@@ -50,6 +50,8 @@ interface LawFirm {
   nda_signed_at: string | null;
   created_at: string;
   user_id: string;
+  regulatory_body: string | null;
+  regulatory_number: string | null;
 }
 
 interface Profile {
@@ -441,11 +443,17 @@ const Admin = () => {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-2 mb-2">
                         {firm.practice_areas?.map((area, idx) => (
                           <Badge key={idx} variant="outline">{area}</Badge>
                         ))}
                       </div>
+                      {(firm.regulatory_body || firm.regulatory_number) && (
+                        <p className="text-sm text-muted-foreground mb-4">
+                          <Shield className="h-3 w-3 inline mr-1" />
+                          {firm.regulatory_body}: <span className="font-mono">{firm.regulatory_number}</span>
+                        </p>
+                      )}
                       <div className="flex gap-2">
                         <Button 
                           variant="outline" 
@@ -561,6 +569,26 @@ const Admin = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Regulatory Information */}
+              {(selectedFirm.regulatory_body || selectedFirm.regulatory_number) && (
+                <div className="pt-4 border-t">
+                  <p className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    Regulatory Information
+                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Regulatory Body</p>
+                      <p className="font-medium">{selectedFirm.regulatory_body || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Registration Number</p>
+                      <p className="font-medium font-mono">{selectedFirm.regulatory_number || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 <div>
