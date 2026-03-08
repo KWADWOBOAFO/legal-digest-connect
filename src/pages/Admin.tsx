@@ -38,6 +38,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import CaseModerationQueue from '@/components/admin/CaseModerationQueue';
 import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
+import UserRoleManagement from '@/components/admin/UserRoleManagement';
 
 interface LawFirm {
   id: string;
@@ -437,6 +438,7 @@ const Admin = () => {
             <TabsTrigger value="analytics">Platform Analytics</TabsTrigger>
             <TabsTrigger value="firms">Law Firms</TabsTrigger>
             <TabsTrigger value="cases">Cases Overview</TabsTrigger>
+            <TabsTrigger value="roles">User Roles</TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics">
@@ -613,6 +615,10 @@ const Admin = () => {
 
           <TabsContent value="cases" className="space-y-4">
             <CaseModerationQueue />
+          </TabsContent>
+
+          <TabsContent value="roles" className="space-y-4">
+            <UserRoleManagement />
           </TabsContent>
         </Tabs>
       </main>
