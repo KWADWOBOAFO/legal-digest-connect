@@ -1,0 +1,1 @@
+ALTER TABLE public.law_firms ADD COLUMN regulatory_body text DEFAULT NULL;
