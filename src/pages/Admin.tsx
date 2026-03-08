@@ -94,6 +94,17 @@ const Admin = () => {
     }
   }, [isAdmin]);
 
+  // Show nothing while role is loading or if not admin - prevents UI flash
+  if (roleLoading || !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        {roleLoading ? (
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        ) : null}
+      </div>
+    );
+  }
+
   const fetchFirms = async () => {
     try {
       // Fetch all law firms
