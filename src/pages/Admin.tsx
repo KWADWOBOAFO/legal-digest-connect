@@ -192,6 +192,8 @@ const Admin = () => {
         description: "The law firm has been successfully verified and notified via email."
       });
 
+      await logAdminAction('firm_verified', 'firm', firmId, { firmName: firm.firm_name });
+
       setFirms(firms.map(f => f.id === firmId ? { ...f, is_verified: true } : f));
       setIsDetailOpen(false);
     } catch (error) {
