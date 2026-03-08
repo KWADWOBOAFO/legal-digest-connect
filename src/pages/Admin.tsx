@@ -623,6 +623,10 @@ const Admin = () => {
           <TabsContent value="roles" className="space-y-4">
             <UserRoleManagement />
           </TabsContent>
+
+          <TabsContent value="activity" className="space-y-4">
+            <AdminActivityLog />
+          </TabsContent>
         </Tabs>
       </main>
 
