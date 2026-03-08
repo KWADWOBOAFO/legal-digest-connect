@@ -118,6 +118,7 @@ const ForFirms = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 
