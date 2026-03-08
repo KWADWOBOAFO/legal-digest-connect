@@ -25,11 +25,13 @@ type AuthView = 'login' | 'signup' | 'forgot-password';
 interface AuthDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialView?: AuthView;
+  initialUserType?: 'individual' | 'firm';
 }
 
-const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
-  const [view, setView] = useState<AuthView>('login');
-  const [userType, setUserType] = useState<'individual' | 'firm'>('individual');
+const AuthDialog = ({ open, onOpenChange, initialView, initialUserType }: AuthDialogProps) => {
+  const [view, setView] = useState<AuthView>(initialView || 'login');
+  const [userType, setUserType] = useState<'individual' | 'firm'>(initialUserType || 'individual');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
