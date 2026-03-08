@@ -14,6 +14,7 @@ import Admin from "./pages/Admin";
 import CaseDetail from "./pages/CaseDetail";
 import Notifications from "./pages/Notifications";
 import FirmProfile from "./pages/FirmProfile";
+import FirmSettings from "./pages/FirmSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
