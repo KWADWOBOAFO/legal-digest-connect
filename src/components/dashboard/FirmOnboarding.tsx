@@ -307,7 +307,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
                     <strong>Security Obligations:</strong> You shall maintain reasonable security practices and promptly report any data breaches or security incidents.
                   </li>
                   <li>
-                    <strong>Professional Standards:</strong> You confirm that all legal professionals in your firm are properly licensed and will adhere to professional conduct standards.
+                    <strong>Professional Standards:</strong> You confirm that all legal professionals in your firm are properly regulated by their respective governing body (e.g., SRA — Solicitors Regulation Authority, The Law Society, BSB — Bar Standards Board, CILEx Regulation, or equivalent regulatory authority) and will adhere to their professional conduct rules and codes of practice.
                   </li>
                   <li>
                     <strong>Term:</strong> This agreement remains in effect for the duration of your subscription and continues after termination with respect to information received during the subscription period.
