@@ -59,6 +59,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
   const [country, setCountry] = useState('');
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [regulatoryBody, setRegulatoryBody] = useState('');
+  const [regulatoryNumber, setRegulatoryNumber] = useState('');
   
   // NDA acceptance
   const [ndaAccepted, setNdaAccepted] = useState(false);
