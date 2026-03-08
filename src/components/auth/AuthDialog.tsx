@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,11 +25,13 @@ type AuthView = 'login' | 'signup' | 'forgot-password';
 interface AuthDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialView?: AuthView;
+  initialUserType?: 'individual' | 'firm';
 }
 
-const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
-  const [view, setView] = useState<AuthView>('login');
-  const [userType, setUserType] = useState<'individual' | 'firm'>('individual');
+const AuthDialog = ({ open, onOpenChange, initialView, initialUserType }: AuthDialogProps) => {
+  const [view, setView] = useState<AuthView>(initialView || 'login');
+  const [userType, setUserType] = useState<'individual' | 'firm'>(initialUserType || 'individual');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -160,10 +162,18 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     }
   };
 
+  // Sync initial props when dialog opens
+  React.useEffect(() => {
+    if (open) {
+      if (initialView) setView(initialView);
+      if (initialUserType) setUserType(initialUserType);
+    }
+  }, [open, initialView, initialUserType]);
+
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       resetForm();
-      setView('login');
+      setView(initialView || 'login');
     }
     onOpenChange(newOpen);
   };

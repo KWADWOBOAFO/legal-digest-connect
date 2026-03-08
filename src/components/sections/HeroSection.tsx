@@ -1,7 +1,25 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, Users, Clock } from "lucide-react";
+import AuthDialog from "@/components/auth/AuthDialog";
 
 const HeroSection = () => {
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authView, setAuthView] = useState<'login' | 'signup'>('signup');
+  const [authUserType, setAuthUserType] = useState<'individual' | 'firm'>('individual');
+
+  const handleSubmitCase = () => {
+    setAuthView('signup');
+    setAuthUserType('individual');
+    setAuthOpen(true);
+  };
+
+  const handleFirmLogin = () => {
+    setAuthView('login');
+    setAuthUserType('firm');
+    setAuthOpen(true);
+  };
+
   return (
     <section className="relative min-h-screen bg-hero-gradient overflow-hidden">
       {/* Background Pattern */}
@@ -45,11 +63,11 @@ const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-up delay-300">
-            <Button variant="hero" size="lg">
+            <Button variant="hero" size="lg" onClick={handleSubmitCase}>
               Submit Your Case
               <ArrowRight className="w-5 h-5" />
             </Button>
-            <Button variant="hero-outline" size="lg">
+            <Button variant="hero-outline" size="lg" onClick={handleFirmLogin}>
               I'm a Law Firm
             </Button>
           </div>
@@ -83,6 +101,14 @@ const HeroSection = () => {
 
       {/* Bottom Gradient Fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+
+      {/* Auth Dialog */}
+      <AuthDialog
+        open={authOpen}
+        onOpenChange={setAuthOpen}
+        initialView={authView}
+        initialUserType={authUserType}
+      />
     </section>
   );
 };
