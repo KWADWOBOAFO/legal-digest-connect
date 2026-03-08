@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import AuthDialog from "@/components/auth/AuthDialog";
 import { 
   Users, Filter, Video, FileText, Star, Shield, 
   ArrowRight, Check 
@@ -47,7 +49,11 @@ const features = [
 ];
 
 const ForFirms = () => {
+  const [authOpen, setAuthOpen] = useState(false);
+
   return (
+    <>
+      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
     <section id="for-firms" className="py-24 bg-primary text-primary-foreground">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -78,7 +84,7 @@ const ForFirms = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="gold" size="lg">
+              <Button variant="gold" size="lg" onClick={() => setAuthOpen(true)}>
                 Join as a Firm
                 <ArrowRight className="w-5 h-5" />
               </Button>
@@ -113,6 +119,7 @@ const ForFirms = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 
