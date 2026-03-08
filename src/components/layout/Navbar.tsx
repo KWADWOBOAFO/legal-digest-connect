@@ -18,6 +18,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { user, profile, signOut, isLoading } = useAuth();
+  const { isAdmin } = useUserRole();
   const navigate = useNavigate();
 
   const navLinks = [
