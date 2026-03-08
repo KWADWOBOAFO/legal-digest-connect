@@ -470,6 +470,25 @@ const Admin = () => {
               </CardContent>
             </Card>
 
+            {/* Bulk Actions Bar */}
+            {pendingFirmIds.length > 0 && (
+              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                <Checkbox 
+                  checked={allPendingSelected} 
+                  onCheckedChange={toggleAllPending}
+                />
+                <span className="text-sm text-muted-foreground">
+                  {selectedFirmIds.size > 0 ? `${selectedFirmIds.size} selected` : `Select all pending (${pendingFirmIds.length})`}
+                </span>
+                {selectedFirmIds.size > 0 && (
+                  <Button size="sm" className="ml-auto bg-green-600 hover:bg-green-700" onClick={handleBulkVerify}>
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Verify {selectedFirmIds.size} Firm(s)
+                  </Button>
+                )}
+              </div>
+            )}
+
             {/* Firms List */}
             {filteredFirms.length === 0 ? (
               <Card>
@@ -487,14 +506,18 @@ const Admin = () => {
               <div className="space-y-4">
                 {filteredFirms.map((firm) => (
                   <Card key={firm.id} className={
-                    firm.nda_signed && !firm.is_verified 
-                      ? 'border-amber-200 bg-amber-50/50' 
-                      : ''
+                    `${firm.nda_signed && !firm.is_verified ? 'border-amber-200 bg-amber-50/50' : ''} ${selectedFirmIds.has(firm.id) ? 'ring-2 ring-primary' : ''}`
                   }>
                     <CardHeader>
                       <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg flex items-center gap-2">
+                        <div className="flex items-start gap-3 flex-1">
+                          {firm.nda_signed && !firm.is_verified && (
+                            <Checkbox 
+                              checked={selectedFirmIds.has(firm.id)}
+                              onCheckedChange={() => toggleFirmSelection(firm.id)}
+                              className="mt-1"
+                            />
+                          )}
                             {firm.firm_name}
                             {firm.is_verified && (
                               <Badge variant="default" className="bg-green-600">
