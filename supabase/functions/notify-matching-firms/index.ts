@@ -6,7 +6,7 @@ const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 interface NotifyFirmsRequest {
@@ -58,18 +58,17 @@ const handler = async (req: Request): Promise<Response> => {
       global: { headers: { Authorization: authHeader } }
     });
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+    const { data: { user: authUser }, error: authError } = await userClient.auth.getUser();
     
-    if (claimsError || !claimsData?.claims) {
-      console.error("Auth verification failed:", claimsError);
+    if (authError || !authUser) {
+      console.error("Auth verification failed:", authError);
       return new Response(
         JSON.stringify({ error: "Invalid authentication" }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const userId = claimsData.claims.sub;
+    const userId = authUser.id;
     console.log("Authenticated user:", userId);
 
     const { caseId, caseTitle, practiceArea, userLatitude, userLongitude, userCity }: NotifyFirmsRequest = await req.json();

@@ -7,7 +7,8 @@ interface CaseCardProps {
   caseData: {
     id: string;
     title: string;
-    description: string;
+    description?: string;
+    summary?: string | null;
     status: string;
     assigned_practice_area: string | null;
     ai_suggested_practice_areas: string[];
@@ -42,7 +43,7 @@ const CaseCard = ({ caseData, onExpressInterest, isMatched }: CaseCardProps) => 
           <div className="flex-1">
             <CardTitle className="text-lg">{caseData.title}</CardTitle>
             <CardDescription className="mt-2">
-              {caseData.description.substring(0, 200)}...
+              {(caseData.description || caseData.summary || '').substring(0, 200)}...
             </CardDescription>
           </div>
           <div className="flex flex-col gap-2 items-end">

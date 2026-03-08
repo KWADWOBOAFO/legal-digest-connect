@@ -37,7 +37,8 @@ import { NotificationPermissionButton } from '@/components/notifications/Notific
 interface Case {
   id: string;
   title: string;
-  description: string;
+  summary: string | null;
+  description?: string;
   status: string;
   assigned_practice_area: string | null;
   ai_suggested_practice_areas: string[];
@@ -52,7 +53,16 @@ interface Case {
 interface CaseMatch {
   id: string;
   status: string;
-  cases: Case;
+  cases: {
+    id: string;
+    title: string;
+    description: string;
+    status: string;
+    assigned_practice_area: string | null;
+    ai_suggested_practice_areas: string[];
+    urgency_level: string;
+    created_at: string;
+  };
 }
 
 interface Consultation {
@@ -97,11 +107,10 @@ const FirmDashboard = () => {
 
   const fetchFirmData = async () => {
     try {
-      // Fetch available cases (pending status)
+      // Fetch available cases (pending status) using anonymized view
       const { data: casesData } = await supabase
-        .from('cases')
+        .from('cases_pending_anonymized')
         .select('*')
-        .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       // Fetch firm's matched cases
@@ -428,7 +437,7 @@ const FirmDashboard = () => {
                       <div>
                         <CardTitle className="text-lg">{match.cases.title}</CardTitle>
                         <CardDescription>
-                          {match.cases.description.substring(0, 150)}...
+                          {(match.cases.description || '').substring(0, 150)}...
                         </CardDescription>
                       </div>
                       <Badge>{match.status}</Badge>

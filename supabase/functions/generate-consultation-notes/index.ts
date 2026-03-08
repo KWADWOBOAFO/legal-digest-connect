@@ -29,7 +29,7 @@ const getCorsHeaders = (req: Request): Record<string, string> => {
   
   return {
     "Access-Control-Allow-Origin": isAllowed ? origin : allowedOrigins[0],
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
     "Access-Control-Allow-Credentials": "true",
   };
 };
@@ -88,18 +88,17 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    const { data: { user: authUser }, error: authError } = await supabaseClient.auth.getUser();
     
-    if (claimsError || !claimsData?.claims) {
-      console.error("Auth error:", claimsError);
+    if (authError || !authUser) {
+      console.error("Auth error:", authError);
       return new Response(
         JSON.stringify({ error: ErrorMessages.AUTH_REQUIRED, code: "AUTH_FAILED" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const userId = claimsData.claims.sub;
+    const userId = authUser.id;
     console.log("Authenticated user:", userId);
 
     const body = await req.json();
