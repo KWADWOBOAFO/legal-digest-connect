@@ -37,7 +37,8 @@ import { NotificationPermissionButton } from '@/components/notifications/Notific
 interface Case {
   id: string;
   title: string;
-  description: string;
+  summary: string | null;
+  description?: string;
   status: string;
   assigned_practice_area: string | null;
   ai_suggested_practice_areas: string[];
