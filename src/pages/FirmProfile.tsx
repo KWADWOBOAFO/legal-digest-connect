@@ -30,7 +30,20 @@ interface LawFirm {
   practice_areas: string[];
   is_verified: boolean;
   logo_url: string | null;
+  regulatory_body: string | null;
+  regulatory_number: string | null;
 }
+
+const REGULATORY_BODY_LABELS: Record<string, string> = {
+  sra: 'SRA — Solicitors Regulation Authority',
+  bsb: 'BSB — Bar Standards Board',
+  cilex: 'CILEx Regulation',
+  law_society: 'The Law Society',
+  lsra: 'LSRA — Legal Services Regulatory Authority',
+  iaa: 'IAA — Immigration Advisers Authority',
+  oisc: 'OISC — Office of the Immigration Services Commissioner',
+  other: 'Other Regulatory Body',
+};
 
 interface LegalProfessional {
   id: string;
