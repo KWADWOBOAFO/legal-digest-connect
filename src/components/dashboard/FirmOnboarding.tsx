@@ -303,7 +303,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
                 variant="gold" 
                 className="w-full"
                 onClick={handleCreateFirm}
-                disabled={isSubmitting || !firmName || selectedAreas.length === 0}
+                disabled={isSubmitting || !firmName || selectedAreas.length === 0 || !regulatoryBody}
               >
                 {isSubmitting ? 'Creating Profile...' : 'Continue to NDA'}
                 <ArrowRight className="h-4 w-4 ml-2" />
