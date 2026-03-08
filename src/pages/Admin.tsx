@@ -616,6 +616,10 @@ const Admin = () => {
           <TabsContent value="cases" className="space-y-4">
             <CaseModerationQueue />
           </TabsContent>
+
+          <TabsContent value="roles" className="space-y-4">
+            <UserRoleManagement />
+          </TabsContent>
         </Tabs>
       </main>
 
