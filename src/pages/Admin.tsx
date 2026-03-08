@@ -21,7 +21,9 @@ import {
   Eye,
   FileText,
   Users,
-  BarChart3
+  BarChart3,
+  Pencil,
+  Save
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
