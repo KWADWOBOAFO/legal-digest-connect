@@ -438,6 +438,7 @@ const Admin = () => {
             <TabsTrigger value="analytics">Platform Analytics</TabsTrigger>
             <TabsTrigger value="firms">Law Firms</TabsTrigger>
             <TabsTrigger value="cases">Cases Overview</TabsTrigger>
+            <TabsTrigger value="roles">User Roles</TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics">
