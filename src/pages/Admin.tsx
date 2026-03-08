@@ -50,6 +50,8 @@ interface LawFirm {
   nda_signed_at: string | null;
   created_at: string;
   user_id: string;
+  regulatory_body: string | null;
+  regulatory_number: string | null;
 }
 
 interface Profile {
