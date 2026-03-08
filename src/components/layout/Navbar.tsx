@@ -176,6 +176,19 @@ const Navbar = () => {
                         <User className="mr-2 h-4 w-4" />
                         Dashboard
                       </Button>
+                      {isAdmin && (
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start"
+                          onClick={() => {
+                            setIsOpen(false);
+                            navigate('/admin');
+                          }}
+                        >
+                          <Shield className="mr-2 h-4 w-4" />
+                          Admin Panel
+                        </Button>
+                      )}
                       <Button 
                         variant="ghost" 
                         className="w-full justify-start text-destructive hover:text-destructive"
