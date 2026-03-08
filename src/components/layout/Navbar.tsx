@@ -78,38 +78,45 @@ const Navbar = () => {
               {isLoading ? (
                 <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
               ) : user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-2 px-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={profile?.avatar_url || undefined} />
-                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                          {getInitials(profile?.full_name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium max-w-[150px] truncate">
-                        {displayName}
-                      </span>
+                <>
+                  {isAdmin && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 border-destructive/30 text-destructive hover:bg-destructive/10"
+                      onClick={() => navigate('/admin')}
+                    >
+                      <Shield className="h-4 w-4" />
+                      Admin Panel
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-                      <User className="mr-2 h-4 w-4" />
-                      Dashboard
-                    </DropdownMenuItem>
-                    {isAdmin && (
-                      <DropdownMenuItem onClick={() => navigate('/admin')}>
-                        <Shield className="mr-2 h-4 w-4" />
-                        Admin Panel
+                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="flex items-center gap-2 px-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={profile?.avatar_url || undefined} />
+                          <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                            {getInitials(profile?.full_name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium max-w-[150px] truncate">
+                          {displayName}
+                        </span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                        <User className="mr-2 h-4 w-4" />
+                        Dashboard
                       </DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sign Out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               ) : (
                 <>
                   <Button variant="ghost" onClick={() => setAuthDialogOpen(true)}>
