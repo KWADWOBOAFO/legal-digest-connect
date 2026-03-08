@@ -53,7 +53,16 @@ interface Case {
 interface CaseMatch {
   id: string;
   status: string;
-  cases: Case;
+  cases: {
+    id: string;
+    title: string;
+    description: string;
+    status: string;
+    assigned_practice_area: string | null;
+    ai_suggested_practice_areas: string[];
+    urgency_level: string;
+    created_at: string;
+  };
 }
 
 interface Consultation {
