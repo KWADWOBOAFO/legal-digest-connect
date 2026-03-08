@@ -8,8 +8,20 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Scale, Building2, FileCheck, Shield, ArrowRight, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+const REGULATORY_BODIES = [
+  { value: 'sra', label: 'SRA — Solicitors Regulation Authority' },
+  { value: 'bsb', label: 'BSB — Bar Standards Board' },
+  { value: 'cilex', label: 'CILEx Regulation' },
+  { value: 'law_society', label: 'The Law Society' },
+  { value: 'lsra', label: 'LSRA — Legal Services Regulatory Authority (Ireland)' },
+  { value: 'iaa', label: 'IAA — Immigration Advisers Authority' },
+  { value: 'oisc', label: 'OISC — Office of the Immigration Services Commissioner' },
+  { value: 'other', label: 'Other Regulatory Body' },
+];
 
 const PRACTICE_AREAS = [
   "Criminal Law", "Contract Law", "Family Law", "Property Law", "Tax Law",
