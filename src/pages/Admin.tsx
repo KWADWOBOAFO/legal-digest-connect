@@ -278,6 +278,17 @@ const Admin = () => {
     }
   };
 
+  const filteredFirms = firms.filter(firm => {
+    const matchesSearch = 
+      firm.firm_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (profiles[firm.user_id]?.email || '').toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (filterStatus === 'all') return matchesSearch;
+    if (filterStatus === 'pending') return matchesSearch && firm.nda_signed && !firm.is_verified;
+    if (filterStatus === 'verified') return matchesSearch && firm.is_verified;
+    return matchesSearch;
+  });
+
   const pendingFirmIds = filteredFirms.filter(f => f.nda_signed && !f.is_verified).map(f => f.id);
   const allPendingSelected = pendingFirmIds.length > 0 && pendingFirmIds.every(id => selectedFirmIds.has(id));
 
@@ -324,17 +335,6 @@ const Admin = () => {
       toast({ title: "Bulk verification failed", variant: "destructive" });
     }
   };
-
-
-    const matchesSearch = 
-      firm.firm_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (profiles[firm.user_id]?.email || '').toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (filterStatus === 'all') return matchesSearch;
-    if (filterStatus === 'pending') return matchesSearch && firm.nda_signed && !firm.is_verified;
-    if (filterStatus === 'verified') return matchesSearch && firm.is_verified;
-    return matchesSearch;
-  });
 
   const stats = {
     total: firms.length,
