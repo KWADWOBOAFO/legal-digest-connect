@@ -143,12 +143,12 @@ const Auth = () => {
             variant: "destructive"
           });
         } else {
+          setSignupSuccess(true);
           toast({
             title: "Check your email!",
             description: "We've sent you a verification link. Please verify your email to sign in.",
             duration: 10000,
           });
-          // Don't navigate - user needs to verify email first
         }
       }
     } catch {
