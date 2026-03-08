@@ -9,7 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Scale, Building2, FileCheck, Shield, ArrowRight, LogOut } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Scale, Building2, FileCheck, Shield, ArrowRight, LogOut, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const REGULATORY_BODIES = [
