@@ -19,6 +19,7 @@ const Auth = () => {
   const isPasswordReset = searchParams.get('reset') === 'true';
   
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [userType, setUserType] = useState<'individual' | 'firm'>('individual');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,7 +29,8 @@ const Auth = () => {
   const [passwordUpdated, setPasswordUpdated] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string; confirmPassword?: string }>({});
   
-  const { signIn, signUp, signInWithGoogle, updatePassword, user, isLoading } = useAuth();
+  const [resetEmailSent, setResetEmailSent] = useState(false);
+  const { signIn, signUp, signInWithGoogle, updatePassword, resetPassword, user, isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -271,6 +273,105 @@ const Auth = () => {
     );
   }
 
+  // Forgot Password View
+  if (isForgotPassword) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muted to-background p-4">
+        <div className="w-full max-w-md">
+          <Card className="shadow-card">
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <Scale className="h-12 w-12 text-primary" />
+              </div>
+              <CardTitle className="text-2xl">Reset Password</CardTitle>
+              <CardDescription>
+                {resetEmailSent
+                  ? "Check your email for a reset link"
+                  : "Enter your email and we'll send you a reset link"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {resetEmailSent ? (
+                <div className="text-center space-y-4">
+                  <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+                  <p className="text-muted-foreground">
+                    If an account exists with that email, you'll receive a password reset link shortly.
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setIsForgotPassword(false);
+                      setResetEmailSent(false);
+                      setEmail('');
+                    }}
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Sign In
+                  </Button>
+                </div>
+              ) : (
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const emailResult = emailSchema.safeParse(email);
+                    if (!emailResult.success) {
+                      setErrors({ email: emailResult.error.errors[0].message });
+                      return;
+                    }
+                    setIsSubmitting(true);
+                    const { error } = await resetPassword(email);
+                    setIsSubmitting(false);
+                    if (error) {
+                      toast({
+                        title: "Reset failed",
+                        description: error.message,
+                        variant: "destructive",
+                      });
+                    } else {
+                      setResetEmailSent(true);
+                    }
+                  }}
+                  className="space-y-4"
+                >
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-email">Email</Label>
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                    />
+                    {errors.email && (
+                      <p className="text-sm text-destructive">{errors.email}</p>
+                    )}
+                  </div>
+                  <Button type="submit" className="w-full" variant="gold" disabled={isSubmitting}>
+                    {isSubmitting ? 'Sending...' : 'Send Reset Link'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => {
+                      setIsForgotPassword(false);
+                      setErrors({});
+                    }}
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Sign In
+                  </Button>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muted to-background p-4">
       <div className="w-full max-w-md">
@@ -411,6 +512,16 @@ const Auth = () => {
                   <p className="text-sm text-destructive">{errors.password}</p>
                 )}
               </div>
+
+              {isLogin && (
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(true)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot your password?
+                </button>
+              )}
               
               <Button 
                 type="submit" 

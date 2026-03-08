@@ -14,6 +14,7 @@ import Admin from "./pages/Admin";
 import CaseDetail from "./pages/CaseDetail";
 import Notifications from "./pages/Notifications";
 import FirmProfile from "./pages/FirmProfile";
+import FirmSettings from "./pages/FirmSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/firm/:id" element={<FirmProfile />} />
+            <Route path="/firm-settings" element={<FirmSettings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

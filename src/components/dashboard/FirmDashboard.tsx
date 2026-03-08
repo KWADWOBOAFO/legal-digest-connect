@@ -194,7 +194,7 @@ const FirmDashboard = () => {
 
   const filteredCases = availableCases.filter(c => {
     const matchesSearch = c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.description.toLowerCase().includes(searchTerm.toLowerCase());
+      (c.summary || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPracticeArea = practiceAreaFilter === 'all' || 
       c.assigned_practice_area === practiceAreaFilter ||
       c.ai_suggested_practice_areas?.includes(practiceAreaFilter);
