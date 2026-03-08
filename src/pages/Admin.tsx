@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Scale, 
   Shield, 
@@ -83,6 +84,7 @@ const Admin = () => {
   const [isEditingRegulatory, setIsEditingRegulatory] = useState(false);
   const [editRegulatoryBody, setEditRegulatoryBody] = useState('');
   const [editRegulatoryNumber, setEditRegulatoryNumber] = useState('');
+  const [selectedFirmIds, setSelectedFirmIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -287,6 +289,53 @@ const Admin = () => {
     return matchesSearch;
   });
 
+  const pendingFirmIds = filteredFirms.filter(f => f.nda_signed && !f.is_verified).map(f => f.id);
+  const allPendingSelected = pendingFirmIds.length > 0 && pendingFirmIds.every(id => selectedFirmIds.has(id));
+
+  const toggleFirmSelection = (firmId: string) => {
+    setSelectedFirmIds(prev => {
+      const next = new Set(prev);
+      if (next.has(firmId)) next.delete(firmId); else next.add(firmId);
+      return next;
+    });
+  };
+
+  const toggleAllPending = () => {
+    if (allPendingSelected) {
+      setSelectedFirmIds(new Set());
+    } else {
+      setSelectedFirmIds(new Set(pendingFirmIds));
+    }
+  };
+
+  const handleBulkVerify = async () => {
+    if (selectedFirmIds.size === 0) return;
+    try {
+      const ids = Array.from(selectedFirmIds);
+      const { error } = await supabase
+        .from('law_firms')
+        .update({ is_verified: true })
+        .in('id', ids);
+      if (error) throw error;
+
+      for (const id of ids) {
+        const firm = firms.find(f => f.id === id);
+        const profile = firm ? profiles[firm.user_id] : null;
+        if (profile?.email && firm) {
+          supabase.functions.invoke('send-notification-email', {
+            body: { type: 'firm_verified', recipientEmail: profile.email, recipientName: profile.full_name || 'Law Firm Representative', data: { firmName: firm.firm_name } }
+          }).catch(console.error);
+        }
+      }
+
+      setFirms(firms.map(f => ids.includes(f.id) ? { ...f, is_verified: true } : f));
+      setSelectedFirmIds(new Set());
+      toast({ title: `${ids.length} firm(s) verified`, description: "Notification emails have been sent." });
+    } catch (error) {
+      toast({ title: "Bulk verification failed", variant: "destructive" });
+    }
+  };
+
   const stats = {
     total: firms.length,
     pending: firms.filter(f => f.nda_signed && !f.is_verified).length,
@@ -421,6 +470,25 @@ const Admin = () => {
               </CardContent>
             </Card>
 
+            {/* Bulk Actions Bar */}
+            {pendingFirmIds.length > 0 && (
+              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                <Checkbox 
+                  checked={allPendingSelected} 
+                  onCheckedChange={toggleAllPending}
+                />
+                <span className="text-sm text-muted-foreground">
+                  {selectedFirmIds.size > 0 ? `${selectedFirmIds.size} selected` : `Select all pending (${pendingFirmIds.length})`}
+                </span>
+                {selectedFirmIds.size > 0 && (
+                  <Button size="sm" className="ml-auto bg-green-600 hover:bg-green-700" onClick={handleBulkVerify}>
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Verify {selectedFirmIds.size} Firm(s)
+                  </Button>
+                )}
+              </div>
+            )}
+
             {/* Firms List */}
             {filteredFirms.length === 0 ? (
               <Card>
@@ -438,37 +506,44 @@ const Admin = () => {
               <div className="space-y-4">
                 {filteredFirms.map((firm) => (
                   <Card key={firm.id} className={
-                    firm.nda_signed && !firm.is_verified 
-                      ? 'border-amber-200 bg-amber-50/50' 
-                      : ''
+                    `${firm.nda_signed && !firm.is_verified ? 'border-amber-200 bg-amber-50/50' : ''} ${selectedFirmIds.has(firm.id) ? 'ring-2 ring-primary' : ''}`
                   }>
                     <CardHeader>
                       <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg flex items-center gap-2">
-                            {firm.firm_name}
-                            {firm.is_verified && (
-                              <Badge variant="default" className="bg-green-600">
-                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                Verified
-                              </Badge>
-                            )}
-                            {firm.nda_signed && !firm.is_verified && (
-                              <Badge variant="outline" className="border-amber-500 text-amber-700">
-                                <Clock className="h-3 w-3 mr-1" />
-                                Pending Review
-                              </Badge>
-                            )}
-                            {!firm.nda_signed && (
-                              <Badge variant="secondary">
-                                NDA Not Signed
-                              </Badge>
-                            )}
-                          </CardTitle>
-                          <CardDescription className="mt-1">
-                            {profiles[firm.user_id]?.email || 'No email'} • 
-                            Registered: {new Date(firm.created_at).toLocaleDateString()}
-                          </CardDescription>
+                        <div className="flex items-start gap-3 flex-1">
+                          {firm.nda_signed && !firm.is_verified && (
+                            <Checkbox 
+                              checked={selectedFirmIds.has(firm.id)}
+                              onCheckedChange={() => toggleFirmSelection(firm.id)}
+                              className="mt-1"
+                            />
+                          )}
+                          <div>
+                            <CardTitle className="text-lg flex items-center gap-2">
+                              {firm.firm_name}
+                              {firm.is_verified && (
+                                <Badge variant="default" className="bg-green-600">
+                                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                                  Verified
+                                </Badge>
+                              )}
+                              {firm.nda_signed && !firm.is_verified && (
+                                <Badge variant="outline" className="border-amber-500 text-amber-700">
+                                  <Clock className="h-3 w-3 mr-1" />
+                                  Pending Review
+                                </Badge>
+                              )}
+                              {!firm.nda_signed && (
+                                <Badge variant="secondary">
+                                  NDA Not Signed
+                                </Badge>
+                              )}
+                            </CardTitle>
+                            <CardDescription className="mt-1">
+                              {profiles[firm.user_id]?.email || 'No email'} • 
+                              Registered: {new Date(firm.created_at).toLocaleDateString()}
+                            </CardDescription>
+                          </div>
                         </div>
                       </div>
                     </CardHeader>
