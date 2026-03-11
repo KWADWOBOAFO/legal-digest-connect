@@ -24,7 +24,11 @@ const Dashboard = () => {
   }
 
   if (!user || !profile) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Scale className="h-12 w-12 animate-pulse text-primary" />
+      </div>
+    );
   }
 
   return profile.user_type === 'firm' ? <FirmDashboard /> : <IndividualDashboard />;

@@ -84,8 +84,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    let initialSessionResolved = false;
+
+    // Set up listener FIRST to catch all auth events
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        // Skip if this is the initial session event - getSession handles that
+        if (!initialSessionResolved && event === 'INITIAL_SESSION') {
+          return;
+        }
+
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -97,17 +105,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setProfile(null);
           setLawFirm(null);
         }
-        setIsLoading(false);
       }
     );
 
+    // Then restore session from storage
     supabase.auth.getSession().then(({ data: { session } }) => {
+      initialSessionResolved = true;
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        fetchProfile(session.user.id).then(() => setIsLoading(false));
+      } else {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     });
 
     return () => subscription.unsubscribe();
