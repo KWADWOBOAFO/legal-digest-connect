@@ -55,7 +55,7 @@ const CTASection = forwardRef<CTASectionRef>((_, ref) => {
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useImperativeHandle(ref, () => ({
     openDialog: () => setIsOpen(true),
