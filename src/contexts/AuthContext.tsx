@@ -84,43 +84,67 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    let initialSessionResolved = false;
+    let mounted = true;
+    let currentUserId: string | null = null;
 
-    // Set up listener FIRST to catch all auth events
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        // Skip if this is the initial session event - getSession handles that
-        if (!initialSessionResolved && event === 'INITIAL_SESSION') {
-          return;
-        }
-
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          setTimeout(() => {
-            fetchProfile(session.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-          setLawFirm(null);
-        }
-      }
-    );
-
-    // Then restore session from storage
+    // Restore session from storage first
     supabase.auth.getSession().then(({ data: { session } }) => {
-      initialSessionResolved = true;
+      if (!mounted) return;
       setSession(session);
       setUser(session?.user ?? null);
+      currentUserId = session?.user?.id ?? null;
       if (session?.user) {
-        fetchProfile(session.user.id).then(() => setIsLoading(false));
+        fetchProfile(session.user.id).then(() => {
+          if (mounted) setIsLoading(false);
+        });
       } else {
         setIsLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Listen for subsequent auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!mounted) return;
+        
+        // Skip token refresh events - session is already valid
+        if (event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+          return;
+        }
+
+        const newUserId = session?.user?.id ?? null;
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user && newUserId !== currentUserId) {
+          // New user signed in - fetch their profile
+          currentUserId = newUserId;
+          setIsLoading(true);
+          setTimeout(() => {
+            fetchProfile(session.user.id).then(() => {
+              if (mounted) setIsLoading(false);
+            });
+          }, 0);
+        } else if (session?.user && newUserId === currentUserId) {
+          // Same user, just update session (e.g. after setSession from OAuth)
+          if (event === 'SIGNED_IN') {
+            setTimeout(() => {
+              fetchProfile(session.user.id);
+            }, 0);
+          }
+        } else if (!session) {
+          currentUserId = null;
+          setProfile(null);
+          setLawFirm(null);
+          setIsLoading(false);
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: 'individual' | 'firm') => {
