@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
-import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { 
   Scale, Briefcase, Users, Home, FileText, Shield, 
   Globe, Gavel, Building2, Anchor, ScrollText, Leaf,
@@ -134,6 +136,7 @@ const practiceAreas = [
 ];
 
 const PracticeAreas = () => {
+  const navigate = useNavigate();
   const [selectedArea, setSelectedArea] = useState<typeof practiceAreas[0] | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -239,6 +242,19 @@ const PracticeAreas = () => {
           <DialogDescription className="text-sm text-foreground/80 leading-relaxed">
             {selectedArea?.description}
           </DialogDescription>
+          <Button
+            variant="gold"
+            className="w-full mt-4"
+            onClick={() => {
+              setSelectedArea(null);
+              navigate('/submit-case', {
+                state: { prefill: { practiceArea: selectedArea?.name } }
+              });
+            }}
+          >
+            Submit a Case in {selectedArea?.name}
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </Button>
         </DialogContent>
       </Dialog>
     </section>

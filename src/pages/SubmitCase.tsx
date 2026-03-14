@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -51,7 +51,11 @@ interface AIAnalysis {
 const SubmitCase = () => {
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  
+  // Read prefilled practice area from navigation state
+  const prefillPracticeArea = (location.state as any)?.prefill?.practiceArea || '';
   
   const [step, setStep] = useState(1);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -266,6 +270,14 @@ const SubmitCase = () => {
                 Provide as much detail as possible so our AI can accurately analyze your case 
                 and match you with the right legal professionals.
               </CardDescription>
+              {prefillPracticeArea && (
+                <div className="mt-3 flex items-center gap-2">
+                  <Badge variant="secondary" className="text-sm">
+                    {prefillPracticeArea}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">Pre-selected practice area</span>
+                </div>
+              )}
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
