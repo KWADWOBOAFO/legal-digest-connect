@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { Search } from "lucide-react";
 import { 
   Scale, Briefcase, Users, Home, FileText, Shield, 
   Globe, Gavel, Building2, Anchor, ScrollText, Leaf,
@@ -134,6 +135,18 @@ const practiceAreas = [
 
 const PracticeAreas = () => {
   const [selectedArea, setSelectedArea] = useState<typeof practiceAreas[0] | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredAreas = useMemo(() => {
+    if (!searchQuery.trim()) return practiceAreas;
+    const q = searchQuery.toLowerCase();
+    return practiceAreas.filter(
+      (area) =>
+        area.name.toLowerCase().includes(q) ||
+        area.summary.toLowerCase().includes(q) ||
+        area.description.toLowerCase().includes(q)
+    );
+  }, [searchQuery]);
 
   return (
     <section id="practice-areas" className="py-24 bg-muted/50">
@@ -146,16 +159,34 @@ const PracticeAreas = () => {
           <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground mb-4">
             22 Practice Areas Covered
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
             No matter your legal challenge, we'll identify the right area of law 
             and connect you with specialists who can help. Hover or tap any area to learn more.
           </p>
+
+          {/* Search Input */}
+          <div className="relative max-w-md mx-auto">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search practice areas... e.g. divorce, contract, injury"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/30 transition-all"
+            />
+          </div>
         </div>
 
         {/* Practice Areas Grid */}
         <TooltipProvider delayDuration={200}>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {practiceAreas.map((area, index) => (
+            {filteredAreas.length === 0 && (
+              <div className="col-span-full text-center py-12 text-muted-foreground">
+                <p className="text-lg">No practice areas match "{searchQuery}"</p>
+                <p className="text-sm mt-1">Try a different search term or browse all areas above.</p>
+              </div>
+            )}
+            {filteredAreas.map((area, index) => (
               <Tooltip key={area.name}>
                 <TooltipTrigger asChild>
                   <div
