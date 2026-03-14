@@ -47,6 +47,7 @@ const Index = () => {
         <HowItWorks />
         <PracticeAreas />
         <ForFirms />
+        <PricingSection />
         <Testimonials />
         <CTASection ref={ctaRef} />
       </main>
