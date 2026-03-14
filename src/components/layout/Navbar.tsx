@@ -24,7 +24,6 @@ const Navbar = () => {
   const navLinks = [
     { label: "How It Works", href: "#how-it-works" },
     { label: "Practice Areas", href: "#practice-areas" },
-    { label: "Pricing", href: "/pricing" },
     { label: "For Law Firms", href: "#for-firms" },
   ];
 
