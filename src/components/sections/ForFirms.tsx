@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import PricingSection from "@/components/sections/PricingSection";
 import AuthDialog from "@/components/auth/AuthDialog";
@@ -122,11 +123,19 @@ const ForFirms = () => {
         </div>
       </div>
 
-      {showPricing && (
-        <div className="mt-0">
-          <PricingSection showHeader={false} compact />
-        </div>
-      )}
+      <AnimatePresence>
+        {showPricing && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <PricingSection showHeader={false} compact />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
     </>
   );
