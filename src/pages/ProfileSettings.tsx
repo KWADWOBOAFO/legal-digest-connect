@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/dialog';
 
 const ProfileSettings = () => {
-  const { user, profile, isLoading: authLoading, refreshProfile } = useAuth();
+  const { user, profile, isLoading: authLoading, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
