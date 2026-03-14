@@ -35,8 +35,8 @@ const UserTypeSelector = () => {
       toast({
         title: 'Welcome!',
         description: userType === 'firm'
-          ? 'Let's set up your law firm profile.'
-          : 'You're all set to submit your first case.',
+          ? "Let's set up your law firm profile."
+          : "You're all set to submit your first case.",
       });
 
       if (userType === 'firm') {
