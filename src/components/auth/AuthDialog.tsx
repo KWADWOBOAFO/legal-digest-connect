@@ -298,6 +298,29 @@ const AuthDialog = ({ open, onOpenChange, initialView, initialUserType }: AuthDi
                 )}
               </Button>
 
+              {/* Apple Sign In Button */}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full mb-4 flex items-center justify-center gap-2"
+                onClick={handleAppleSignIn}
+                disabled={isAppleLoading}
+              >
+                {isAppleLoading ? (
+                  <>
+                    <Scale className="h-5 w-5 animate-spin" />
+                    Connecting to Apple...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.52-3.23 0-1.44.62-2.2.44-3.06-.4C4.24 16.7 4.89 10.97 8.87 10.7c1.26.07 2.14.73 2.88.73.74 0 2.13-.9 3.59-.77.61.03 2.33.25 3.43 1.87-3.15 1.87-2.39 5.96.58 7.12-.7 1.76-1.6 3.5-2.3 4.63zM12.05 10.63c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+                    </svg>
+                    Continue with Apple
+                  </>
+                )}
+              </Button>
+
               <div className="relative mb-4">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-border" />
