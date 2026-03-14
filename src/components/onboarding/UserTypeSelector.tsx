@@ -8,10 +8,15 @@ import { Scale, User, Building2, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const UserTypeSelector = () => {
-  const { user, refreshProfile } = useAuth();
+  const { user, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   const handleSelect = async (userType: 'individual' | 'firm') => {
     if (!user) return;
