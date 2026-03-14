@@ -19,6 +19,7 @@ import {
   MapPin,
   Star,
   Users,
+  User,
   Building2,
   Settings,
   BarChart3,
@@ -304,9 +305,13 @@ const FirmDashboard = () => {
             </div>
             <NotificationPermissionButton />
             <NotificationBell />
+            <Button variant="ghost" size="sm" onClick={() => navigate('/profile-settings')}>
+              <User className="h-4 w-4 mr-2" />
+              Profile
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/firm-settings')}>
               <Settings className="h-4 w-4 mr-2" />
-              Settings
+              Firm Settings
             </Button>
             <Button variant="ghost" size="sm" onClick={handleSignOut}>
               <LogOut className="h-4 w-4 mr-2" />
