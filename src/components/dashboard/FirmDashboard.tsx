@@ -19,6 +19,7 @@ import {
   MapPin,
   Star,
   Users,
+  User,
   Building2,
   Settings,
   BarChart3,
