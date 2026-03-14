@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import PricingSection from "@/components/sections/PricingSection";
 import AuthDialog from "@/components/auth/AuthDialog";
