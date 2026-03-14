@@ -41,6 +41,7 @@ const App = () => (
             <Route path="/firm/:id" element={<FirmProfile />} />
             <Route path="/firm-settings" element={<FirmSettings />} />
             <Route path="/firm-onboarding" element={<FirmOnboardingPage />} />
+            <Route path="/profile-settings" element={<ProfileSettings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
