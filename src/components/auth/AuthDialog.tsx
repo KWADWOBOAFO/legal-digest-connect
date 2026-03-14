@@ -38,7 +38,7 @@ const AuthDialog = ({ open, onOpenChange, initialView, initialUserType }: AuthDi
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string }>({});
   
-  const { signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
+  const { signIn, signUp, signInWithGoogle, signInWithApple, resetPassword } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
