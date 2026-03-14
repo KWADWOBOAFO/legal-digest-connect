@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Scale, 
@@ -329,9 +330,17 @@ const IndividualDashboard = () => {
             <span className="text-xl font-bold text-primary">DEBRIEFED</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground hidden md:inline">
-              Welcome, {profile?.full_name || 'User'}
-            </span>
+            <div className="flex items-center gap-2">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || 'User'} />
+                <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                  {(profile?.full_name || 'U').charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm text-muted-foreground hidden md:inline">
+                {profile?.full_name || 'User'}
+              </span>
+            </div>
             <NotificationPermissionButton />
             <NotificationBell />
             <Button variant="ghost" size="sm" onClick={() => navigate('/profile-settings')}>

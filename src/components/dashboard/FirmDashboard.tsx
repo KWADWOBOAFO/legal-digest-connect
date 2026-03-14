@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { 
@@ -290,9 +291,17 @@ const FirmDashboard = () => {
             <Badge variant="outline" className="ml-2">Law Firm</Badge>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              {lawFirm.firm_name}
-            </span>
+            <div className="flex items-center gap-2">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={profile?.avatar_url || lawFirm.logo_url || undefined} alt={lawFirm.firm_name} />
+                <AvatarFallback className="bg-accent/10 text-accent text-sm">
+                  {lawFirm.firm_name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm text-muted-foreground">
+                {lawFirm.firm_name}
+              </span>
+            </div>
             <NotificationPermissionButton />
             <NotificationBell />
             <Button variant="ghost" size="sm" onClick={() => navigate('/firm-settings')}>
