@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import PricingSection from "@/components/sections/PricingSection";
 import AuthDialog from "@/components/auth/AuthDialog";
 import { 
   Users, Filter, Video, FileText, Star, Shield, 
@@ -50,6 +51,7 @@ const features = [
 
 const ForFirms = () => {
   const [authOpen, setAuthOpen] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
 
   return (
     <>
@@ -92,9 +94,9 @@ const ForFirms = () => {
                 variant="outline" 
                 size="lg" 
                 className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
-                onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => setShowPricing(!showPricing)}
               >
-                View Pricing
+                {showPricing ? "Hide Pricing" : "View Pricing"}
               </Button>
             </div>
           </div>
@@ -119,6 +121,12 @@ const ForFirms = () => {
           </div>
         </div>
       </div>
+
+      {showPricing && (
+        <div className="mt-0">
+          <PricingSection showHeader={false} compact />
+        </div>
+      )}
     </section>
     </>
   );
