@@ -270,6 +270,14 @@ const SubmitCase = () => {
                 Provide as much detail as possible so our AI can accurately analyze your case 
                 and match you with the right legal professionals.
               </CardDescription>
+              {prefillPracticeArea && (
+                <div className="mt-3 flex items-center gap-2">
+                  <Badge variant="secondary" className="text-sm">
+                    {prefillPracticeArea}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">Pre-selected practice area</span>
+                </div>
+              )}
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
