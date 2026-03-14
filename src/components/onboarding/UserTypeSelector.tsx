@@ -116,6 +116,17 @@ const UserTypeSelector = () => {
             </CardContent>
           </Card>
         </div>
+
+        <div className="text-center mt-6">
+          <Button
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={handleSignOut}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign out and go back
+          </Button>
+        </div>
       </div>
     </div>
   );
