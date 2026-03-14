@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { Search } from "lucide-react";
 import { 
   Scale, Briefcase, Users, Home, FileText, Shield, 
   Globe, Gavel, Building2, Anchor, ScrollText, Leaf,
