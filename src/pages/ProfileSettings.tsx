@@ -299,8 +299,7 @@ const ProfileSettings = () => {
               variant="destructive"
               className="w-full"
               onClick={async () => {
-                const { signOut } = useAuth as any;
-                await supabase.auth.signOut();
+                await signOut();
                 navigate('/');
               }}
             >
