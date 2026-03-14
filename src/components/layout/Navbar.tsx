@@ -24,8 +24,8 @@ const Navbar = () => {
   const navLinks = [
     { label: "How It Works", href: "#how-it-works" },
     { label: "Practice Areas", href: "#practice-areas" },
+    { label: "Pricing", href: "/pricing" },
     { label: "For Law Firms", href: "#for-firms" },
-    { label: "About", href: "#about" },
   ];
 
   const handleSignOut = async () => {
@@ -62,15 +62,25 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-foreground font-medium transition-colors"
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) =>
+                link.href.startsWith("/") ? (
+                  <button
+                    key={link.label}
+                    onClick={() => navigate(link.href)}
+                    className="text-muted-foreground hover:text-foreground font-medium transition-colors"
+                  >
+                    {link.label}
+                  </button>
+                ) : (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="text-muted-foreground hover:text-foreground font-medium transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                )
+              )}
             </div>
 
             {/* CTA Buttons / User Menu */}
@@ -147,16 +157,29 @@ const Navbar = () => {
           {isOpen && (
             <div className="md:hidden py-6 border-t border-border animate-fade-in">
               <div className="flex flex-col gap-4">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    className="text-muted-foreground hover:text-foreground font-medium py-2 transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {link.label}
-                  </a>
-                ))}
+                {navLinks.map((link) =>
+                  link.href.startsWith("/") ? (
+                    <button
+                      key={link.label}
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate(link.href);
+                      }}
+                      className="text-muted-foreground hover:text-foreground font-medium py-2 transition-colors text-left"
+                    >
+                      {link.label}
+                    </button>
+                  ) : (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      className="text-muted-foreground hover:text-foreground font-medium py-2 transition-colors"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {link.label}
+                    </a>
+                  )
+                )}
                 <div className="flex flex-col gap-3 pt-4 border-t border-border">
                   {user ? (
                     <>

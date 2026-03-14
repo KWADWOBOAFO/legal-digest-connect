@@ -17,6 +17,7 @@ import FirmProfile from "./pages/FirmProfile";
 import FirmSettings from "./pages/FirmSettings";
 import FirmOnboardingPage from "./pages/FirmOnboarding";
 import ProfileSettings from "./pages/ProfileSettings";
+import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/firm-settings" element={<FirmSettings />} />
             <Route path="/firm-onboarding" element={<FirmOnboardingPage />} />
             <Route path="/profile-settings" element={<ProfileSettings />} />
+            <Route path="/pricing" element={<Pricing />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
