@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Scale, ArrowLeft, Save, Loader2, User, Building2, AlertTriangle, Upload } from 'lucide-react';
+import { Scale, ArrowLeft, Save, Loader2, User, Building2, AlertTriangle, Upload, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
