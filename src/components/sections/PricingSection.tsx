@@ -22,13 +22,14 @@ const tiers: PricingTier[] = [
     price: { monthly: "Free", annual: "Free" },
     description: "Get started with essential case matching and build your presence.",
     features: [
+      "14-day free trial",
       "Up to 5 case matches per month",
       "Basic firm profile",
       "Video consultations",
       "Client reviews & ratings",
       "Email notifications",
     ],
-    cta: "Get Started Free",
+    cta: "Start 14-Day Free Trial",
   },
   {
     name: "Professional",
@@ -36,6 +37,7 @@ const tiers: PricingTier[] = [
     price: { monthly: "£99", annual: "£79" },
     description: "For growing firms who want priority access and advanced tools.",
     features: [
+      "14-day free trial",
       "Unlimited case matches",
       "Priority listing in search",
       "Advanced analytics dashboard",
@@ -45,7 +47,7 @@ const tiers: PricingTier[] = [
       "Dedicated support",
     ],
     highlighted: true,
-    cta: "Start Free Trial",
+    cta: "Start 14-Day Free Trial",
   },
   {
     name: "Enterprise",
@@ -53,6 +55,7 @@ const tiers: PricingTier[] = [
     price: { monthly: "Custom", annual: "Custom" },
     description: "For large firms needing tailored solutions and multi-seat access.",
     features: [
+      "14-day free trial",
       "Everything in Professional",
       "Multi-seat team access",
       "Custom branding",
@@ -61,7 +64,7 @@ const tiers: PricingTier[] = [
       "Dedicated account manager",
       "Custom integrations",
     ],
-    cta: "Contact Sales",
+    cta: "Start 14-Day Free Trial",
   },
 ];
 
