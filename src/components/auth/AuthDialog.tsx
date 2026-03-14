@@ -78,14 +78,22 @@ const AuthDialog = ({ open, onOpenChange, initialView, initialUserType }: AuthDi
     return Object.keys(newErrors).length === 0;
   };
 
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
   const handleGoogleSignIn = async () => {
-    const { error } = await signInWithGoogle();
-    if (error) {
-      toast({
-        title: "Google sign-in failed",
-        description: error.message,
-        variant: "destructive"
-      });
+    setIsGoogleLoading(true);
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        toast({
+          title: "Google sign-in failed",
+          description: error.message,
+          variant: "destructive"
+        });
+        setIsGoogleLoading(false);
+      }
+    } catch {
+      setIsGoogleLoading(false);
     }
   };
 
