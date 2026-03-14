@@ -4,14 +4,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Scale, User, Building2 } from 'lucide-react';
+import { Scale, User, Building2, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const UserTypeSelector = () => {
-  const { user, refreshProfile } = useAuth();
+  const { user, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   const handleSelect = async (userType: 'individual' | 'firm') => {
     if (!user) return;
@@ -110,6 +115,17 @@ const UserTypeSelector = () => {
               </Button>
             </CardContent>
           </Card>
+        </div>
+
+        <div className="text-center mt-6">
+          <Button
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={handleSignOut}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign out and go back
+          </Button>
         </div>
       </div>
     </div>
