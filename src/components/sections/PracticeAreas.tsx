@@ -136,6 +136,7 @@ const practiceAreas = [
 ];
 
 const PracticeAreas = () => {
+  const navigate = useNavigate();
   const [selectedArea, setSelectedArea] = useState<typeof practiceAreas[0] | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
