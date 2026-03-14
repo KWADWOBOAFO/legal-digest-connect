@@ -162,14 +162,23 @@ const Auth = () => {
     }
   };
 
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
   const handleGoogleSignIn = async () => {
-    const { error } = await signInWithGoogle();
-    if (error) {
-      toast({
-        title: "Google sign-in failed",
-        description: error.message,
-        variant: "destructive"
-      });
+    setIsGoogleLoading(true);
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        toast({
+          title: "Google sign-in failed",
+          description: error.message,
+          variant: "destructive"
+        });
+        setIsGoogleLoading(false);
+      }
+      // Don't reset on success - user will be redirected
+    } catch {
+      setIsGoogleLoading(false);
     }
   };
 
