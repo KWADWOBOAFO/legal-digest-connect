@@ -17,6 +17,7 @@ import FirmProfile from "./pages/FirmProfile";
 import FirmSettings from "./pages/FirmSettings";
 import FirmOnboardingPage from "./pages/FirmOnboarding";
 import ProfileSettings from "./pages/ProfileSettings";
+import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
