@@ -291,6 +291,24 @@ const ProfileSettings = () => {
             </RadioGroup>
           </CardContent>
         </Card>
+
+        {/* Sign Out */}
+        <Card className="shadow-card mt-6 border-destructive/20">
+          <CardContent className="pt-6">
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={async () => {
+                const { signOut } = await import('@/contexts/AuthContext').then(m => ({ signOut: undefined }));
+                await supabase.auth.signOut();
+                navigate('/');
+              }}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </CardContent>
+        </Card>
       </main>
 
       {/* Confirmation Dialog */}
