@@ -157,16 +157,29 @@ const Navbar = () => {
           {isOpen && (
             <div className="md:hidden py-6 border-t border-border animate-fade-in">
               <div className="flex flex-col gap-4">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    className="text-muted-foreground hover:text-foreground font-medium py-2 transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {link.label}
-                  </a>
-                ))}
+                {navLinks.map((link) =>
+                  link.href.startsWith("/") ? (
+                    <button
+                      key={link.label}
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate(link.href);
+                      }}
+                      className="text-muted-foreground hover:text-foreground font-medium py-2 transition-colors text-left"
+                    >
+                      {link.label}
+                    </button>
+                  ) : (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      className="text-muted-foreground hover:text-foreground font-medium py-2 transition-colors"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {link.label}
+                    </a>
+                  )
+                )}
                 <div className="flex flex-col gap-3 pt-4 border-t border-border">
                   {user ? (
                     <>
