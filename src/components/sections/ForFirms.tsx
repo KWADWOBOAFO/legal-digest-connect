@@ -51,6 +51,7 @@ const features = [
 
 const ForFirms = () => {
   const [authOpen, setAuthOpen] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
 
   return (
     <>
