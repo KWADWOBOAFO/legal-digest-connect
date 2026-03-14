@@ -180,7 +180,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const result = await lovable.auth.signInWithOAuth('google', {
       redirect_uri: window.location.origin,
     });
-    
+    return { error: result.error ? (result.error as Error) : null };
+  };
+
+  const signInWithApple = async () => {
+    const { lovable } = await import('@/integrations/lovable/index');
+    const result = await lovable.auth.signInWithOAuth('apple', {
+      redirect_uri: window.location.origin,
+    });
     return { error: result.error ? (result.error as Error) : null };
   };
 
