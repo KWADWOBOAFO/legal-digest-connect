@@ -5,6 +5,7 @@ import HeroSection from "@/components/sections/HeroSection";
 import HowItWorks from "@/components/sections/HowItWorks";
 import PracticeAreas from "@/components/sections/PracticeAreas";
 import ForFirms from "@/components/sections/ForFirms";
+import PricingSection from "@/components/sections/PricingSection";
 import Testimonials from "@/components/sections/Testimonials";
 import CTASection, { CTASectionRef } from "@/components/sections/CTASection";
 import Footer from "@/components/layout/Footer";
