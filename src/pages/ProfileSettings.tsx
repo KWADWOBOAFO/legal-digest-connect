@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Scale, ArrowLeft, Save, Loader2, User, Building2, AlertTriangle, Upload } from 'lucide-react';
+import { Scale, ArrowLeft, Save, Loader2, User, Building2, AlertTriangle, Upload, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/dialog';
 
 const ProfileSettings = () => {
-  const { user, profile, isLoading: authLoading, refreshProfile } = useAuth();
+  const { user, profile, isLoading: authLoading, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -289,6 +289,23 @@ const ProfileSettings = () => {
                 </Label>
               </div>
             </RadioGroup>
+          </CardContent>
+        </Card>
+
+        {/* Sign Out */}
+        <Card className="shadow-card mt-6 border-destructive/20">
+          <CardContent className="pt-6">
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={async () => {
+                await signOut();
+                navigate('/');
+              }}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
           </CardContent>
         </Card>
       </main>
