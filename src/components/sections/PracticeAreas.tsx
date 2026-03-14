@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
-import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { 
   Scale, Briefcase, Users, Home, FileText, Shield, 
   Globe, Gavel, Building2, Anchor, ScrollText, Leaf,
