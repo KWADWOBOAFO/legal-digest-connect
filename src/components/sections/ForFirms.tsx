@@ -92,7 +92,7 @@ const ForFirms = () => {
                 variant="outline" 
                 size="lg" 
                 className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
-                onClick={() => window.location.href = '/pricing'}
+                onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
               >
                 View Pricing
               </Button>
