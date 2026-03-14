@@ -121,6 +121,12 @@ const ForFirms = () => {
           </div>
         </div>
       </div>
+
+      {showPricing && (
+        <div className="mt-0">
+          <PricingSection showHeader={false} compact />
+        </div>
+      )}
     </section>
     </>
   );
