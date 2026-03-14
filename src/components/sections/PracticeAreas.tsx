@@ -242,6 +242,19 @@ const PracticeAreas = () => {
           <DialogDescription className="text-sm text-foreground/80 leading-relaxed">
             {selectedArea?.description}
           </DialogDescription>
+          <Button
+            variant="gold"
+            className="w-full mt-4"
+            onClick={() => {
+              setSelectedArea(null);
+              navigate('/submit-case', {
+                state: { prefill: { practiceArea: selectedArea?.name } }
+              });
+            }}
+          >
+            Submit a Case in {selectedArea?.name}
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </Button>
         </DialogContent>
       </Dialog>
     </section>
