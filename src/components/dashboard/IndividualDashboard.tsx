@@ -18,7 +18,8 @@ import {
   Star,
   Building2,
   ExternalLink,
-  BarChart3
+  BarChart3,
+  Settings
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { FirmInterestCard } from './FirmInterestCard';
@@ -333,6 +334,10 @@ const IndividualDashboard = () => {
             </span>
             <NotificationPermissionButton />
             <NotificationBell />
+            <Button variant="ghost" size="sm" onClick={() => navigate('/profile-settings')}>
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
+            </Button>
             <Button variant="ghost" size="sm" onClick={handleSignOut}>
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
