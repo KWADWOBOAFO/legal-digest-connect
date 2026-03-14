@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Scale, ArrowLeft, Save, Loader2, User, Building2, AlertTriangle } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Scale, ArrowLeft, Save, Loader2, User, Building2, AlertTriangle, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
@@ -22,12 +23,15 @@ const ProfileSettings = () => {
   const { user, profile, isLoading: authLoading, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [userType, setUserType] = useState<'individual' | 'firm'>('individual');
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [showTypeChangeDialog, setShowTypeChangeDialog] = useState(false);
   const [pendingType, setPendingType] = useState<'individual' | 'firm'>('individual');
 
@@ -42,9 +46,57 @@ const ProfileSettings = () => {
       setFullName(profile.full_name || '');
       setPhone(profile.phone || '');
       setLocation(profile.location || '');
+      setAvatarUrl(profile.avatar_url || '');
       setUserType(profile.user_type as 'individual' | 'firm');
     }
   }, [profile]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Invalid file', description: 'Please upload an image file.', variant: 'destructive' });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Avatar must be under 2MB.', variant: 'destructive' });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `${user.id}/avatar.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('profile-avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-avatars')
+        .getPublicUrl(filePath);
+
+      const urlWithCacheBust = `${publicUrl}?t=${Date.now()}`;
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(urlWithCacheBust);
+      await refreshProfile();
+      toast({ title: 'Avatar updated', description: 'Your profile photo has been changed.' });
+    } catch (error: any) {
+      toast({ title: 'Upload failed', description: error.message || 'Could not upload avatar.', variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!user) return;
@@ -139,6 +191,43 @@ const ProfileSettings = () => {
 
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         <h1 className="text-2xl font-serif font-bold text-foreground mb-6">Profile Settings</h1>
+
+        {/* Avatar Upload */}
+        <Card className="shadow-card mb-6">
+          <CardHeader>
+            <CardTitle>Profile Photo</CardTitle>
+            <CardDescription>Upload a custom avatar for your profile.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center gap-6">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={avatarUrl || undefined} alt={fullName || 'User'} />
+              <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                {(fullName || profile.email || 'U').charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="space-y-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                className="hidden"
+              />
+              <Button
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+              >
+                {isUploading ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Uploading...</>
+                ) : (
+                  <><Upload className="h-4 w-4 mr-2" />Upload Photo</>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground">PNG, JPG up to 2MB</p>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Personal Info */}
         <Card className="shadow-card mb-6">
