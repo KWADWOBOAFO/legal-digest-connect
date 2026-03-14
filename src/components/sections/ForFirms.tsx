@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import PricingSection from "@/components/sections/PricingSection";
 import AuthDialog from "@/components/auth/AuthDialog";
 import { 
   Users, Filter, Video, FileText, Star, Shield, 
