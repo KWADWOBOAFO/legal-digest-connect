@@ -51,7 +51,11 @@ interface AIAnalysis {
 const SubmitCase = () => {
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  
+  // Read prefilled practice area from navigation state
+  const prefillPracticeArea = (location.state as any)?.prefill?.practiceArea || '';
   
   const [step, setStep] = useState(1);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
