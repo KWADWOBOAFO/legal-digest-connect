@@ -79,21 +79,31 @@ const AuthDialog = ({ open, onOpenChange, initialView, initialUserType }: AuthDi
   };
 
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isAppleLoading, setIsAppleLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
       const { error } = await signInWithGoogle();
       if (error) {
-        toast({
-          title: "Google sign-in failed",
-          description: error.message,
-          variant: "destructive"
-        });
+        toast({ title: "Google sign-in failed", description: error.message, variant: "destructive" });
         setIsGoogleLoading(false);
       }
     } catch {
       setIsGoogleLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    setIsAppleLoading(true);
+    try {
+      const { error } = await signInWithApple();
+      if (error) {
+        toast({ title: "Apple sign-in failed", description: error.message, variant: "destructive" });
+        setIsAppleLoading(false);
+      }
+    } catch {
+      setIsAppleLoading(false);
     }
   };
 
