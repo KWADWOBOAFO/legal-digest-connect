@@ -18,7 +18,8 @@ import {
   Star,
   Building2,
   ExternalLink,
-  BarChart3
+  BarChart3,
+  Settings
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { FirmInterestCard } from './FirmInterestCard';
