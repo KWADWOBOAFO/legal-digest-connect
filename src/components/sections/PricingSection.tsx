@@ -98,32 +98,39 @@ const PricingSection = ({ showHeader = true, compact = false }: PricingSectionPr
           )}
 
           {/* Billing Toggle */}
-          <div className="flex items-center justify-center gap-3 mb-12">
-            <button
-              onClick={() => setBilling("monthly")}
-              className={cn(
-                "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                billing === "monthly"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setBilling("annual")}
-              className={cn(
-                "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                billing === "annual"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Annual
-              <span className="ml-2 text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full">
-                Save 20%
-              </span>
-            </button>
+          <div className="flex items-center justify-center mb-12">
+            <div className="inline-flex items-center rounded-full bg-card border border-border p-1 shadow-sm">
+              <button
+                onClick={() => setBilling("monthly")}
+                className={cn(
+                  "px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200",
+                  billing === "monthly"
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBilling("annual")}
+                className={cn(
+                  "px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-2",
+                  billing === "annual"
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Annual
+                <span className={cn(
+                  "text-xs px-2 py-0.5 rounded-full font-bold",
+                  billing === "annual"
+                    ? "bg-accent text-accent-foreground"
+                    : "bg-accent/20 text-accent"
+                )}>
+                  -20%
+                </span>
+              </button>
+            </div>
           </div>
 
           {/* Pricing Cards */}
