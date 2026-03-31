@@ -98,6 +98,7 @@ const TermsOfService = () => {
           </section>
         </div>
       </main>
+      <BackToTopButton />
       <Footer />
     </div>
   );

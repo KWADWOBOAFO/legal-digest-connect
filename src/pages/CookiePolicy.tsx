@@ -83,6 +83,7 @@ const CookiePolicy = () => {
           </section>
         </div>
       </main>
+      <BackToTopButton />
       <Footer />
     </div>
   );

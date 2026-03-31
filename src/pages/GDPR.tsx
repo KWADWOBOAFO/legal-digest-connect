@@ -120,6 +120,7 @@ const GDPR = () => {
           </section>
         </div>
       </main>
+      <BackToTopButton />
       <Footer />
     </div>
   );
