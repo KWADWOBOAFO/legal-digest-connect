@@ -201,9 +201,6 @@ const CTASection = forwardRef<CTASectionRef>((_, ref) => {
                 Submit Your Case Free
                 <ArrowRight className="w-5 h-5" />
               </Button>
-              <Button variant="outline" size="lg">
-                Schedule a Demo
-              </Button>
             </div>
 
             {/* Trust Indicators */}
