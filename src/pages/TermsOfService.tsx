@@ -1,11 +1,14 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import BackToTopButton from "@/components/layout/BackToTopButton";
+import LegalBreadcrumb from "@/components/layout/LegalBreadcrumb";
 
 const TermsOfService = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="container mx-auto px-4 pt-32 pb-20 max-w-4xl">
+        <LegalBreadcrumb currentPage="Terms of Service" />
         <h1 className="font-serif text-4xl font-bold text-foreground mb-8">Terms of Service</h1>
         <p className="text-muted-foreground mb-6">Last updated: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
 
