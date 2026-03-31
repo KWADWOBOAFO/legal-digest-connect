@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Scale, Twitter, Linkedin, Facebook, Instagram } from "lucide-react";
 import ContactFormDialog from "./ContactFormDialog";
 
