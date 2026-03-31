@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Scale, Twitter, Linkedin, Facebook, Instagram } from "lucide-react";
 import ContactFormDialog from "./ContactFormDialog";
 
@@ -16,10 +17,10 @@ const footerLinks = {
     { label: "Contact", href: "#contact" },
   ],
   Legal: [
-    { label: "Privacy Policy", href: "#privacy" },
-    { label: "Terms of Service", href: "#terms" },
-    { label: "Cookie Policy", href: "#cookies" },
-    { label: "GDPR", href: "#gdpr" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
+    { label: "Cookie Policy", href: "/cookies" },
+    { label: "GDPR", href: "/gdpr" },
   ],
   Support: [
     { label: "Help Center", href: "#help" },
@@ -87,6 +88,13 @@ const Footer = () => {
                         >
                           {link.label}
                         </button>
+                      ) : link.href.startsWith("/") ? (
+                        <Link
+                          to={link.href}
+                          className="text-primary-foreground/60 hover:text-primary-foreground text-sm transition-colors"
+                        >
+                          {link.label}
+                        </Link>
                       ) : (
                         <a
                           href={link.href}
