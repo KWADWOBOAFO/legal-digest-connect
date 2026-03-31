@@ -24,7 +24,7 @@ const footerLinks = {
   ],
   Support: [
     { label: "Help Center", href: "#help" },
-    { label: "FAQs", href: "#faqs" },
+    { label: "FAQs", href: "/faqs" },
     { label: "Community", href: "#community" },
     { label: "Status", href: "#status" },
   ],
