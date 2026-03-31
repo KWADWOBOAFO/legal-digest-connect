@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Scale, Twitter, Linkedin, Facebook, Instagram } from "lucide-react";
+import ContactFormDialog from "./ContactFormDialog";
 
 const footerLinks = {
   Platform: [
