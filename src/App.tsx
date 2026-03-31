@@ -27,6 +27,8 @@ import FAQ from "./pages/FAQ";
 import HelpCenter from "./pages/HelpCenter";
 import Community from "./pages/Community";
 import Status from "./pages/Status";
+import Careers from "./pages/Careers";
+import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/layout/ScrollToTop";
 
