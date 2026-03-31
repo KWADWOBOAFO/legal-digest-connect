@@ -61,6 +61,9 @@ const App = () => (
             <Route path="/gdpr" element={<GDPR />} />
             <Route path="/about" element={<About />} />
             <Route path="/faqs" element={<FAQ />} />
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/status" element={<Status />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

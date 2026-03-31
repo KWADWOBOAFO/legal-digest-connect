@@ -23,10 +23,10 @@ const footerLinks = {
     { label: "GDPR", href: "/gdpr" },
   ],
   Support: [
-    { label: "Help Center", href: "#help" },
+    { label: "Help Center", href: "/help" },
     { label: "FAQs", href: "/faqs" },
-    { label: "Community", href: "#community" },
-    { label: "Status", href: "#status" },
+    { label: "Community", href: "/community" },
+    { label: "Status", href: "/status" },
   ],
 };
 
