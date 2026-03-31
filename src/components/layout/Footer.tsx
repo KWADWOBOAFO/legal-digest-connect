@@ -88,6 +88,13 @@ const Footer = () => {
                         >
                           {link.label}
                         </button>
+                      ) : link.href.startsWith("/") ? (
+                        <Link
+                          to={link.href}
+                          className="text-primary-foreground/60 hover:text-primary-foreground text-sm transition-colors"
+                        >
+                          {link.label}
+                        </Link>
                       ) : (
                         <a
                           href={link.href}
