@@ -18,6 +18,10 @@ import FirmSettings from "./pages/FirmSettings";
 import FirmOnboardingPage from "./pages/FirmOnboarding";
 import ProfileSettings from "./pages/ProfileSettings";
 import Pricing from "./pages/Pricing";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import CookiePolicy from "./pages/CookiePolicy";
+import GDPR from "./pages/GDPR";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
