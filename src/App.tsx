@@ -24,6 +24,9 @@ import CookiePolicy from "./pages/CookiePolicy";
 import GDPR from "./pages/GDPR";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
+import HelpCenter from "./pages/HelpCenter";
+import Community from "./pages/Community";
+import Status from "./pages/Status";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/layout/ScrollToTop";
 
@@ -58,6 +61,9 @@ const App = () => (
             <Route path="/gdpr" element={<GDPR />} />
             <Route path="/about" element={<About />} />
             <Route path="/faqs" element={<FAQ />} />
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/status" element={<Status />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
