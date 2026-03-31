@@ -11,7 +11,7 @@ const footerLinks = {
     { label: "Pricing", href: "#pricing" },
   ],
   Company: [
-    { label: "About Us", href: "#about" },
+    { label: "About Us", href: "/about" },
     { label: "Careers", href: "#careers" },
     { label: "Blog", href: "#blog" },
     { label: "Contact", href: "#contact" },
@@ -24,7 +24,7 @@ const footerLinks = {
   ],
   Support: [
     { label: "Help Center", href: "#help" },
-    { label: "FAQs", href: "#faqs" },
+    { label: "FAQs", href: "/faqs" },
     { label: "Community", href: "#community" },
     { label: "Status", href: "#status" },
   ],
