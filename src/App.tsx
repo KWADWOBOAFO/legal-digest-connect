@@ -48,6 +48,10 @@ const App = () => (
             <Route path="/firm-onboarding" element={<FirmOnboardingPage />} />
             <Route path="/profile-settings" element={<ProfileSettings />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/cookies" element={<CookiePolicy />} />
+            <Route path="/gdpr" element={<GDPR />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
