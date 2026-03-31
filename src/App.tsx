@@ -27,6 +27,8 @@ import FAQ from "./pages/FAQ";
 import HelpCenter from "./pages/HelpCenter";
 import Community from "./pages/Community";
 import Status from "./pages/Status";
+import Careers from "./pages/Careers";
+import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/layout/ScrollToTop";
 
@@ -64,6 +66,8 @@ const App = () => (
             <Route path="/help" element={<HelpCenter />} />
             <Route path="/community" element={<Community />} />
             <Route path="/status" element={<Status />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/blog" element={<Blog />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
