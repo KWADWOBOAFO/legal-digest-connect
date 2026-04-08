@@ -700,6 +700,57 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_transactions: {
+        Row: {
+          amount: number
+          consultation_id: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          firm_id: string | null
+          id: string
+          metadata: Json | null
+          payment_type: string
+          status: string
+          stripe_payment_id: string | null
+          stripe_refund_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          consultation_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          firm_id?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_type?: string
+          status?: string
+          stripe_payment_id?: string | null
+          stripe_refund_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          consultation_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          firm_id?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_type?: string
+          status?: string
+          stripe_payment_id?: string | null
+          stripe_refund_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           created_at: string

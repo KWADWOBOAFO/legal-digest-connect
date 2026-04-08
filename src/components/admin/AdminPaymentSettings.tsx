@@ -14,11 +14,11 @@ import {
   CheckCircle2,
   AlertCircle,
   DollarSign,
-  Settings,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { TransactionHistory } from './TransactionHistory';
 
 interface PaymentSettings {
   stripe_publishable_key: string;
@@ -348,6 +348,10 @@ export function AdminPaymentSettings() {
           {isSaving ? 'Saving...' : 'Save Payment Settings'}
         </Button>
       </div>
+
+      {/* Transaction History */}
+      <Separator className="my-6" />
+      <TransactionHistory />
     </div>
   );
 }
