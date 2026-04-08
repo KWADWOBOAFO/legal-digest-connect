@@ -41,6 +41,8 @@ import CaseModerationQueue from '@/components/admin/CaseModerationQueue';
 import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
 import UserRoleManagement from '@/components/admin/UserRoleManagement';
 import AdminActivityLog from '@/components/admin/AdminActivityLog';
+import { AdminStatsWidgets } from '@/components/admin/AdminStatsWidgets';
+import { AdminPaymentSettings } from '@/components/admin/AdminPaymentSettings';
 import { logAdminAction } from '@/hooks/useAdminActivityLog';
 
 interface LawFirm {
