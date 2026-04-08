@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Scale, 
   Shield, 
+  ShieldMinus,
   Building2, 
   CheckCircle2, 
   XCircle, 
@@ -88,6 +89,8 @@ const Admin = () => {
   const [editRegulatoryBody, setEditRegulatoryBody] = useState('');
   const [editRegulatoryNumber, setEditRegulatoryNumber] = useState('');
   const [selectedFirmIds, setSelectedFirmIds] = useState<Set<string>>(new Set());
+  const [isRevokeOpen, setIsRevokeOpen] = useState(false);
+  const [revokeReason, setRevokeReason] = useState('');
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -249,6 +252,60 @@ const Admin = () => {
     } catch (error) {
       toast({
         title: "Action failed",
+        description: "Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRevokeFirm = async () => {
+    if (!selectedFirm) return;
+    
+    try {
+      const { error } = await supabase
+        .from('law_firms')
+        .update({ is_verified: false })
+        .eq('id', selectedFirm.id);
+
+      if (error) throw error;
+
+      // Send revocation email
+      const profile = profiles[selectedFirm.user_id];
+      if (profile?.email) {
+        try {
+          await supabase.functions.invoke('send-notification-email', {
+            body: {
+              type: 'firm_verification_revoked',
+              recipientEmail: profile.email,
+              recipientName: profile.full_name || 'Law Firm Representative',
+              data: {
+                firmName: selectedFirm.firm_name,
+                revokeReason: revokeReason || undefined
+              }
+            }
+          });
+        } catch (emailError) {
+          console.error('Failed to send revocation email:', emailError);
+        }
+      }
+
+      toast({
+        title: "Verification revoked",
+        description: `${selectedFirm.firm_name}'s verification has been revoked and they have been notified.`
+      });
+
+      await logAdminAction('firm_verification_revoked', 'firm', selectedFirm.id, { 
+        firmName: selectedFirm.firm_name, 
+        reason: revokeReason 
+      });
+
+      setFirms(firms.map(f => f.id === selectedFirm.id ? { ...f, is_verified: false } : f));
+      setIsRevokeOpen(false);
+      setRevokeReason('');
+      setIsDetailOpen(false);
+    } catch (error) {
+      toast({
+        title: "Revocation failed",
         description: "Please try again.",
         variant: "destructive"
       });
@@ -604,6 +661,19 @@ const Admin = () => {
                             </Button>
                           </>
                         )}
+                        {firm.is_verified && (
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedFirm(firm);
+                              setIsRevokeOpen(true);
+                            }}
+                          >
+                            <ShieldMinus className="h-4 w-4 mr-2" />
+                            Revoke Verification
+                          </Button>
+                        )}
                         {firm.website && (
                           <Button variant="ghost" size="sm" asChild>
                             <a href={firm.website} target="_blank" rel="noopener noreferrer">
@@ -793,6 +863,18 @@ const Admin = () => {
           )}
 
           <DialogFooter>
+            {selectedFirm && selectedFirm.is_verified && (
+              <Button 
+                variant="destructive"
+                onClick={() => {
+                  setIsDetailOpen(false);
+                  setIsRevokeOpen(true);
+                }}
+              >
+                <ShieldMinus className="h-4 w-4 mr-2" />
+                Revoke Verification
+              </Button>
+            )}
             {selectedFirm && selectedFirm.nda_signed && !selectedFirm.is_verified && (
               <>
                 <Button 
@@ -842,6 +924,34 @@ const Admin = () => {
             </Button>
             <Button variant="destructive" onClick={handleRejectFirm}>
               Confirm Rejection
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Revoke Verification Dialog */}
+      <Dialog open={isRevokeOpen} onOpenChange={setIsRevokeOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Revoke Verification</DialogTitle>
+            <DialogDescription>
+              This will remove {selectedFirm?.firm_name}'s verified status. The firm will be notified via email.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Textarea
+            placeholder="Reason for revoking verification (recommended)..."
+            value={revokeReason}
+            onChange={(e) => setRevokeReason(e.target.value)}
+            rows={4}
+          />
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setIsRevokeOpen(false); setRevokeReason(''); }}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleRevokeFirm}>
+              <ShieldMinus className="h-4 w-4 mr-2" />
+              Confirm Revocation
             </Button>
           </DialogFooter>
         </DialogContent>
