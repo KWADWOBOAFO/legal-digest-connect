@@ -11,6 +11,9 @@ interface Profile {
   user_type: 'individual' | 'firm';
   avatar_url: string | null;
   location: string | null;
+  is_approved: boolean;
+  approved_at: string | null;
+  approved_by: string | null;
 }
 
 interface LawFirm {
