@@ -17,7 +17,7 @@ const ErrorMessages = {
 };
 
 interface NotificationEmailRequest {
-  type: "firm_interest" | "consultation_scheduled" | "consultation_reminder" | "firm_verified" | "firm_rejected";
+  type: "firm_interest" | "consultation_scheduled" | "consultation_reminder" | "firm_verified" | "firm_rejected" | "firm_verification_revoked";
   recipientEmail: string;
   recipientName: string;
   data: {
@@ -27,6 +27,7 @@ interface NotificationEmailRequest {
     consultationTime?: string;
     meetingUrl?: string;
     rejectionReason?: string;
+    revokeReason?: string;
   };
 }
 
