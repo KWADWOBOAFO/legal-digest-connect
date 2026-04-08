@@ -7,8 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Users, ArrowLeft, Search, Building2 } from 'lucide-react';
+import { Users, ArrowLeft, Search, Building2, CheckCircle2, XCircle, ShieldCheck, Clock } from 'lucide-react';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Profile {
   id: string;
@@ -19,15 +21,21 @@ interface Profile {
   location: string | null;
   phone: string | null;
   created_at: string;
+  is_approved: boolean;
+  approved_at: string | null;
 }
 
 export default function AdminUsersDetail() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { isAdmin, isLoading: roleLoading } = useUserRole();
+  const { toast } = useToast();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [approvalFilter, setApprovalFilter] = useState('all');
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => { if (!roleLoading && !isAdmin) navigate('/admin'); }, [isAdmin, roleLoading]);
 
@@ -43,11 +51,67 @@ export default function AdminUsersDetail() {
     setIsLoading(false);
   };
 
+  const handleApproval = async (profileUserId: string, approve: boolean) => {
+    setActionLoading(profileUserId);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          is_approved: approve,
+          approved_at: approve ? new Date().toISOString() : null,
+          approved_by: approve ? user?.id : null
+        })
+        .eq('user_id', profileUserId);
+
+      if (error) throw error;
+
+      // Send notification to user
+      await supabase.from('notifications').insert({
+        user_id: profileUserId,
+        type: 'account_approval',
+        title: approve ? 'Account Approved' : 'Account Approval Revoked',
+        message: approve
+          ? 'Your account has been approved by an administrator. You now have full access to the platform.'
+          : 'Your account approval has been revoked. Please contact support for more information.',
+      });
+
+      // Send email notification
+      const targetProfile = profiles.find(p => p.user_id === profileUserId);
+      if (targetProfile) {
+        supabase.functions.invoke('send-notification-email', {
+          body: {
+            type: approve ? 'account_approved' : 'account_revoked',
+            recipientEmail: targetProfile.email,
+            recipientName: targetProfile.full_name || 'User',
+            data: {}
+          }
+        }).catch(err => console.error('Failed to send email:', err));
+      }
+
+      toast({
+        title: approve ? 'User Approved' : 'Approval Revoked',
+        description: approve
+          ? 'The user can now access all platform features.'
+          : 'The user\'s access has been restricted.',
+      });
+
+      fetchData();
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to update approval status.', variant: 'destructive' });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const individuals = profiles.filter(p => p.user_type === 'individual');
   const firmUsers = profiles.filter(p => p.user_type === 'firm');
+  const pendingApproval = profiles.filter(p => !p.is_approved);
+  const approved = profiles.filter(p => p.is_approved);
 
   const filtered = profiles.filter(p => {
     if (typeFilter !== 'all' && p.user_type !== typeFilter) return false;
+    if (approvalFilter === 'approved' && !p.is_approved) return false;
+    if (approvalFilter === 'pending' && p.is_approved) return false;
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       return p.email.toLowerCase().includes(term) || (p.full_name || '').toLowerCase().includes(term);
@@ -66,10 +130,12 @@ export default function AdminUsersDetail() {
         </div>
       </header>
       <main className="container mx-auto px-4 py-8 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <Card><CardContent className="pt-6 text-center"><p className="text-2xl font-bold">{profiles.length}</p><p className="text-sm text-muted-foreground">Total Users</p></CardContent></Card>
           <Card><CardContent className="pt-6 text-center"><p className="text-2xl font-bold">{individuals.length}</p><p className="text-sm text-muted-foreground">Individuals</p></CardContent></Card>
           <Card><CardContent className="pt-6 text-center"><p className="text-2xl font-bold">{firmUsers.length}</p><p className="text-sm text-muted-foreground">Firm Users</p></CardContent></Card>
+          <Card className="border-amber-200 bg-amber-50/50"><CardContent className="pt-6 text-center"><p className="text-2xl font-bold text-amber-600">{pendingApproval.length}</p><p className="text-sm text-muted-foreground">Pending Approval</p></CardContent></Card>
+          <Card className="border-green-200 bg-green-50/50"><CardContent className="pt-6 text-center"><p className="text-2xl font-bold text-green-600">{approved.length}</p><p className="text-sm text-muted-foreground">Approved</p></CardContent></Card>
         </div>
 
         <Card>
@@ -81,8 +147,13 @@ export default function AdminUsersDetail() {
               </div>
               <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="px-3 py-2 border rounded-md bg-background text-sm">
                 <option value="all">All Types</option>
-                <option value="individual">Individuals ({individuals.length})</option>
-                <option value="firm">Firm Users ({firmUsers.length})</option>
+                <option value="individual">Individuals</option>
+                <option value="firm">Firm Users</option>
+              </select>
+              <select value={approvalFilter} onChange={(e) => setApprovalFilter(e.target.value)} className="px-3 py-2 border rounded-md bg-background text-sm">
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending Approval ({pendingApproval.length})</option>
+                <option value="approved">Approved ({approved.length})</option>
               </select>
             </div>
           </CardContent>
@@ -99,9 +170,10 @@ export default function AdminUsersDetail() {
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Type</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>Location</TableHead>
-                      <TableHead>Phone</TableHead>
                       <TableHead>Joined</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -115,9 +187,47 @@ export default function AdminUsersDetail() {
                             {p.user_type}
                           </Badge>
                         </TableCell>
+                        <TableCell>
+                          {p.is_approved ? (
+                            <Badge className="bg-green-100 text-green-800 text-xs">
+                              <ShieldCheck className="h-3 w-3 mr-1" />
+                              Approved
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-amber-100 text-amber-800 text-xs">
+                              <Clock className="h-3 w-3 mr-1" />
+                              Pending
+                            </Badge>
+                          )}
+                        </TableCell>
                         <TableCell className="text-sm">{p.location || '—'}</TableCell>
-                        <TableCell className="text-sm">{p.phone || '—'}</TableCell>
                         <TableCell className="text-sm">{format(new Date(p.created_at), 'dd MMM yyyy')}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            {!p.is_approved ? (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                disabled={actionLoading === p.user_id}
+                                onClick={() => handleApproval(p.user_id, true)}
+                              >
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Approve
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-destructive border-destructive/30"
+                                disabled={actionLoading === p.user_id}
+                                onClick={() => handleApproval(p.user_id, false)}
+                              >
+                                <XCircle className="h-3 w-3 mr-1" />
+                                Revoke
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
