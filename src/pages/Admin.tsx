@@ -660,6 +660,19 @@ const Admin = () => {
                             </Button>
                           </>
                         )}
+                        {firm.is_verified && (
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedFirm(firm);
+                              setIsRevokeOpen(true);
+                            }}
+                          >
+                            <ShieldMinus className="h-4 w-4 mr-2" />
+                            Revoke Verification
+                          </Button>
+                        )}
                         {firm.website && (
                           <Button variant="ghost" size="sm" asChild>
                             <a href={firm.website} target="_blank" rel="noopener noreferrer">
