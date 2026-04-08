@@ -257,6 +257,60 @@ const Admin = () => {
     }
   };
 
+  const handleRevokeFirm = async () => {
+    if (!selectedFirm) return;
+    
+    try {
+      const { error } = await supabase
+        .from('law_firms')
+        .update({ is_verified: false })
+        .eq('id', selectedFirm.id);
+
+      if (error) throw error;
+
+      // Send revocation email
+      const profile = profiles[selectedFirm.user_id];
+      if (profile?.email) {
+        try {
+          await supabase.functions.invoke('send-notification-email', {
+            body: {
+              type: 'firm_verification_revoked',
+              recipientEmail: profile.email,
+              recipientName: profile.full_name || 'Law Firm Representative',
+              data: {
+                firmName: selectedFirm.firm_name,
+                revokeReason: revokeReason || undefined
+              }
+            }
+          });
+        } catch (emailError) {
+          console.error('Failed to send revocation email:', emailError);
+        }
+      }
+
+      toast({
+        title: "Verification revoked",
+        description: `${selectedFirm.firm_name}'s verification has been revoked and they have been notified.`
+      });
+
+      await logAdminAction('firm_verification_revoked', 'firm', selectedFirm.id, { 
+        firmName: selectedFirm.firm_name, 
+        reason: revokeReason 
+      });
+
+      setFirms(firms.map(f => f.id === selectedFirm.id ? { ...f, is_verified: false } : f));
+      setIsRevokeOpen(false);
+      setRevokeReason('');
+      setIsDetailOpen(false);
+    } catch (error) {
+      toast({
+        title: "Revocation failed",
+        description: "Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
