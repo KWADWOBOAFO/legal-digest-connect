@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Users, ArrowLeft, Search, Building2, CheckCircle2, XCircle, ShieldCheck, Clock } from 'lucide-react';
 import { format } from 'date-fns';
@@ -36,6 +37,8 @@ export default function AdminUsersDetail() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [approvalFilter, setApprovalFilter] = useState('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [bulkLoading, setBulkLoading] = useState(false);
 
   useEffect(() => { if (!roleLoading && !isAdmin) navigate('/admin'); }, [isAdmin, roleLoading]);
 
@@ -65,7 +68,6 @@ export default function AdminUsersDetail() {
 
       if (error) throw error;
 
-      // Send notification to user
       await supabase.from('notifications').insert({
         user_id: profileUserId,
         type: 'account_approval',
@@ -75,7 +77,6 @@ export default function AdminUsersDetail() {
           : 'Your account approval has been revoked. Please contact support for more information.',
       });
 
-      // Send email notification
       const targetProfile = profiles.find(p => p.user_id === profileUserId);
       if (targetProfile) {
         supabase.functions.invoke('send-notification-email', {
@@ -100,6 +101,66 @@ export default function AdminUsersDetail() {
       toast({ title: 'Error', description: 'Failed to update approval status.', variant: 'destructive' });
     } finally {
       setActionLoading(null);
+    }
+  };
+
+  const handleBulkAction = async (approve: boolean) => {
+    if (selectedUsers.size === 0) return;
+    setBulkLoading(true);
+    try {
+      const userIds = Array.from(selectedUsers);
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          is_approved: approve,
+          approved_at: approve ? new Date().toISOString() : null,
+          approved_by: approve ? user?.id : null
+        })
+        .in('user_id', userIds);
+
+      if (error) throw error;
+
+      // Send notifications to all affected users
+      const notifications = userIds.map(uid => ({
+        user_id: uid,
+        type: 'account_approval',
+        title: approve ? 'Account Approved' : 'Account Approval Revoked',
+        message: approve
+          ? 'Your account has been approved by an administrator. You now have full access to the platform.'
+          : 'Your account approval has been revoked. Please contact support for more information.',
+      }));
+
+      await supabase.from('notifications').insert(notifications);
+
+      toast({
+        title: `Bulk ${approve ? 'Approval' : 'Revocation'} Complete`,
+        description: `${userIds.length} user(s) have been ${approve ? 'approved' : 'revoked'}.`,
+      });
+
+      setSelectedUsers(new Set());
+      fetchData();
+    } catch (error) {
+      toast({ title: 'Error', description: 'Bulk action failed.', variant: 'destructive' });
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const toggleUserSelection = (userId: string) => {
+    setSelectedUsers(prev => {
+      const next = new Set(prev);
+      if (next.has(userId)) next.delete(userId);
+      else next.add(userId);
+      return next;
+    });
+  };
+
+  const toggleAllFiltered = () => {
+    if (selectedUsers.size === filtered.length) {
+      setSelectedUsers(new Set());
+    } else {
+      setSelectedUsers(new Set(filtered.map(p => p.user_id)));
     }
   };
 
@@ -159,6 +220,43 @@ export default function AdminUsersDetail() {
           </CardContent>
         </Card>
 
+        {/* Bulk Actions Bar */}
+        {selectedUsers.size > 0 && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="py-3 flex items-center justify-between">
+              <span className="text-sm font-medium">{selectedUsers.size} user(s) selected</span>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="default"
+                  disabled={bulkLoading}
+                  onClick={() => handleBulkAction(true)}
+                >
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  Approve Selected
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive border-destructive/30"
+                  disabled={bulkLoading}
+                  onClick={() => handleBulkAction(false)}
+                >
+                  <XCircle className="h-3 w-3 mr-1" />
+                  Revoke Selected
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setSelectedUsers(new Set())}
+                >
+                  Clear
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader><CardTitle>All Users ({filtered.length})</CardTitle></CardHeader>
           <CardContent>
@@ -167,6 +265,12 @@ export default function AdminUsersDetail() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={filtered.length > 0 && selectedUsers.size === filtered.length}
+                          onCheckedChange={toggleAllFiltered}
+                        />
+                      </TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Type</TableHead>
@@ -178,7 +282,13 @@ export default function AdminUsersDetail() {
                   </TableHeader>
                   <TableBody>
                     {filtered.map(p => (
-                      <TableRow key={p.id}>
+                      <TableRow key={p.id} className={selectedUsers.has(p.user_id) ? 'bg-primary/5' : ''}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedUsers.has(p.user_id)}
+                            onCheckedChange={() => toggleUserSelection(p.user_id)}
+                          />
+                        </TableCell>
                         <TableCell className="font-medium">{p.full_name || '—'}</TableCell>
                         <TableCell className="text-sm">{p.email}</TableCell>
                         <TableCell>
