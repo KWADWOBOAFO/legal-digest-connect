@@ -31,11 +31,20 @@ const Navbar = () => {
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  const navLinks = [
+  const publicNavLinks = [
     { label: "How It Works", href: "#how-it-works" },
     { label: "Practice Areas", href: "#practice-areas" },
     { label: "For Law Firms", href: "#for-firms" },
   ];
+
+  const adminNavLinks = [
+    { label: "Firms", href: "/admin?tab=firms" },
+    { label: "Cases", href: "/admin?tab=cases" },
+    { label: "Users", href: "/admin?tab=users" },
+    { label: "Activity Log", href: "/admin?tab=activity" },
+  ];
+
+  const navLinks = (user && isAdmin) ? adminNavLinks : publicNavLinks;
 
   const handleSignOut = async () => {
     await signOut();
