@@ -59,8 +59,8 @@ const Dashboard = () => {
     return <UserTypeSelector />;
   }
 
-  // Block all activity until admin approves the account
-  if (!profile.is_approved) {
+  // Block all activity until admin approves the account (admins skip this check)
+  if (!profile.is_approved && !isAdmin) {
     return <PendingApprovalBanner />;
   }
 
