@@ -652,6 +652,10 @@ const Admin = () => {
             <CaseModerationQueue />
           </TabsContent>
 
+          <TabsContent value="payments" className="space-y-4">
+            <AdminPaymentSettings />
+          </TabsContent>
+
           <TabsContent value="roles" className="space-y-4">
             <UserRoleManagement />
           </TabsContent>
