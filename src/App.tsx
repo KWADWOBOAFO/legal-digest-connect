@@ -29,6 +29,11 @@ import Community from "./pages/Community";
 import Status from "./pages/Status";
 import Careers from "./pages/Careers";
 import Blog from "./pages/Blog";
+import AdminFirmsDetail from "./pages/admin/AdminFirmsDetail";
+import AdminCasesDetail from "./pages/admin/AdminCasesDetail";
+import AdminConsultationsDetail from "./pages/admin/AdminConsultationsDetail";
+import AdminUsersDetail from "./pages/admin/AdminUsersDetail";
+import AdminReviewsDetail from "./pages/admin/AdminReviewsDetail";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/layout/ScrollToTop";
 
