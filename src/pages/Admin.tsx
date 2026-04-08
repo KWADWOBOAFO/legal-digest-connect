@@ -928,6 +928,34 @@ const Admin = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Revoke Verification Dialog */}
+      <Dialog open={isRevokeOpen} onOpenChange={setIsRevokeOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Revoke Verification</DialogTitle>
+            <DialogDescription>
+              This will remove {selectedFirm?.firm_name}'s verified status. The firm will be notified via email.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Textarea
+            placeholder="Reason for revoking verification (recommended)..."
+            value={revokeReason}
+            onChange={(e) => setRevokeReason(e.target.value)}
+            rows={4}
+          />
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setIsRevokeOpen(false); setRevokeReason(''); }}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleRevokeFirm}>
+              <ShieldMinus className="h-4 w-4 mr-2" />
+              Confirm Revocation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
