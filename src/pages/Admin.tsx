@@ -863,6 +863,18 @@ const Admin = () => {
           )}
 
           <DialogFooter>
+            {selectedFirm && selectedFirm.is_verified && (
+              <Button 
+                variant="destructive"
+                onClick={() => {
+                  setIsDetailOpen(false);
+                  setIsRevokeOpen(true);
+                }}
+              >
+                <ShieldMinus className="h-4 w-4 mr-2" />
+                Revoke Verification
+              </Button>
+            )}
             {selectedFirm && selectedFirm.nda_signed && !selectedFirm.is_verified && (
               <>
                 <Button 
