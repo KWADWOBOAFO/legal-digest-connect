@@ -273,7 +273,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Authorization: Check if user is allowed to send this type of notification
     // For admin-only notifications (firm_verified, firm_rejected), verify admin role
-    if (type === "firm_verified" || type === "firm_rejected") {
+    if (type === "firm_verified" || type === "firm_rejected" || type === "firm_verification_revoked") {
       // Check if user has admin role using the has_role function
       const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
