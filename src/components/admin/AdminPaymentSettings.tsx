@@ -348,6 +348,10 @@ export function AdminPaymentSettings() {
           {isSaving ? 'Saving...' : 'Save Payment Settings'}
         </Button>
       </div>
+
+      {/* Transaction History */}
+      <Separator className="my-6" />
+      <TransactionHistory />
     </div>
   );
 }
