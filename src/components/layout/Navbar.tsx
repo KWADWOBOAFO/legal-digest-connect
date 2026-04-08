@@ -107,17 +107,6 @@ const Navbar = () => {
                 <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
               ) : user ? (
                 <>
-                  {isAdmin && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-2 border-destructive/30 text-destructive hover:bg-destructive/10"
-                      onClick={() => navigate('/admin')}
-                    >
-                      <Shield className="h-4 w-4" />
-                      Admin Panel
-                    </Button>
-                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="flex items-center gap-2 px-2">
@@ -130,13 +119,23 @@ const Navbar = () => {
                         <span className="font-medium max-w-[150px] truncate">
                           {displayName}
                         </span>
+                        {isAdmin && (
+                          <Badge variant="destructive" className="ml-1 text-xs">Admin</Badge>
+                        )}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-                        <User className="mr-2 h-4 w-4" />
-                        Dashboard
-                      </DropdownMenuItem>
+                      {isAdmin ? (
+                        <DropdownMenuItem onClick={() => navigate('/admin')}>
+                          <Shield className="mr-2 h-4 w-4" />
+                          Admin Panel
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                          <User className="mr-2 h-4 w-4" />
+                          Dashboard
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
                         <LogOut className="mr-2 h-4 w-4" />
