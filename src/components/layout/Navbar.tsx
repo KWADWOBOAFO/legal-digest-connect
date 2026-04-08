@@ -221,21 +221,7 @@ const Navbar = () => {
                     <span className="text-sm text-muted-foreground truncate">{user.email}</span>
                   </div>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-between h-12 text-base px-4 rounded-xl hover:bg-muted"
-                  onClick={() => {
-                    setIsOpen(false);
-                    navigate('/dashboard');
-                  }}
-                >
-                  <span className="flex items-center gap-3">
-                    <User className="h-5 w-5" />
-                    Dashboard
-                  </span>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                </Button>
-                {isAdmin && (
+                {isAdmin ? (
                   <Button 
                     variant="ghost" 
                     className="w-full justify-between h-12 text-base px-4 rounded-xl hover:bg-muted"
@@ -247,6 +233,21 @@ const Navbar = () => {
                     <span className="flex items-center gap-3">
                       <Shield className="h-5 w-5" />
                       Admin Panel
+                    </span>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-between h-12 text-base px-4 rounded-xl hover:bg-muted"
+                    onClick={() => {
+                      setIsOpen(false);
+                      navigate('/dashboard');
+                    }}
+                  >
+                    <span className="flex items-center gap-3">
+                      <User className="h-5 w-5" />
+                      Dashboard
                     </span>
                     <ChevronRight className="w-5 h-5 text-muted-foreground" />
                   </Button>
