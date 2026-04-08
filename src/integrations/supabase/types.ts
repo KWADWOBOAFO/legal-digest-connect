@@ -810,11 +810,14 @@ export type Database = {
       }
       profiles: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           avatar_url: string | null
           created_at: string
           email: string
           full_name: string | null
           id: string
+          is_approved: boolean
           latitude: number | null
           location: string | null
           longitude: number | null
@@ -824,11 +827,14 @@ export type Database = {
           user_type: Database["public"]["Enums"]["user_type"]
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           avatar_url?: string | null
           created_at?: string
           email: string
           full_name?: string | null
           id?: string
+          is_approved?: boolean
           latitude?: number | null
           location?: string | null
           longitude?: number | null
@@ -838,11 +844,14 @@ export type Database = {
           user_type?: Database["public"]["Enums"]["user_type"]
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           avatar_url?: string | null
           created_at?: string
           email?: string
           full_name?: string | null
           id?: string
+          is_approved?: boolean
           latitude?: number | null
           location?: string | null
           longitude?: number | null
