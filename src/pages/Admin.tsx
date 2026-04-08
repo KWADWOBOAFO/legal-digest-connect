@@ -41,6 +41,8 @@ import CaseModerationQueue from '@/components/admin/CaseModerationQueue';
 import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
 import UserRoleManagement from '@/components/admin/UserRoleManagement';
 import AdminActivityLog from '@/components/admin/AdminActivityLog';
+import { AdminStatsWidgets } from '@/components/admin/AdminStatsWidgets';
+import { AdminPaymentSettings } from '@/components/admin/AdminPaymentSettings';
 import { logAdminAction } from '@/hooks/useAdminActivityLog';
 
 interface LawFirm {
@@ -447,60 +449,16 @@ const Admin = () => {
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
         
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Building2 className="h-8 w-8 text-primary" />
-                <div>
-                  <p className="text-2xl font-bold">{stats.total}</p>
-                  <p className="text-sm text-muted-foreground">Total Firms</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-amber-200 bg-amber-50">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Clock className="h-8 w-8 text-amber-600" />
-                <div>
-                  <p className="text-2xl font-bold">{stats.pending}</p>
-                  <p className="text-sm text-amber-700">Pending Review</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-green-200 bg-green-50">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
-                <div>
-                  <p className="text-2xl font-bold">{stats.verified}</p>
-                  <p className="text-sm text-green-700">Verified</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Users className="h-8 w-8 text-muted-foreground" />
-                <div>
-                  <p className="text-2xl font-bold">{stats.unverified}</p>
-                  <p className="text-sm text-muted-foreground">Not Started</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
+        {/* Interactive Stats Widgets */}
+        <AdminStatsWidgets />
+        
         {/* Tabs and Filters */}
         <Tabs defaultValue="analytics" className="space-y-4">
           <TabsList>
             <TabsTrigger value="analytics">Platform Analytics</TabsTrigger>
             <TabsTrigger value="firms">Law Firms</TabsTrigger>
             <TabsTrigger value="cases">Cases Overview</TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="roles">User Roles</TabsTrigger>
             <TabsTrigger value="activity">Activity Log</TabsTrigger>
           </TabsList>
@@ -692,6 +650,10 @@ const Admin = () => {
 
           <TabsContent value="cases" className="space-y-4">
             <CaseModerationQueue />
+          </TabsContent>
+
+          <TabsContent value="payments" className="space-y-4">
+            <AdminPaymentSettings />
           </TabsContent>
 
           <TabsContent value="roles" className="space-y-4">
