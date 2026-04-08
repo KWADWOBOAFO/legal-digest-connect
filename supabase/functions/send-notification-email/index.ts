@@ -178,6 +178,42 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
         `,
       };
 
+    case "firm_verification_revoked":
+      return {
+        subject: `⚠️ Your law firm verification has been revoked`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+            </div>
+            <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+              <h2 style="color: #1a365d; margin-top: 0;">Hello ${recipientName},</h2>
+              <p style="font-size: 16px;">We're writing to inform you that the verification status for <strong>${data.firmName}</strong> has been revoked.</p>
+              <div style="background: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444; margin: 20px 0;">
+                <p style="margin: 0 0 10px 0; font-weight: 600; color: #991b1b;">Verification Revoked</p>
+                ${data.revokeReason ? `<p style="margin: 0; color: #7f1d1d;"><strong>Reason:</strong> ${data.revokeReason}</p>` : '<p style="margin: 0; color: #7f1d1d;">Your firm\'s verified status has been removed following an administrative review.</p>'}
+              </div>
+              <p style="font-size: 16px;">While your firm profile remains active, you will no longer appear as a verified firm. This may affect your ability to receive new case matches.</p>
+              <p style="font-size: 16px;">If you believe this was in error or would like to discuss this decision, please contact our support team.</p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="https://id-preview--4096479d-6eed-4e22-8b7a-257836d49b76.lovable.app/help" 
+                   style="background: #6b7280; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+                  Contact Support
+                </a>
+              </div>
+              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+            </div>
+          </body>
+          </html>
+        `,
+      };
+
     default:
       return {
         subject: "Notification from Debriefed",
