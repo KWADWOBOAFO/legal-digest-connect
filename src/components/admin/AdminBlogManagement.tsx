@@ -170,6 +170,59 @@ const AdminBlogManagement = () => {
     setIsEditorOpen(true);
   };
 
+  const handleCoverImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Please select an image file', variant: 'destructive' });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'Image must be under 5MB', variant: 'destructive' });
+      return;
+    }
+
+    // Show local preview immediately
+    const localPreview = URL.createObjectURL(file);
+    setCoverPreview(localPreview);
+
+    setIsUploadingImage(true);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+      const filePath = `covers/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('blog-images')
+        .upload(filePath, file, { cacheControl: '3600', upsert: false });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(filePath);
+
+      setFormCoverUrl(urlData.publicUrl);
+      setCoverPreview(urlData.publicUrl);
+      toast({ title: 'Image uploaded successfully' });
+    } catch (error: any) {
+      toast({ title: 'Image upload failed', description: error?.message, variant: 'destructive' });
+      setCoverPreview(null);
+      setFormCoverUrl('');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleRemoveCover = () => {
+    setFormCoverUrl('');
+    setCoverPreview(null);
+  };
+
   const handleTitleChange = (value: string) => {
     setFormTitle(value);
     if (!editingPost) {
