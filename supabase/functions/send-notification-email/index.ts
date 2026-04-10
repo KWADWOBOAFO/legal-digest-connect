@@ -214,6 +214,79 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
         `,
       };
 
+    case "account_approved":
+      return {
+        subject: `✅ Your DEBRIEFED account has been approved!`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+            </div>
+            <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+              <h2 style="color: #1a365d; margin-top: 0;">Welcome aboard, ${recipientName}! 🎉</h2>
+              <div style="background: #dcfce7; padding: 20px; border-radius: 8px; border-left: 4px solid #22c55e; margin: 20px 0;">
+                <p style="margin: 0; font-size: 18px; font-weight: 600; color: #166534;">✓ Your account has been approved!</p>
+              </div>
+              <p style="font-size: 16px;">Great news! An administrator has reviewed and approved your account. You now have full access to all platform features:</p>
+              <ul style="font-size: 16px; color: #4b5563;">
+                <li>Submit and manage your legal cases</li>
+                <li>Connect with qualified legal professionals</li>
+                <li>Schedule consultations</li>
+                <li>Access secure document sharing</li>
+              </ul>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="https://legal-digest-connect.lovable.app/dashboard" 
+                   style="background: #d4a84b; color: #1a365d; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+                  Go to Your Dashboard
+                </a>
+              </div>
+              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+            </div>
+          </body>
+          </html>
+        `,
+      };
+
+    case "account_revoked":
+      return {
+        subject: `⚠️ Your DEBRIEFED account access has been restricted`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+            </div>
+            <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+              <h2 style="color: #1a365d; margin-top: 0;">Hello ${recipientName},</h2>
+              <div style="background: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444; margin: 20px 0;">
+                <p style="margin: 0; font-size: 18px; font-weight: 600; color: #991b1b;">Account Access Restricted</p>
+              </div>
+              <p style="font-size: 16px;">Your account approval has been revoked by an administrator. Your access to platform features has been restricted.</p>
+              <p style="font-size: 16px;">If you believe this was in error or would like more information, please contact our support team.</p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="https://legal-digest-connect.lovable.app/help" 
+                   style="background: #6b7280; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+                  Contact Support
+                </a>
+              </div>
+              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+            </div>
+          </body>
+          </html>
+        `,
+      };
+
     default:
       return {
         subject: "Notification from Debriefed",
