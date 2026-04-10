@@ -471,6 +471,10 @@ const Admin = () => {
             <AdminAnalytics />
           </TabsContent>
 
+          <TabsContent value="blog">
+            <AdminBlogManagement />
+          </TabsContent>
+
           <TabsContent value="firms" className="space-y-4">
             {/* Search and Filter */}
             <Card>
