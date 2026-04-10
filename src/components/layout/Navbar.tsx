@@ -150,7 +150,7 @@ const Navbar = () => {
                   <Button variant="ghost" onClick={() => setAuthDialogOpen(true)}>
                     Sign In
                   </Button>
-                  <Button variant="gold" onClick={() => navigate('/auth')}>
+                  <Button variant="gold" onClick={() => navigate('/auth?mode=signup')}>
                     Get Started
                   </Button>
                 </>
@@ -283,7 +283,7 @@ const Navbar = () => {
                   className="w-full justify-center h-12 text-base rounded-xl"
                   onClick={() => {
                     setIsOpen(false);
-                    setAuthDialogOpen(true);
+                    navigate('/auth?mode=signup');
                   }}
                 >
                   Get Started
