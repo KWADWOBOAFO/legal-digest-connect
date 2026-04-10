@@ -21,18 +21,13 @@ const PendingApprovalBanner = () => {
     setIsChecking(true);
     try {
       await refreshProfile();
-      // Small delay to let state update propagate
-      setTimeout(() => {
-        // Re-read profile from context won't work here since it's async
-        // Instead we'll reload the page to force a fresh check
-        window.location.reload();
-      }, 500);
     } catch {
       toast({
         title: "Error",
         description: "Could not check approval status. Please try again.",
         variant: "destructive"
       });
+    } finally {
       setIsChecking(false);
     }
   };
