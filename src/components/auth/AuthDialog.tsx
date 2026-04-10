@@ -38,9 +38,18 @@ const AuthDialog = ({ open, onOpenChange, initialView, initialUserType }: AuthDi
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string }>({});
   
-  const { signIn, signUp, signInWithGoogle, signInWithApple, resetPassword } = useAuth();
+  const { signIn, signUp, signInWithGoogle, signInWithApple, resetPassword, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Close dialog when user is authenticated (e.g. after OAuth redirect)
+  React.useEffect(() => {
+    if (user && open) {
+      setIsGoogleLoading(false);
+      setIsAppleLoading(false);
+      onOpenChange(false);
+    }
+  }, [user, open, onOpenChange]);
 
   // Determine if we're in "firm mode" based on context
   const isFirmMode = userType === 'firm' || (initialUserType === 'firm' && view === 'login');
