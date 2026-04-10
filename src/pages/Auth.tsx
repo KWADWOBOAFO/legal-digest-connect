@@ -17,8 +17,9 @@ const nameSchema = z.string().min(2, 'Name must be at least 2 characters');
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const isPasswordReset = searchParams.get('reset') === 'true';
+  const initialMode = searchParams.get('mode');
   
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(initialMode === 'signup' ? false : true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [userType, setUserType] = useState<'individual' | 'firm'>('individual');
   const [email, setEmail] = useState('');
