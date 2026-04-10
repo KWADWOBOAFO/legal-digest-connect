@@ -367,13 +367,13 @@ export const AdminEmailSettings = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800">
+          <Card className="border-destructive/30 bg-destructive/5">
             <CardContent className="pt-6">
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
                 <div>
-                  <p className="font-medium text-amber-900 dark:text-amber-200">Custom Domain Required</p>
-                  <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                  <p className="font-medium text-foreground">Custom Domain Required</p>
+                  <p className="text-sm text-muted-foreground mt-1">
                     To send emails from your own domain (e.g., notify@yourdomain.com), you need to set up a custom email domain. 
                     Contact your workspace administrator to configure domain settings.
                   </p>
