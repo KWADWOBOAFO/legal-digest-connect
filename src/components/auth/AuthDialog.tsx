@@ -42,14 +42,15 @@ const AuthDialog = ({ open, onOpenChange, initialView, initialUserType }: AuthDi
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Close dialog when user is authenticated (e.g. after OAuth redirect)
+  // Close dialog and redirect when user is authenticated (e.g. after OAuth redirect)
   React.useEffect(() => {
     if (user && open) {
       setIsGoogleLoading(false);
       setIsAppleLoading(false);
       onOpenChange(false);
+      navigate('/dashboard');
     }
-  }, [user, open, onOpenChange]);
+  }, [user, open, onOpenChange, navigate]);
 
   // Determine if we're in "firm mode" based on context
   const isFirmMode = userType === 'firm' || (initialUserType === 'firm' && view === 'login');
