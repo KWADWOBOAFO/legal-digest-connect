@@ -689,6 +689,10 @@ const IndividualDashboard = () => {
             <SecureDocumentShare />
           </TabsContent>
 
+          <TabsContent value="payments">
+            <UserPaymentHistory userType="individual" />
+          </TabsContent>
+
           <TabsContent value="analytics">
             {analyticsLoading ? (
               <Card>
