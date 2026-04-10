@@ -106,6 +106,8 @@ const AdminBlogManagement = () => {
   const [formCoverUrl, setFormCoverUrl] = useState('');
   const [formPostType, setFormPostType] = useState<'blog' | 'insight'>('blog');
   const [formStatus, setFormStatus] = useState<'draft' | 'published'>('draft');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   // Delete dialog
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -146,6 +148,7 @@ const AdminBlogManagement = () => {
     setFormPostType('blog');
     setFormStatus('draft');
     setEditingPost(null);
+    setCoverPreview(null);
   };
 
   const openNewPost = () => {
@@ -161,6 +164,7 @@ const AdminBlogManagement = () => {
     setFormExcerpt(post.excerpt || '');
     setFormCategory(post.category);
     setFormCoverUrl(post.cover_image_url || '');
+    setCoverPreview(post.cover_image_url || null);
     setFormPostType(post.post_type as 'blog' | 'insight');
     setFormStatus(post.status as 'draft' | 'published');
     setIsEditorOpen(true);
