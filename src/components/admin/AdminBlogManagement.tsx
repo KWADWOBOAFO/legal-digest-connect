@@ -40,6 +40,9 @@ import {
   FileText,
   Lightbulb,
   Send,
+  ImagePlus,
+  X,
+  Upload,
 } from 'lucide-react';
 
 interface BlogPost {
