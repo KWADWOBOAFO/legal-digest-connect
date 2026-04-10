@@ -662,6 +662,10 @@ const Admin = () => {
             <UserRoleManagement />
           </TabsContent>
 
+          <TabsContent value="email" className="space-y-4">
+            <AdminEmailSettings />
+          </TabsContent>
+
           <TabsContent value="activity" className="space-y-4">
             <AdminActivityLog />
           </TabsContent>
