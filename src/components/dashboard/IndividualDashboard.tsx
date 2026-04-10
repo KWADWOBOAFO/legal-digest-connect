@@ -31,6 +31,7 @@ import NotificationBell from '@/components/layout/NotificationBell';
 import { AnalyticsSection } from './AnalyticsSection';
 import { MessagingPanel } from '@/components/messaging/MessagingPanel';
 import { SecureDocumentShare } from '@/components/documents/SecureDocumentShare';
+import UserPaymentHistory from '@/components/payments/UserPaymentHistory';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationPermissionButton } from '@/components/notifications/NotificationPermissionButton';
@@ -452,6 +453,7 @@ const IndividualDashboard = () => {
             <TabsTrigger value="consultations">Consultations</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -685,6 +687,10 @@ const IndividualDashboard = () => {
 
           <TabsContent value="documents">
             <SecureDocumentShare />
+          </TabsContent>
+
+          <TabsContent value="payments">
+            <UserPaymentHistory userType="individual" />
           </TabsContent>
 
           <TabsContent value="analytics">

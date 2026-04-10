@@ -227,10 +227,9 @@ const PricingSection = ({ showHeader = true, compact = false }: PricingSectionPr
                   size="lg"
                   onClick={() => {
                     if (tier.name === "Enterprise") {
-                      // Could open a contact form
-                      navigate("/pricing");
+                      navigate("/checkout?plan=enterprise&billing=" + billing);
                     } else {
-                      setAuthOpen(true);
+                      navigate("/checkout?plan=" + tier.name.toLowerCase() + "&billing=" + billing);
                     }
                   }}
                 >

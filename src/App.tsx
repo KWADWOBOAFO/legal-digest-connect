@@ -18,6 +18,7 @@ import FirmSettings from "./pages/FirmSettings";
 import FirmOnboardingPage from "./pages/FirmOnboarding";
 import ProfileSettings from "./pages/ProfileSettings";
 import Pricing from "./pages/Pricing";
+import Checkout from "./pages/Checkout";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
@@ -67,6 +68,7 @@ const App = () => (
             <Route path="/firm-onboarding" element={<FirmOnboardingPage />} />
             <Route path="/profile-settings" element={<ProfileSettings />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/cookies" element={<CookiePolicy />} />
