@@ -40,6 +40,9 @@ import {
   FileText,
   Lightbulb,
   Send,
+  ImagePlus,
+  X,
+  Upload,
 } from 'lucide-react';
 
 interface BlogPost {
@@ -103,6 +106,8 @@ const AdminBlogManagement = () => {
   const [formCoverUrl, setFormCoverUrl] = useState('');
   const [formPostType, setFormPostType] = useState<'blog' | 'insight'>('blog');
   const [formStatus, setFormStatus] = useState<'draft' | 'published'>('draft');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   // Delete dialog
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -143,6 +148,7 @@ const AdminBlogManagement = () => {
     setFormPostType('blog');
     setFormStatus('draft');
     setEditingPost(null);
+    setCoverPreview(null);
   };
 
   const openNewPost = () => {
@@ -158,9 +164,63 @@ const AdminBlogManagement = () => {
     setFormExcerpt(post.excerpt || '');
     setFormCategory(post.category);
     setFormCoverUrl(post.cover_image_url || '');
+    setCoverPreview(post.cover_image_url || null);
     setFormPostType(post.post_type as 'blog' | 'insight');
     setFormStatus(post.status as 'draft' | 'published');
     setIsEditorOpen(true);
+  };
+
+  const handleCoverImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Please select an image file', variant: 'destructive' });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'Image must be under 5MB', variant: 'destructive' });
+      return;
+    }
+
+    // Show local preview immediately
+    const localPreview = URL.createObjectURL(file);
+    setCoverPreview(localPreview);
+
+    setIsUploadingImage(true);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+      const filePath = `covers/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('blog-images')
+        .upload(filePath, file, { cacheControl: '3600', upsert: false });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(filePath);
+
+      setFormCoverUrl(urlData.publicUrl);
+      setCoverPreview(urlData.publicUrl);
+      toast({ title: 'Image uploaded successfully' });
+    } catch (error: any) {
+      toast({ title: 'Image upload failed', description: error?.message, variant: 'destructive' });
+      setCoverPreview(null);
+      setFormCoverUrl('');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleRemoveCover = () => {
+    setFormCoverUrl('');
+    setCoverPreview(null);
   };
 
   const handleTitleChange = (value: string) => {
@@ -499,24 +559,92 @@ const AdminBlogManagement = () => {
               <p className="text-xs text-muted-foreground">Auto-generated from title. Edit only if needed.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Select value={formCategory} onValueChange={setFormCategory}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Cover Image URL</Label>
-                <Input value={formCoverUrl} onChange={(e) => setFormCoverUrl(e.target.value)} placeholder="https://..." />
-              </div>
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Select value={formCategory} onValueChange={setFormCategory}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Facebook-style Cover Image Upload */}
+            <div className="space-y-2">
+              <Label>Cover Image</Label>
+              {coverPreview ? (
+                <div className="relative group rounded-xl overflow-hidden border border-border bg-muted">
+                  <img
+                    src={coverPreview}
+                    alt="Cover preview"
+                    className="w-full h-52 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleCoverImageUpload}
+                        disabled={isUploadingImage}
+                      />
+                      <div className="flex items-center gap-2 px-4 py-2 bg-white/90 rounded-lg text-sm font-medium text-foreground hover:bg-white transition-colors">
+                        <Upload className="h-4 w-4" />
+                        Change Photo
+                      </div>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCover}
+                      className="flex items-center gap-2 px-4 py-2 bg-white/90 rounded-lg text-sm font-medium text-destructive hover:bg-white transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                      Remove
+                    </button>
+                  </div>
+                  {isUploadingImage && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <div className="flex items-center gap-2 text-white text-sm font-medium">
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                        Uploading...
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <label className="cursor-pointer block">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleCoverImageUpload}
+                    disabled={isUploadingImage}
+                  />
+                  <div className="border-2 border-dashed border-border rounded-xl h-44 flex flex-col items-center justify-center gap-3 hover:border-primary/50 hover:bg-muted/50 transition-colors">
+                    {isUploadingImage ? (
+                      <>
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+                        <span className="text-sm text-muted-foreground">Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="p-3 rounded-full bg-muted">
+                          <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-foreground">Add Cover Photo</p>
+                          <p className="text-xs text-muted-foreground mt-1">Click to upload or drag and drop</p>
+                          <p className="text-xs text-muted-foreground">PNG, JPG, WebP up to 5MB</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </label>
+              )}
             </div>
 
             <div className="space-y-2">
