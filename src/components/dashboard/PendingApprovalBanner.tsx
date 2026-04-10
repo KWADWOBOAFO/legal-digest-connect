@@ -1,16 +1,40 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Scale, ShieldAlert, LogOut, Settings } from 'lucide-react';
+import { Scale, ShieldAlert, LogOut, Settings, CheckCircle, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const PendingApprovalBanner = () => {
   const { profile, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isChecking, setIsChecking] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const handleCheckStatus = async () => {
+    setIsChecking(true);
+    try {
+      await refreshProfile();
+      // Small delay to let state update propagate
+      setTimeout(() => {
+        // Re-read profile from context won't work here since it's async
+        // Instead we'll reload the page to force a fresh check
+        window.location.reload();
+      }, 500);
+    } catch {
+      toast({
+        title: "Error",
+        description: "Could not check approval status. Please try again.",
+        variant: "destructive"
+      });
+      setIsChecking(false);
+    }
   };
 
   return (
@@ -59,11 +83,20 @@ const PendingApprovalBanner = () => {
             </div>
             <Button
               variant="outline"
-              onClick={async () => {
-                await refreshProfile();
-              }}
+              disabled={isChecking}
+              onClick={handleCheckStatus}
             >
-              Check Approval Status
+              {isChecking ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Checking...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Check Approval Status
+                </>
+              )}
             </Button>
           </CardContent>
         </Card>
