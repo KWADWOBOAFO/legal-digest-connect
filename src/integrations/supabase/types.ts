@@ -95,6 +95,7 @@ export type Database = {
       case_matches: {
         Row: {
           case_id: string
+          consultation_fee_quoted: number | null
           created_at: string
           firm_id: string
           id: string
@@ -105,6 +106,7 @@ export type Database = {
         }
         Insert: {
           case_id: string
+          consultation_fee_quoted?: number | null
           created_at?: string
           firm_id: string
           id?: string
@@ -115,6 +117,7 @@ export type Database = {
         }
         Update: {
           case_id?: string
+          consultation_fee_quoted?: number | null
           created_at?: string
           firm_id?: string
           id?: string
@@ -224,6 +227,7 @@ export type Database = {
         Row: {
           ai_notes: string | null
           case_id: string
+          consultation_type: string | null
           created_at: string
           duration_minutes: number | null
           firm_id: string
@@ -239,6 +243,7 @@ export type Database = {
         Insert: {
           ai_notes?: string | null
           case_id: string
+          consultation_type?: string | null
           created_at?: string
           duration_minutes?: number | null
           firm_id: string
@@ -254,6 +259,7 @@ export type Database = {
         Update: {
           ai_notes?: string | null
           case_id?: string
+          consultation_type?: string | null
           created_at?: string
           duration_minutes?: number | null
           firm_id?: string
@@ -555,11 +561,15 @@ export type Database = {
       law_firms: {
         Row: {
           address: string | null
+          awards: Json | null
           city: string | null
+          consultation_fee: number | null
           country: string | null
           created_at: string
           description: string | null
           firm_name: string
+          firm_type: string | null
+          google_reviews_url: string | null
           id: string
           is_verified: boolean | null
           latitude: number | null
@@ -571,17 +581,22 @@ export type Database = {
           regulatory_body: string | null
           regulatory_number: string | null
           subscription_tier: string | null
+          trustpilot_url: string | null
           updated_at: string
           user_id: string
           website: string | null
         }
         Insert: {
           address?: string | null
+          awards?: Json | null
           city?: string | null
+          consultation_fee?: number | null
           country?: string | null
           created_at?: string
           description?: string | null
           firm_name: string
+          firm_type?: string | null
+          google_reviews_url?: string | null
           id?: string
           is_verified?: boolean | null
           latitude?: number | null
@@ -593,17 +608,22 @@ export type Database = {
           regulatory_body?: string | null
           regulatory_number?: string | null
           subscription_tier?: string | null
+          trustpilot_url?: string | null
           updated_at?: string
           user_id: string
           website?: string | null
         }
         Update: {
           address?: string | null
+          awards?: Json | null
           city?: string | null
+          consultation_fee?: number | null
           country?: string | null
           created_at?: string
           description?: string | null
           firm_name?: string
+          firm_type?: string | null
+          google_reviews_url?: string | null
           id?: string
           is_verified?: boolean | null
           latitude?: number | null
@@ -615,6 +635,7 @@ export type Database = {
           regulatory_body?: string | null
           regulatory_number?: string | null
           subscription_tier?: string | null
+          trustpilot_url?: string | null
           updated_at?: string
           user_id?: string
           website?: string | null
@@ -624,43 +645,64 @@ export type Database = {
       legal_professionals: {
         Row: {
           avatar_url: string | null
+          awards: Json | null
           bio: string | null
+          can_accept_cases_independently: boolean | null
+          consultation_fee: number | null
           created_at: string
           email: string | null
           firm_id: string
           full_name: string
+          google_reviews_url: string | null
           id: string
           is_active: boolean | null
+          regulatory_body: string | null
+          regulatory_number: string | null
           specializations: string[] | null
           title: string | null
+          trustpilot_url: string | null
           updated_at: string
           years_experience: number | null
         }
         Insert: {
           avatar_url?: string | null
+          awards?: Json | null
           bio?: string | null
+          can_accept_cases_independently?: boolean | null
+          consultation_fee?: number | null
           created_at?: string
           email?: string | null
           firm_id: string
           full_name: string
+          google_reviews_url?: string | null
           id?: string
           is_active?: boolean | null
+          regulatory_body?: string | null
+          regulatory_number?: string | null
           specializations?: string[] | null
           title?: string | null
+          trustpilot_url?: string | null
           updated_at?: string
           years_experience?: number | null
         }
         Update: {
           avatar_url?: string | null
+          awards?: Json | null
           bio?: string | null
+          can_accept_cases_independently?: boolean | null
+          consultation_fee?: number | null
           created_at?: string
           email?: string | null
           firm_id?: string
           full_name?: string
+          google_reviews_url?: string | null
           id?: string
           is_active?: boolean | null
+          regulatory_body?: string | null
+          regulatory_number?: string | null
           specializations?: string[] | null
           title?: string | null
+          trustpilot_url?: string | null
           updated_at?: string
           years_experience?: number | null
         }
@@ -799,6 +841,75 @@ export type Database = {
         }
         Relationships: []
       }
+      payouts: {
+        Row: {
+          admin_notes: string | null
+          commission_amount: number
+          commission_rate: number
+          created_at: string
+          firm_id: string | null
+          gross_amount: number
+          id: string
+          net_amount: number
+          payment_transactions: Json | null
+          processed_at: string | null
+          processed_by: string | null
+          professional_id: string | null
+          requested_by: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          commission_amount: number
+          commission_rate?: number
+          created_at?: string
+          firm_id?: string | null
+          gross_amount: number
+          id?: string
+          net_amount: number
+          payment_transactions?: Json | null
+          processed_at?: string | null
+          processed_by?: string | null
+          professional_id?: string | null
+          requested_by: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          commission_amount?: number
+          commission_rate?: number
+          created_at?: string
+          firm_id?: string | null
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          payment_transactions?: Json | null
+          processed_at?: string | null
+          processed_by?: string | null
+          professional_id?: string | null
+          requested_by?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payouts_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "law_firms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "legal_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_settings: {
         Row: {
           created_at: string
@@ -907,6 +1018,45 @@ export type Database = {
           updated_at?: string
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Relationships: []
+      }
+      regulatory_bodies: {
+        Row: {
+          abbreviation: string
+          country: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          practice_areas: string[] | null
+          updated_at: string
+          verification_url: string | null
+          website: string | null
+        }
+        Insert: {
+          abbreviation: string
+          country?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          practice_areas?: string[] | null
+          updated_at?: string
+          verification_url?: string | null
+          website?: string | null
+        }
+        Update: {
+          abbreviation?: string
+          country?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          practice_areas?: string[] | null
+          updated_at?: string
+          verification_url?: string | null
+          website?: string | null
         }
         Relationships: []
       }
