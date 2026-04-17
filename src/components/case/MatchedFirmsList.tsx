@@ -102,7 +102,7 @@ export function MatchedFirmsList({
 
       if (error) throw error;
 
-      let filteredFirms = (data || []) as LawFirm[];
+      let filteredFirms = (data || []) as unknown as LawFirm[];
 
       // Calculate distances and filter by radius
       if (userLatitude && userLongitude && searchRadius > 0) {
