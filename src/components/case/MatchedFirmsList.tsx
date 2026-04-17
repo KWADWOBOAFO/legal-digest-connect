@@ -13,7 +13,10 @@ import {
   BadgeCheck, 
   Scale,
   ExternalLink,
-  Calendar
+  Calendar,
+  Banknote,
+  Award,
+  Globe
 } from 'lucide-react';
 import { calculateDistance, formatDistance, RADIUS_OPTIONS, DEFAULT_SEARCH_RADIUS_KM } from '@/lib/locationUtils';
 import { ScheduleConsultationDialog } from '@/components/dashboard/ScheduleConsultationDialog';
@@ -21,6 +24,13 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFirmRatings } from '@/hooks/useFirmRatings';
 import { FirmRatingDisplay } from '@/components/case/FirmRatingDisplay';
+
+interface AwardItem {
+  title: string;
+  organization: string;
+  year: string;
+  type: 'win' | 'nomination';
+}
 
 interface LawFirm {
   id: string;
@@ -33,6 +43,10 @@ interface LawFirm {
   longitude: number | null;
   is_verified: boolean | null;
   website: string | null;
+  consultation_fee?: number | null;
+  trustpilot_url?: string | null;
+  google_reviews_url?: string | null;
+  awards?: AwardItem[] | null;
   distance?: number;
 }
 
