@@ -45,6 +45,7 @@ import { AdminStatsWidgets } from '@/components/admin/AdminStatsWidgets';
 import { AdminPaymentSettings } from '@/components/admin/AdminPaymentSettings';
 import { AdminEmailSettings } from '@/components/admin/AdminEmailSettings';
 import AdminBlogManagement from '@/components/admin/AdminBlogManagement';
+import { AdminRegulatoryBodies } from '@/components/admin/AdminRegulatoryBodies';
 import { logAdminAction } from '@/hooks/useAdminActivityLog';
 
 interface LawFirm {
@@ -464,6 +465,7 @@ const Admin = () => {
             <TabsTrigger value="blog">Blog & Insights</TabsTrigger>
             <TabsTrigger value="roles">User Roles</TabsTrigger>
             <TabsTrigger value="email">Email Config</TabsTrigger>
+            <TabsTrigger value="regulatory">Regulatory Bodies</TabsTrigger>
             <TabsTrigger value="activity">Activity Log</TabsTrigger>
           </TabsList>
 
@@ -670,6 +672,10 @@ const Admin = () => {
 
           <TabsContent value="email" className="space-y-4">
             <AdminEmailSettings />
+          </TabsContent>
+
+          <TabsContent value="regulatory" className="space-y-4">
+            <AdminRegulatoryBodies />
           </TabsContent>
 
           <TabsContent value="activity" className="space-y-4">
