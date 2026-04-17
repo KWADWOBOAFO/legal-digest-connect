@@ -346,16 +346,11 @@ const SubmitCase = () => {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Preferred Consultation</Label>
-                  <select
-                    value={consultationType}
-                    onChange={(e) => setConsultationType(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg bg-background"
-                  >
-                    <option value="video">Video Call</option>
-                    <option value="phone">Phone Call</option>
-                    <option value="in-person">In-Person Meeting</option>
-                  </select>
+                  <Label>Consultation Format</Label>
+                  <div className="w-full px-3 py-2 border rounded-lg bg-muted/40 text-sm">
+                    <span className="font-medium">Video Call</span>
+                    <span className="text-muted-foreground"> — all consultations are conducted securely via video</span>
+                  </div>
                 </div>
               </div>
 

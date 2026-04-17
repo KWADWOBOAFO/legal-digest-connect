@@ -171,16 +171,10 @@ export function ScheduleConsultationDialog({
 
           <div className="space-y-2">
             <Label>Consultation Type</Label>
-            <Select value={consultationType} onValueChange={setConsultationType}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="video">Video Call</SelectItem>
-                <SelectItem value="phone">Phone Call</SelectItem>
-                <SelectItem value="in-person">In Person</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
+              <span className="font-medium">Video Call</span>
+              <span className="text-muted-foreground">— all consultations are conducted securely via video</span>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -204,7 +198,7 @@ export function ScheduleConsultationDialog({
                 description={`Consultation with ${firmName} regarding ${caseName}. ${notes ? `Notes: ${notes}` : ''}`}
                 startDate={times.startDate}
                 endDate={times.endDate}
-                location={consultationType === 'video' ? 'Video Call' : consultationType === 'phone' ? 'Phone Call' : 'In Person'}
+                location="Video Call"
               />
             );
           })()}

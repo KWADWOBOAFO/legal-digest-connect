@@ -13,7 +13,10 @@ import {
   BadgeCheck, 
   Scale,
   ExternalLink,
-  Calendar
+  Calendar,
+  Banknote,
+  Award,
+  Globe
 } from 'lucide-react';
 import { calculateDistance, formatDistance, RADIUS_OPTIONS, DEFAULT_SEARCH_RADIUS_KM } from '@/lib/locationUtils';
 import { ScheduleConsultationDialog } from '@/components/dashboard/ScheduleConsultationDialog';
@@ -21,6 +24,13 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFirmRatings } from '@/hooks/useFirmRatings';
 import { FirmRatingDisplay } from '@/components/case/FirmRatingDisplay';
+
+interface AwardItem {
+  title: string;
+  organization: string;
+  year: string;
+  type: 'win' | 'nomination';
+}
 
 interface LawFirm {
   id: string;
@@ -33,6 +43,10 @@ interface LawFirm {
   longitude: number | null;
   is_verified: boolean | null;
   website: string | null;
+  consultation_fee?: number | null;
+  trustpilot_url?: string | null;
+  google_reviews_url?: string | null;
+  awards?: AwardItem[] | null;
   distance?: number;
 }
 
@@ -88,7 +102,7 @@ export function MatchedFirmsList({
 
       if (error) throw error;
 
-      let filteredFirms = (data || []) as LawFirm[];
+      let filteredFirms = (data || []) as unknown as LawFirm[];
 
       // Calculate distances and filter by radius
       if (userLatitude && userLongitude && searchRadius > 0) {
@@ -308,7 +322,7 @@ export function MatchedFirmsList({
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-semibold truncate">{firm.firm_name}</h4>
                       {firm.is_verified && (
-                        <BadgeCheck className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                        <BadgeCheck className="h-4 w-4 text-primary flex-shrink-0" />
                       )}
                     </div>
                     
@@ -367,21 +381,59 @@ export function MatchedFirmsList({
                         )}
                       </div>
                     )}
+
+                    {/* Awards */}
+                    {firm.awards && firm.awards.length > 0 && (
+                      <div className="flex items-center gap-1 mb-2 text-xs text-muted-foreground">
+                        <Award className="h-3 w-3 text-primary" />
+                        <span>
+                          {firm.awards.filter(a => a.type === 'win').length} award{firm.awards.filter(a => a.type === 'win').length !== 1 ? 's' : ''}
+                          {firm.awards.filter(a => a.type === 'nomination').length > 0 && ` · ${firm.awards.filter(a => a.type === 'nomination').length} nomination${firm.awards.filter(a => a.type === 'nomination').length !== 1 ? 's' : ''}`}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* External review links */}
+                    <div className="flex items-center gap-3 flex-wrap text-xs">
+                      {firm.trustpilot_url && (
+                        <a href={firm.trustpilot_url} target="_blank" rel="noopener noreferrer"
+                           className="flex items-center gap-1 text-primary hover:underline">
+                          <Star className="h-3 w-3" /> Trustpilot
+                        </a>
+                      )}
+                      {firm.google_reviews_url && (
+                        <a href={firm.google_reviews_url} target="_blank" rel="noopener noreferrer"
+                           className="flex items-center gap-1 text-primary hover:underline">
+                          <Star className="h-3 w-3" /> Google Reviews
+                        </a>
+                      )}
+                    </div>
                   </div>
                   
-                  <div className="flex flex-col gap-2 sm:items-end">
+                  <div className="flex flex-col gap-2 sm:items-end sm:min-w-[180px]">
+                    {/* Consultation Fee */}
+                    {firm.consultation_fee != null && (
+                      <div className="text-right p-2 rounded-lg bg-primary/5 border border-primary/20 w-full sm:w-auto">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground justify-end">
+                          <Banknote className="h-3 w-3" /> Consultation
+                        </div>
+                        <div className="text-lg font-bold text-foreground">£{Number(firm.consultation_fee).toFixed(0)}</div>
+                        <div className="text-[10px] text-muted-foreground">30-min video session</div>
+                      </div>
+                    )}
                     <Button 
                       variant="gold" 
                       size="sm"
                       onClick={() => handleScheduleConsultation(firm)}
+                      className="w-full sm:w-auto"
                     >
                       <Calendar className="h-4 w-4 mr-2" />
-                      Book 30-min Consultation
+                      Book Video Consultation
                     </Button>
                     {firm.website && (
-                      <Button variant="ghost" size="sm" asChild>
+                      <Button variant="ghost" size="sm" asChild className="w-full sm:w-auto">
                         <a href={firm.website} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4 mr-2" />
+                          <Globe className="h-4 w-4 mr-2" />
                           Website
                         </a>
                       </Button>
