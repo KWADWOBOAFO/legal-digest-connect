@@ -75,11 +75,11 @@ export function FirmInterestCard({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'accepted':
-        return <Badge className="bg-green-100 text-green-800">Accepted</Badge>;
+        return <Badge variant="default" className="bg-primary/15 text-primary border-primary/30">Accepted</Badge>;
       case 'rejected':
-        return <Badge className="bg-red-100 text-red-800">Rejected</Badge>;
+        return <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/30">Declined</Badge>;
       default:
-        return <Badge className="bg-yellow-100 text-yellow-800">Interested</Badge>;
+        return <Badge variant="outline" className="bg-accent/10 text-accent-foreground border-accent/30">Interested</Badge>;
     }
   };
 
