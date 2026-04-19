@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Public read access for profile avatars" ON storage.objects;
