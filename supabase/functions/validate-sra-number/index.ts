@@ -1,3 +1,5 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
@@ -9,6 +11,28 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Require authentication to prevent abuse as an open proxy
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user }, error: authError } = await userClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { sraNumber } = await req.json();
 
     if (!sraNumber) {
@@ -20,23 +44,19 @@ Deno.serve(async (req) => {
 
     const cleanNumber = sraNumber.toString().trim();
 
-    // Query SRA public API - search by SRA ID
-    const response = await fetch(
-      `https://www.sra.org.uk/consumers/register/search/?searchBy=Firm&searchText=${encodeURIComponent(cleanNumber)}&numberOfResults=10`,
-      {
-        headers: {
-          'Accept': 'application/json',
-        },
-      }
-    );
+    // Basic input validation: SRA IDs are numeric, max ~10 digits
+    if (!/^[0-9]{1,12}$/.test(cleanNumber)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid SRA number format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Try the API endpoint directly
     const apiResponse = await fetch(
       `https://sra-prod-apim.azure-api.net/sra/organisations/${encodeURIComponent(cleanNumber)}`,
       {
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers: { 'Accept': 'application/json' },
       }
     );
 
@@ -58,17 +78,15 @@ Deno.serve(async (req) => {
     const searchResponse = await fetch(
       `https://sra-prod-apim.azure-api.net/sra/search?searchText=${encodeURIComponent(cleanNumber)}&searchBy=Firm`,
       {
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers: { 'Accept': 'application/json' },
       }
     );
 
     if (searchResponse.ok) {
       const searchData = await searchResponse.json();
       const results = searchData?.results || searchData || [];
-      const match = Array.isArray(results) 
-        ? results.find((r: Record<string, unknown>) => 
+      const match = Array.isArray(results)
+        ? results.find((r: Record<string, unknown>) =>
             String(r.sraId || r.id || '').includes(cleanNumber)
           )
         : null;
@@ -87,7 +105,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // If no match found from API, return not found but don't block
     return new Response(
       JSON.stringify({
         success: true,
