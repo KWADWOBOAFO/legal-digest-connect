@@ -155,6 +155,13 @@ export type Database = {
             referencedRelation: "legal_professionals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "case_matches_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "legal_professionals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       cases: {
@@ -299,6 +306,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "legal_professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultations_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "legal_professionals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -908,6 +922,13 @@ export type Database = {
             referencedRelation: "legal_professionals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payouts_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "legal_professionals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       platform_settings: {
@@ -1260,6 +1281,80 @@ export type Database = {
           user_id?: never
         }
         Relationships: []
+      }
+      legal_professionals_public: {
+        Row: {
+          avatar_url: string | null
+          awards: Json | null
+          bio: string | null
+          can_accept_cases_independently: boolean | null
+          consultation_fee: number | null
+          created_at: string | null
+          email: string | null
+          firm_id: string | null
+          full_name: string | null
+          google_reviews_url: string | null
+          id: string | null
+          is_active: boolean | null
+          regulatory_body: string | null
+          regulatory_number: string | null
+          specializations: string[] | null
+          title: string | null
+          trustpilot_url: string | null
+          updated_at: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          awards?: Json | null
+          bio?: string | null
+          can_accept_cases_independently?: boolean | null
+          consultation_fee?: number | null
+          created_at?: string | null
+          email?: never
+          firm_id?: string | null
+          full_name?: string | null
+          google_reviews_url?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          regulatory_body?: string | null
+          regulatory_number?: string | null
+          specializations?: string[] | null
+          title?: string | null
+          trustpilot_url?: string | null
+          updated_at?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          awards?: Json | null
+          bio?: string | null
+          can_accept_cases_independently?: boolean | null
+          consultation_fee?: number | null
+          created_at?: string | null
+          email?: never
+          firm_id?: string | null
+          full_name?: string | null
+          google_reviews_url?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          regulatory_body?: string | null
+          regulatory_number?: string | null
+          specializations?: string[] | null
+          title?: string | null
+          trustpilot_url?: string | null
+          updated_at?: string | null
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_professionals_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "law_firms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
