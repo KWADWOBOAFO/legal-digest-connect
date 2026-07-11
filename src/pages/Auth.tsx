@@ -11,7 +11,12 @@ import { Scale, Building2, User, ArrowLeft, CheckCircle } from 'lucide-react';
 import { z } from 'zod';
 
 const emailSchema = z.string().email('Please enter a valid email address');
-const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[A-Z]/, 'Include at least one uppercase letter')
+  .regex(/[a-z]/, 'Include at least one lowercase letter')
+  .regex(/[0-9]/, 'Include at least one number');
 const nameSchema = z.string().min(2, 'Name must be at least 2 characters');
 
 const Auth = () => {
@@ -117,13 +122,14 @@ const Auth = () => {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
-          toast({
-            title: "Login failed",
-            description: error.message === 'Invalid login credentials' 
-              ? 'Invalid email or password. Please try again.'
-              : error.message,
-            variant: "destructive"
-          });
+          const msg = error.message || '';
+          let description = msg;
+          if (msg === 'Invalid login credentials') {
+            description = 'Invalid email or password. Please try again.';
+          } else if (msg.toLowerCase().includes('email not confirmed')) {
+            description = 'Please verify your email before signing in. Check your inbox for the verification link.';
+          }
+          toast({ title: "Login failed", description, variant: "destructive" });
         } else {
           toast({
             title: "Welcome back!",
@@ -134,9 +140,12 @@ const Auth = () => {
       } else {
         const { error } = await signUp(email, password, fullName, userType);
         if (error) {
-          let errorMessage = error.message;
-          if (error.message.includes('already registered')) {
+          const msg = error.message || '';
+          let errorMessage = msg;
+          if (msg.includes('already registered') || msg.toLowerCase().includes('already been registered')) {
             errorMessage = 'This email is already registered. Please log in instead.';
+          } else if (msg.toLowerCase().includes('weak') || msg.toLowerCase().includes('pwned')) {
+            errorMessage = 'This password has appeared in a known data breach. Please choose a stronger, unique password.';
           }
           toast({
             title: "Sign up failed",
