@@ -57,20 +57,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle();
+    let profileData: Profile | null = null;
+    let profileError: Error | null = null;
+
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      profileData = data as Profile | null;
+      profileError = error as Error | null;
+
+      if (profileData || error) break;
+
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
     
-    if (error) {
-      console.error('Error fetching profile:', error);
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
+      setProfile(null);
+      setLawFirm(null);
       return;
     }
     
-    setProfile(data);
+    setProfile(profileData);
 
-    if (data?.user_type === 'firm') {
+    if (profileData?.user_type === 'firm') {
       const { data: firmData } = await supabase
         .from('law_firms')
         .select('*')
@@ -78,6 +92,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .maybeSingle();
       
       setLawFirm(firmData);
+    } else {
+      setLawFirm(null);
     }
   };
 
