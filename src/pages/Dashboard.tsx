@@ -39,7 +39,7 @@ const Dashboard = () => {
     }
   }, [user, profile]);
 
-  if (isLoading || roleLoading || needsTypeSelection === null) {
+  if (isLoading || roleLoading || (user && profile && needsTypeSelection === null)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Scale className="h-12 w-12 animate-pulse text-primary" />
