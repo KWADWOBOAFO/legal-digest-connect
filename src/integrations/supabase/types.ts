@@ -145,6 +145,13 @@ export type Database = {
             foreignKeyName: "case_matches_firm_id_fkey"
             columns: ["firm_id"]
             isOneToOne: false
+            referencedRelation: "inconsistent_firm_statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_matches_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
             referencedRelation: "law_firms"
             referencedColumns: ["id"]
           },
@@ -298,6 +305,13 @@ export type Database = {
             foreignKeyName: "consultations_firm_id_fkey"
             columns: ["firm_id"]
             isOneToOne: false
+            referencedRelation: "inconsistent_firm_statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultations_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
             referencedRelation: "law_firms"
             referencedColumns: ["id"]
           },
@@ -379,6 +393,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases_pending_anonymized"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "inconsistent_firm_statuses"
             referencedColumns: ["id"]
           },
           {
@@ -526,6 +547,13 @@ export type Database = {
             foreignKeyName: "document_firm_shares_firm_id_fkey"
             columns: ["firm_id"]
             isOneToOne: false
+            referencedRelation: "inconsistent_firm_statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_firm_shares_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
             referencedRelation: "law_firms"
             referencedColumns: ["id"]
           },
@@ -568,6 +596,57 @@ export type Database = {
             columns: ["document_id"]
             isOneToOne: false
             referencedRelation: "shared_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      firm_status_audit: {
+        Row: {
+          changed_by: string | null
+          changed_by_role: string | null
+          created_at: string
+          field: string
+          firm_id: string
+          id: string
+          new_value: boolean | null
+          old_value: boolean | null
+          source: string | null
+        }
+        Insert: {
+          changed_by?: string | null
+          changed_by_role?: string | null
+          created_at?: string
+          field: string
+          firm_id: string
+          id?: string
+          new_value?: boolean | null
+          old_value?: boolean | null
+          source?: string | null
+        }
+        Update: {
+          changed_by?: string | null
+          changed_by_role?: string | null
+          created_at?: string
+          field?: string
+          firm_id?: string
+          id?: string
+          new_value?: boolean | null
+          old_value?: boolean | null
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "firm_status_audit_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "inconsistent_firm_statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "firm_status_audit_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "law_firms"
             referencedColumns: ["id"]
           },
         ]
@@ -733,6 +812,13 @@ export type Database = {
           years_experience?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "legal_professionals_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "inconsistent_firm_statuses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "legal_professionals_firm_id_fkey"
             columns: ["firm_id"]
@@ -920,6 +1006,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "payouts_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "inconsistent_firm_statuses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payouts_firm_id_fkey"
             columns: ["firm_id"]
@@ -1139,6 +1232,13 @@ export type Database = {
             foreignKeyName: "reviews_firm_id_fkey"
             columns: ["firm_id"]
             isOneToOne: false
+            referencedRelation: "inconsistent_firm_statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
             referencedRelation: "law_firms"
             referencedColumns: ["id"]
           },
@@ -1294,6 +1394,39 @@ export type Database = {
         }
         Relationships: []
       }
+      inconsistent_firm_statuses: {
+        Row: {
+          created_at: string | null
+          firm_name: string | null
+          id: string | null
+          is_verified: boolean | null
+          nda_signed: boolean | null
+          nda_signed_at: string | null
+          user_id: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          firm_name?: string | null
+          id?: string | null
+          is_verified?: boolean | null
+          nda_signed?: boolean | null
+          nda_signed_at?: string | null
+          user_id?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          firm_name?: string | null
+          id?: string | null
+          is_verified?: boolean | null
+          nda_signed?: boolean | null
+          nda_signed_at?: string | null
+          user_id?: string | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       legal_professionals_public: {
         Row: {
           avatar_url: string | null
@@ -1359,6 +1492,13 @@ export type Database = {
           years_experience?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "legal_professionals_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "inconsistent_firm_statuses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "legal_professionals_firm_id_fkey"
             columns: ["firm_id"]
