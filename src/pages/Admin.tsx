@@ -46,6 +46,7 @@ import { AdminPaymentSettings } from '@/components/admin/AdminPaymentSettings';
 import { AdminEmailSettings } from '@/components/admin/AdminEmailSettings';
 import AdminBlogManagement from '@/components/admin/AdminBlogManagement';
 import { AdminRegulatoryBodies } from '@/components/admin/AdminRegulatoryBodies';
+import AdminStatusAudit from '@/components/admin/AdminStatusAudit';
 import { logAdminAction } from '@/hooks/useAdminActivityLog';
 
 interface LawFirm {
