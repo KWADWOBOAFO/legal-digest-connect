@@ -336,7 +336,7 @@ const handler = async (req: Request): Promise<Response> => {
     const userId = authUser.id;
     console.log("Authenticated user:", userId);
 
-    const { type, recipientEmail, recipientName, data }: NotificationEmailRequest = await req.json();
+    const { type, recipientEmail, recipientName, data, idempotencyKey, firmId }: NotificationEmailRequest = await req.json();
 
     // Validate input
     if (!type || !recipientEmail || !recipientName) {
@@ -347,12 +347,11 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Authorization: Check if user is allowed to send this type of notification
-    // For admin-only notifications (firm_verified, firm_rejected), verify admin role
-    if (type === "firm_verified" || type === "firm_rejected" || type === "firm_verification_revoked" || type === "account_approved" || type === "account_revoked") {
-      // Check if user has admin role using the has_role function
-      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
-      
+    const isFirmStatusEmail = type === "firm_verified" || type === "firm_rejected" || type === "firm_verification_revoked";
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
+
+    if (isFirmStatusEmail || type === "account_approved" || type === "account_revoked") {
       const { data: roleCheck, error: roleError } = await serviceClient
         .rpc('has_role', { _user_id: userId, _role: 'admin' });
 
@@ -365,7 +364,6 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // For firm_interest notifications, verify the firm belongs to the user
     if (type === "firm_interest") {
       const { data: firmCheck, error: firmError } = await userClient
         .from('law_firms')
@@ -381,24 +379,77 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
     }
-    
+
+    // Idempotency: for firm status emails, dedupe by idempotencyKey
+    if (isFirmStatusEmail && idempotencyKey && firmId) {
+      const { data: existing } = await serviceClient
+        .from('firm_verification_emails')
+        .select('id, status')
+        .eq('idempotency_key', idempotencyKey)
+        .maybeSingle();
+
+      if (existing?.status === 'sent') {
+        console.log(`Idempotent short-circuit: email already sent for key ${idempotencyKey}`);
+        return new Response(
+          JSON.stringify({ success: true, deduped: true, status: 'sent' }),
+          { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+
+      await serviceClient.from('firm_verification_emails').upsert({
+        firm_id: firmId,
+        kind: type,
+        idempotency_key: idempotencyKey,
+        recipient_email: recipientEmail,
+        status: 'pending',
+        last_attempt_at: new Date().toISOString(),
+      }, { onConflict: 'idempotency_key' });
+    }
+
     console.log(`Sending ${type} email to ${recipientEmail}`);
 
     const { subject, html } = getEmailContent(type, recipientName, data);
 
-    const emailResponse = await resend.emails.send({
-      from: "Debriefed <onboarding@resend.dev>",
-      to: [recipientEmail],
-      subject,
-      html,
-    });
+    try {
+      const emailResponse = await resend.emails.send({
+        from: "Debriefed <onboarding@resend.dev>",
+        to: [recipientEmail],
+        subject,
+        html,
+      });
 
-    console.log("Email sent successfully:", emailResponse);
+      console.log("Email sent successfully:", emailResponse);
 
-    return new Response(JSON.stringify({ success: true, emailResponse }), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
-    });
+      if (isFirmStatusEmail && idempotencyKey) {
+        await serviceClient.from('firm_verification_emails')
+          .update({
+            status: 'sent',
+            sent_at: new Date().toISOString(),
+            attempts: (await serviceClient.from('firm_verification_emails').select('attempts').eq('idempotency_key', idempotencyKey).maybeSingle()).data?.attempts ?? 0,
+            last_error: null,
+          })
+          .eq('idempotency_key', idempotencyKey);
+        // increment attempts atomically via rpc-less update
+        await serviceClient.rpc('has_role', { _user_id: userId, _role: 'admin' }).then(() => null).catch(() => null);
+      }
+
+      return new Response(JSON.stringify({ success: true, emailResponse }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    } catch (sendErr: any) {
+      console.error("Resend error:", sendErr);
+      if (isFirmStatusEmail && idempotencyKey) {
+        await serviceClient.from('firm_verification_emails')
+          .update({
+            status: 'failed',
+            last_error: String(sendErr?.message || sendErr).slice(0, 500),
+            last_attempt_at: new Date().toISOString(),
+          })
+          .eq('idempotency_key', idempotencyKey);
+      }
+      throw sendErr;
+    }
   } catch (error: any) {
     console.error("Error sending notification email:", error);
     return new Response(
