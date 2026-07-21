@@ -405,8 +405,16 @@ const Admin = () => {
         const firm = firms.find(f => f.id === id);
         const profile = firm ? profiles[firm.user_id] : null;
         if (profile?.email && firm) {
+          const idempotencyKey = `firm-verified-${firm.id}-${Date.now()}`;
           supabase.functions.invoke('send-notification-email', {
-            body: { type: 'firm_verified', recipientEmail: profile.email, recipientName: profile.full_name || 'Law Firm Representative', data: { firmName: firm.firm_name } }
+            body: {
+              type: 'firm_verified',
+              recipientEmail: profile.email,
+              recipientName: profile.full_name || 'Law Firm Representative',
+              idempotencyKey,
+              firmId: firm.id,
+              data: { firmName: firm.firm_name }
+            }
           }).catch(console.error);
         }
       }
