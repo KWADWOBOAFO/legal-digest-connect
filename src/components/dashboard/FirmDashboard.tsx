@@ -118,12 +118,19 @@ const FirmDashboard = () => {
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'law_firms', filter: `id=eq.${lawFirm.id}` },
         (payload) => {
+          const prev = payload.old as { is_verified?: boolean; nda_signed?: boolean };
           const next = payload.new as { is_verified?: boolean; nda_signed?: boolean };
           refreshProfile();
-          if (next?.is_verified) {
+          if (next?.nda_signed && !prev?.nda_signed) {
             toast({
-              title: 'Firm verified',
-              description: 'Your firm has been approved. Welcome aboard!',
+              title: 'NDA received',
+              description: 'Your signed NDA has been recorded. Verification is now in progress.',
+            });
+          }
+          if (next?.is_verified && !prev?.is_verified) {
+            toast({
+              title: '🎉 Firm verified',
+              description: 'Your firm has been approved. A confirmation email is on its way.',
             });
           }
         }
