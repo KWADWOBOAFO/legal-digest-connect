@@ -29,6 +29,13 @@ interface LawFirm {
   city: string | null;
   country: string | null;
   logo_url: string | null;
+  nda_signed_at?: string | null;
+  verified_at?: string | null;
+  regulator_verified?: boolean | null;
+  regulator_verified_at?: string | null;
+  regulatory_body?: string | null;
+  regulatory_number?: string | null;
+  regulator_verification_data?: Record<string, unknown> | null;
 }
 
 interface AuthContextType {
