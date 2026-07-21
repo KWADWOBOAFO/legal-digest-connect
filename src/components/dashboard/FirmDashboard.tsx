@@ -118,12 +118,19 @@ const FirmDashboard = () => {
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'law_firms', filter: `id=eq.${lawFirm.id}` },
         (payload) => {
+          const prev = payload.old as { is_verified?: boolean; nda_signed?: boolean };
           const next = payload.new as { is_verified?: boolean; nda_signed?: boolean };
           refreshProfile();
-          if (next?.is_verified) {
+          if (next?.nda_signed && !prev?.nda_signed) {
             toast({
-              title: 'Firm verified',
-              description: 'Your firm has been approved. Welcome aboard!',
+              title: 'NDA received',
+              description: 'Your signed NDA has been recorded. Verification is now in progress.',
+            });
+          }
+          if (next?.is_verified && !prev?.is_verified) {
+            toast({
+              title: '🎉 Firm verified',
+              description: 'Your firm has been approved. A confirmation email is on its way.',
             });
           }
         }
@@ -254,50 +261,76 @@ const FirmDashboard = () => {
           </div>
         </header>
         <main className="container mx-auto px-4 py-16 max-w-2xl">
-          <Card className="text-center">
-            <CardHeader>
+          <Card>
+            <CardHeader className="text-center">
               <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center">
                 <Clock className="h-8 w-8 text-amber-600" />
               </div>
-              <CardTitle className="text-2xl">Verification Pending</CardTitle>
+              <CardTitle className="text-2xl">Verification In Progress</CardTitle>
               <CardDescription className="text-base">
-                Thank you for signing the NDA, {lawFirm.firm_name}!
+                Thank you for signing the NDA, {lawFirm.firm_name}.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">
-                Your firm is currently under review by our verification team. 
-                This process typically takes 1-2 business days.
-              </p>
-              <div className="bg-muted p-4 rounded-lg text-left">
-                <h4 className="font-medium mb-2">What we're verifying:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Firm registration and credentials</li>
-                  <li>• Professional licensing status</li>
-                  <li>• Contact information accuracy</li>
-                </ul>
+            <CardContent className="space-y-6">
+              {/* Status stepper */}
+              <ol className="relative border-l-2 border-muted ml-3 space-y-6">
+                <li className="ml-6">
+                  <span className="absolute -left-[13px] flex h-6 w-6 items-center justify-center rounded-full bg-green-100 ring-4 ring-background">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  </span>
+                  <div className="flex flex-col">
+                    <span className="font-medium">NDA signed</span>
+                    <span className="text-xs text-muted-foreground">
+                      {lawFirm.nda_signed_at
+                        ? new Date(lawFirm.nda_signed_at).toLocaleString()
+                        : 'Recorded'}
+                    </span>
+                  </div>
+                </li>
+                <li className="ml-6">
+                  <span className="absolute -left-[13px] flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 ring-4 ring-background">
+                    <Clock className="h-4 w-4 text-amber-600 animate-pulse" />
+                  </span>
+                  <div className="flex flex-col">
+                    <span className="font-medium">Pending admin verification</span>
+                    <span className="text-xs text-muted-foreground">
+                      Cross-checking your{' '}
+                      {lawFirm.regulatory_body ? lawFirm.regulatory_body.toUpperCase() : 'regulator'}{' '}
+                      registration
+                      {lawFirm.regulatory_number ? ` (${lawFirm.regulatory_number})` : ''}
+                      {lawFirm.regulator_verified ? ' — register match confirmed' : ''}
+                    </span>
+                  </div>
+                </li>
+                <li className="ml-6">
+                  <span className="absolute -left-[13px] flex h-6 w-6 items-center justify-center rounded-full bg-muted ring-4 ring-background">
+                    <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                  </span>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-muted-foreground">Verified &amp; active</span>
+                    <span className="text-xs text-muted-foreground">
+                      Confirmation email will be sent to your registered address the moment an admin approves.
+                    </span>
+                  </div>
+                </li>
+              </ol>
+
+              <div className="bg-muted p-4 rounded-lg text-sm text-muted-foreground">
+                This page updates in real time — no need to refresh. You'll see a notification here
+                and receive an email as soon as approval is granted (typically 1-2 business days).
               </div>
-              <p className="text-sm text-muted-foreground">
-                We'll send you an email notification once your verification is complete.
-                If you have any questions, please contact support.
-              </p>
+
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={async () => {
-                    toast({
-                      title: "Checking status...",
-                      description: "Refreshing your verification status."
-                    });
+                    toast({ title: 'Checking status…', description: 'Refreshing your verification status.' });
                     await refreshProfile();
                   }}
                 >
                   Check Status
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => navigate('/firm-settings')}
-                >
+                <Button variant="ghost" onClick={() => navigate('/firm-settings')}>
                   <Settings className="h-4 w-4 mr-2" />
                   Firm Settings
                 </Button>

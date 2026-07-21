@@ -65,39 +65,59 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
   // NDA acceptance
   const [ndaAccepted, setNdaAccepted] = useState(false);
   
-  // SRA validation
+  // Regulator validation
   const [sraValidation, setSraValidation] = useState<{
-    status: 'idle' | 'loading' | 'valid' | 'not_found' | 'error';
+    status: 'idle' | 'loading' | 'valid' | 'not_found' | 'error' | 'manual';
     firmName?: string | null;
     message?: string;
+    registerUrl?: string;
+    checkedAt?: string;
+    auto?: boolean;
   }>({ status: 'idle' });
 
   const handleValidateSRA = async () => {
-    if (!regulatoryNumber.trim()) return;
-    
+    if (!regulatoryNumber.trim() || !regulatoryBody) return;
+
     setSraValidation({ status: 'loading' });
     try {
-      const { data, error } = await supabase.functions.invoke('validate-sra-number', {
-        body: { sraNumber: regulatoryNumber.trim() },
+      const { data, error } = await supabase.functions.invoke('validate-regulator', {
+        body: { regulator: regulatoryBody, number: regulatoryNumber.trim() },
       });
 
       if (error) throw error;
 
-      if (data?.valid) {
+      if (data?.auto === false) {
+        setSraValidation({
+          status: 'manual',
+          message: data.message,
+          registerUrl: data.registerUrl,
+          checkedAt: data.checkedAt,
+          auto: false,
+        });
+        toast({
+          title: 'Register link ready',
+          description: 'Open the official register to confirm this entry.',
+        });
+      } else if (data?.valid) {
         setSraValidation({
           status: 'valid',
           firmName: data.firmName,
+          registerUrl: data.registerUrl,
+          checkedAt: data.checkedAt,
+          auto: true,
         });
         toast({
-          title: "SRA Number Verified",
-          description: data.firmName 
-            ? `Matched to: ${data.firmName}` 
-            : "Your SRA number has been verified.",
+          title: 'Regulator match found',
+          description: data.firmName
+            ? `Matched to: ${data.firmName}`
+            : 'Registration number verified against the public register.',
         });
       } else {
         setSraValidation({
           status: 'not_found',
-          message: data?.message || 'Could not verify this SRA number automatically.',
+          message: data?.message || 'Could not verify this registration number automatically.',
+          registerUrl: data?.registerUrl,
+          checkedAt: data?.checkedAt,
         });
       }
     } catch (error) {
@@ -138,6 +158,18 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
           practice_areas: selectedAreas,
           regulatory_body: regulatoryBody || null,
           regulatory_number: regulatoryNumber || null,
+          regulator_verified: sraValidation.status === 'valid',
+          regulator_verified_at: sraValidation.status === 'valid' ? new Date().toISOString() : null,
+          regulator_verification_data: sraValidation.status === 'idle' || sraValidation.status === 'loading'
+            ? null
+            : {
+                status: sraValidation.status,
+                firmName: sraValidation.firmName ?? null,
+                registerUrl: sraValidation.registerUrl ?? null,
+                checkedAt: sraValidation.checkedAt ?? new Date().toISOString(),
+                message: sraValidation.message ?? null,
+                auto: sraValidation.auto ?? null,
+              },
           is_verified: false,
           nda_signed: false
         });
@@ -366,7 +398,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
                       }
                       required
                     />
-                    {regulatoryBody === 'sra' && (
+                    {regulatoryBody && (
                       <Button
                         type="button"
                         variant="outline"
@@ -381,25 +413,43 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
                       </Button>
                     )}
                   </div>
-                  
-                  {/* SRA Validation Result */}
-                  {regulatoryBody === 'sra' && sraValidation.status === 'valid' && (
+
+                  {/* Regulator validation result */}
+                  {sraValidation.status === 'valid' && (
                     <div className="flex items-center gap-2 text-green-600 bg-green-50 dark:bg-green-950/30 p-2 rounded-md">
                       <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
                       <span className="text-sm">
-                        Verified{sraValidation.firmName ? ` — ${sraValidation.firmName}` : ''}
+                        Verified against public register{sraValidation.firmName ? ` — ${sraValidation.firmName}` : ''}
                       </span>
                     </div>
                   )}
-                  {regulatoryBody === 'sra' && (sraValidation.status === 'not_found' || sraValidation.status === 'error') && (
-                    <div className="flex items-center gap-2 text-amber-600 bg-amber-50 dark:bg-amber-950/30 p-2 rounded-md">
-                      <XCircle className="h-4 w-4 flex-shrink-0" />
-                      <span className="text-sm">{sraValidation.message}</span>
+                  {sraValidation.status === 'manual' && sraValidation.registerUrl && (
+                    <div className="flex items-start gap-2 text-blue-700 bg-blue-50 dark:bg-blue-950/30 p-2 rounded-md">
+                      <FileCheck className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm space-y-1">
+                        <div>{sraValidation.message}</div>
+                        <a href={sraValidation.registerUrl} target="_blank" rel="noreferrer" className="underline font-medium">
+                          Open official register →
+                        </a>
+                      </div>
                     </div>
                   )}
-                  
+                  {(sraValidation.status === 'not_found' || sraValidation.status === 'error') && (
+                    <div className="flex items-start gap-2 text-amber-600 bg-amber-50 dark:bg-amber-950/30 p-2 rounded-md">
+                      <XCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm space-y-1">
+                        <div>{sraValidation.message}</div>
+                        {sraValidation.registerUrl && (
+                          <a href={sraValidation.registerUrl} target="_blank" rel="noreferrer" className="underline font-medium">
+                            Search the register manually →
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <p className="text-xs text-muted-foreground">
-                    Your {REGULATORY_BODIES.find(b => b.value === regulatoryBody)?.label || 'regulatory'} registration number will be verified by our team.
+                    Your {REGULATORY_BODIES.find(b => b.value === regulatoryBody)?.label || 'regulatory'} registration will be cross-checked with the official register before final admin approval.
                   </p>
                 </div>
               )}

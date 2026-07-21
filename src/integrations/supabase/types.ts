@@ -592,12 +592,16 @@ export type Database = {
           nda_signed: boolean | null
           nda_signed_at: string | null
           practice_areas: string[] | null
+          regulator_verification_data: Json | null
+          regulator_verified: boolean
+          regulator_verified_at: string | null
           regulatory_body: string | null
           regulatory_number: string | null
           subscription_tier: string | null
           trustpilot_url: string | null
           updated_at: string
           user_id: string
+          verified_at: string | null
           website: string | null
         }
         Insert: {
@@ -619,12 +623,16 @@ export type Database = {
           nda_signed?: boolean | null
           nda_signed_at?: string | null
           practice_areas?: string[] | null
+          regulator_verification_data?: Json | null
+          regulator_verified?: boolean
+          regulator_verified_at?: string | null
           regulatory_body?: string | null
           regulatory_number?: string | null
           subscription_tier?: string | null
           trustpilot_url?: string | null
           updated_at?: string
           user_id: string
+          verified_at?: string | null
           website?: string | null
         }
         Update: {
@@ -646,12 +654,16 @@ export type Database = {
           nda_signed?: boolean | null
           nda_signed_at?: string | null
           practice_areas?: string[] | null
+          regulator_verification_data?: Json | null
+          regulator_verified?: boolean
+          regulator_verified_at?: string | null
           regulatory_body?: string | null
           regulatory_number?: string | null
           subscription_tier?: string | null
           trustpilot_url?: string | null
           updated_at?: string
           user_id?: string
+          verified_at?: string | null
           website?: string | null
         }
         Relationships: []
