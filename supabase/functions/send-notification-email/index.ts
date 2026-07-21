@@ -421,16 +421,19 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Email sent successfully:", emailResponse);
 
       if (isFirmStatusEmail && idempotencyKey) {
+        const { data: current } = await serviceClient
+          .from('firm_verification_emails')
+          .select('attempts')
+          .eq('idempotency_key', idempotencyKey)
+          .maybeSingle();
         await serviceClient.from('firm_verification_emails')
           .update({
             status: 'sent',
             sent_at: new Date().toISOString(),
-            attempts: (await serviceClient.from('firm_verification_emails').select('attempts').eq('idempotency_key', idempotencyKey).maybeSingle()).data?.attempts ?? 0,
+            attempts: (current?.attempts ?? 0) + 1,
             last_error: null,
           })
           .eq('idempotency_key', idempotencyKey);
-        // increment attempts atomically via rpc-less update
-        await serviceClient.rpc('has_role', { _user_id: userId, _role: 'admin' }).then(() => null).catch(() => null);
       }
 
       return new Response(JSON.stringify({ success: true, emailResponse }), {
