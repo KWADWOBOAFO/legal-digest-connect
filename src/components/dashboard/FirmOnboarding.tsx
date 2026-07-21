@@ -158,6 +158,18 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
           practice_areas: selectedAreas,
           regulatory_body: regulatoryBody || null,
           regulatory_number: regulatoryNumber || null,
+          regulator_verified: sraValidation.status === 'valid',
+          regulator_verified_at: sraValidation.status === 'valid' ? new Date().toISOString() : null,
+          regulator_verification_data: sraValidation.status === 'idle' || sraValidation.status === 'loading'
+            ? null
+            : {
+                status: sraValidation.status,
+                firmName: sraValidation.firmName ?? null,
+                registerUrl: sraValidation.registerUrl ?? null,
+                checkedAt: sraValidation.checkedAt ?? new Date().toISOString(),
+                message: sraValidation.message ?? null,
+                auto: sraValidation.auto ?? null,
+              },
           is_verified: false,
           nda_signed: false
         });
