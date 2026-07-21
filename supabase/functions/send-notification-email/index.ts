@@ -20,6 +20,8 @@ interface NotificationEmailRequest {
   type: "firm_interest" | "consultation_scheduled" | "consultation_reminder" | "firm_verified" | "firm_rejected" | "firm_verification_revoked" | "account_approved" | "account_revoked";
   recipientEmail: string;
   recipientName: string;
+  idempotencyKey?: string;
+  firmId?: string;
   data: {
     firmName?: string;
     caseTitle?: string;
