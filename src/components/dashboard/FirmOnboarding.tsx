@@ -65,39 +65,59 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
   // NDA acceptance
   const [ndaAccepted, setNdaAccepted] = useState(false);
   
-  // SRA validation
+  // Regulator validation
   const [sraValidation, setSraValidation] = useState<{
-    status: 'idle' | 'loading' | 'valid' | 'not_found' | 'error';
+    status: 'idle' | 'loading' | 'valid' | 'not_found' | 'error' | 'manual';
     firmName?: string | null;
     message?: string;
+    registerUrl?: string;
+    checkedAt?: string;
+    auto?: boolean;
   }>({ status: 'idle' });
 
   const handleValidateSRA = async () => {
-    if (!regulatoryNumber.trim()) return;
-    
+    if (!regulatoryNumber.trim() || !regulatoryBody) return;
+
     setSraValidation({ status: 'loading' });
     try {
-      const { data, error } = await supabase.functions.invoke('validate-sra-number', {
-        body: { sraNumber: regulatoryNumber.trim() },
+      const { data, error } = await supabase.functions.invoke('validate-regulator', {
+        body: { regulator: regulatoryBody, number: regulatoryNumber.trim() },
       });
 
       if (error) throw error;
 
-      if (data?.valid) {
+      if (data?.auto === false) {
+        setSraValidation({
+          status: 'manual',
+          message: data.message,
+          registerUrl: data.registerUrl,
+          checkedAt: data.checkedAt,
+          auto: false,
+        });
+        toast({
+          title: 'Register link ready',
+          description: 'Open the official register to confirm this entry.',
+        });
+      } else if (data?.valid) {
         setSraValidation({
           status: 'valid',
           firmName: data.firmName,
+          registerUrl: data.registerUrl,
+          checkedAt: data.checkedAt,
+          auto: true,
         });
         toast({
-          title: "SRA Number Verified",
-          description: data.firmName 
-            ? `Matched to: ${data.firmName}` 
-            : "Your SRA number has been verified.",
+          title: 'Regulator match found',
+          description: data.firmName
+            ? `Matched to: ${data.firmName}`
+            : 'Registration number verified against the public register.',
         });
       } else {
         setSraValidation({
           status: 'not_found',
-          message: data?.message || 'Could not verify this SRA number automatically.',
+          message: data?.message || 'Could not verify this registration number automatically.',
+          registerUrl: data?.registerUrl,
+          checkedAt: data?.checkedAt,
         });
       }
     } catch (error) {
