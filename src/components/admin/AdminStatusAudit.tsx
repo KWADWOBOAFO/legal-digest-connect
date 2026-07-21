@@ -184,9 +184,9 @@ export default function AdminStatusAudit() {
       const source = action === 'unverify'
         ? 'admin dashboard · resolve inconsistency (un-verify)'
         : 'admin dashboard · resolve inconsistency (mark NDA signed)';
-      await supabase.rpc('set_config' as never, { setting_name: 'app.audit_source', new_value: source, is_local: true } as never)
-        .then(() => null)
-        .catch(() => null);
+      try {
+        await (supabase.rpc as any)('set_config', { setting_name: 'app.audit_source', new_value: source, is_local: true });
+      } catch { /* set_config is optional; trigger still logs default source */ }
 
       const patch = action === 'unverify'
         ? { is_verified: false }
