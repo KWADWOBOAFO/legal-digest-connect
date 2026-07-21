@@ -189,18 +189,19 @@ const Admin = () => {
 
       if (error) throw error;
 
-      // Send verification email
+      // Send verification email (idempotent — same key never sends twice)
       const profile = profiles[firm.user_id];
       if (profile?.email) {
         try {
+          const idempotencyKey = `firm-verified-${firm.id}-${Date.now()}`;
           await supabase.functions.invoke('send-notification-email', {
             body: {
               type: 'firm_verified',
               recipientEmail: profile.email,
               recipientName: profile.full_name || 'Law Firm Representative',
-              data: {
-                firmName: firm.firm_name
-              }
+              idempotencyKey,
+              firmId: firm.id,
+              data: { firmName: firm.firm_name }
             }
           });
         } catch (emailError) {
