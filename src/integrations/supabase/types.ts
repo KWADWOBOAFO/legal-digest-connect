@@ -651,6 +651,66 @@ export type Database = {
           },
         ]
       }
+      firm_verification_emails: {
+        Row: {
+          attempts: number
+          created_at: string
+          firm_id: string
+          id: string
+          idempotency_key: string
+          kind: string
+          last_attempt_at: string | null
+          last_error: string | null
+          recipient_email: string | null
+          sent_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          firm_id: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          last_attempt_at?: string | null
+          last_error?: string | null
+          recipient_email?: string | null
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          firm_id?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          last_attempt_at?: string | null
+          last_error?: string | null
+          recipient_email?: string | null
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "firm_verification_emails_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "inconsistent_firm_statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "firm_verification_emails_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "law_firms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       law_firms: {
         Row: {
           address: string | null
