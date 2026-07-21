@@ -75,7 +75,7 @@ const Navbar = () => {
                 <Scale className="w-5 h-5 text-primary-foreground" />
               </div>
               <span className="font-serif text-2xl font-bold text-foreground">
-                DEBRIEFED
+                CASE BROKER
               </span>
             </a>
 

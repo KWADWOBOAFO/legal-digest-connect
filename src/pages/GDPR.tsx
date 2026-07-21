@@ -15,16 +15,16 @@ const GDPR = () => {
         <div className="prose prose-lg max-w-none space-y-8 text-foreground/90">
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">1. Our Commitment to Data Protection</h2>
-            <p>Debriefed is fully committed to compliance with the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018. We take the protection of your personal data seriously and have implemented comprehensive measures to ensure your data is handled lawfully, fairly, and transparently.</p>
+            <p>Case Broker is fully committed to compliance with the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018. We take the protection of your personal data seriously and have implemented comprehensive measures to ensure your data is handled lawfully, fairly, and transparently.</p>
           </section>
 
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">2. Data Controller</h2>
-            <p>Debriefed acts as the data controller for personal data collected through our Platform. This means we determine the purposes and means of processing your personal data.</p>
+            <p>Case Broker acts as the data controller for personal data collected through our Platform. This means we determine the purposes and means of processing your personal data.</p>
             <div className="p-4 bg-muted rounded-lg border border-border mt-4">
               <p className="font-semibold mb-2">Data Controller Details:</p>
-              <p className="text-foreground/80">Debriefed Ltd</p>
-              <p className="text-foreground/80">Email: <a href="mailto:dpo@debriefed.co.uk" className="text-primary hover:underline">dpo@debriefed.co.uk</a></p>
+              <p className="text-foreground/80">Case Broker Ltd</p>
+              <p className="text-foreground/80">Email: <a href="mailto:dpo@casebroker.co.uk" className="text-primary hover:underline">dpo@casebroker.co.uk</a></p>
             </div>
           </section>
 
@@ -103,7 +103,7 @@ const GDPR = () => {
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">8. How to Exercise Your Rights</h2>
             <p>To exercise any of your GDPR rights, you can:</p>
             <ul className="list-disc pl-6 space-y-2 text-foreground/80">
-              <li>Email our Data Protection Officer at <a href="mailto:dpo@debriefed.co.uk" className="text-primary hover:underline">dpo@debriefed.co.uk</a></li>
+              <li>Email our Data Protection Officer at <a href="mailto:dpo@casebroker.co.uk" className="text-primary hover:underline">dpo@casebroker.co.uk</a></li>
               <li>Use the contact form on our Platform.</li>
             </ul>
             <p className="mt-4">We will respond to your request within one month. If your request is complex, we may extend this period by a further two months, and we will inform you of any such extension.</p>

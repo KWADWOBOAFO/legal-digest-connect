@@ -63,7 +63,7 @@ const UserTypeSelector = () => {
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
           <Scale className="h-12 w-12 text-primary mx-auto mb-4" />
-          <h1 className="text-3xl font-serif font-bold text-foreground">Welcome to DEBRIEFED</h1>
+          <h1 className="text-3xl font-serif font-bold text-foreground">Welcome to CASE BROKER</h1>
           <p className="text-muted-foreground mt-2">How will you be using the platform?</p>
         </div>
 

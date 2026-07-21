@@ -431,7 +431,7 @@ const Auth = () => {
               <Scale className="h-12 w-12 text-primary" />
             </div>
             <CardTitle className="text-2xl">
-              {isLogin ? 'Welcome Back' : 'Join DEBRIEFED'}
+              {isLogin ? 'Welcome Back' : 'Join CASE BROKER'}
             </CardTitle>
             <CardDescription>
               {isLogin 

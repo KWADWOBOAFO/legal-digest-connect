@@ -12,15 +12,15 @@ const faqCategories = [
     category: "Getting Started",
     questions: [
       {
-        q: "What is Debriefed?",
-        a: "Debriefed is a legal services platform that connects individuals with qualified law firms. Simply describe your legal matter, and our intelligent matching system will pair you with firms that specialise in your area of need.",
+        q: "What is Case Broker?",
+        a: "Case Broker is a legal services platform that connects individuals with qualified law firms. Simply describe your legal matter, and our intelligent matching system will pair you with firms that specialise in your area of need.",
       },
       {
         q: "How do I submit a case?",
         a: "After creating a free account, click 'Get Started' and fill in the details of your legal matter. You'll describe your situation, select the urgency level, and optionally upload any relevant documents. Our system will then match you with appropriate law firms.",
       },
       {
-        q: "Is it free to use Debriefed?",
+        q: "Is it free to use Case Broker?",
         a: "Creating an account and submitting your case is completely free. You only pay when you engage a law firm for their services. Fees are agreed directly between you and the firm before any work begins.",
       },
       {
@@ -34,7 +34,7 @@ const faqCategories = [
     questions: [
       {
         q: "How are law firms vetted?",
-        a: "All law firms on Debriefed are verified against their regulatory body (e.g., SRA in England & Wales). We check their registration status, professional indemnity insurance, and practice areas before they can join the platform.",
+        a: "All law firms on Case Broker are verified against their regulatory body (e.g., SRA in England & Wales). We check their registration status, professional indemnity insurance, and practice areas before they can join the platform.",
       },
       {
         q: "Can I choose which firm to work with?",
@@ -58,7 +58,7 @@ const faqCategories = [
     category: "For Law Firms",
     questions: [
       {
-        q: "How can my firm join Debriefed?",
+        q: "How can my firm join Case Broker?",
         a: "Register on our platform, complete the firm profile with your practice areas and credentials, and submit your regulatory details for verification. Once verified, you'll start receiving relevant case matches.",
       },
       {
@@ -97,15 +97,15 @@ const faqCategories = [
     questions: [
       {
         q: "How do I contact support?",
-        a: "You can reach our support team through the Contact form on our website, or email us directly at support@debriefed.co.uk. We aim to respond within 24 hours.",
+        a: "You can reach our support team through the Contact form on our website, or email us directly at support@casebroker.co.uk. We aim to respond within 24 hours.",
       },
       {
         q: "What if I'm not happy with a firm's service?",
         a: "You can leave a review and rating after your consultation. If you have a serious concern, contact our support team and we'll investigate. We take quality assurance seriously and may remove firms that don't meet our standards.",
       },
       {
-        q: "Is Debriefed available outside the UK?",
-        a: "Currently, Debriefed primarily serves England and Wales. We're actively working on expanding to Scotland, Northern Ireland, and other jurisdictions. Sign up for updates to be notified when we launch in your area.",
+        q: "Is Case Broker available outside the UK?",
+        a: "Currently, Case Broker primarily serves England and Wales. We're actively working on expanding to Scotland, Northern Ireland, and other jurisdictions. Sign up for updates to be notified when we launch in your area.",
       },
     ],
   },
@@ -119,7 +119,7 @@ const FAQ = () => {
         <div className="text-center mb-12">
           <h1 className="font-serif text-4xl font-bold text-foreground mb-4">Frequently Asked Questions</h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Find answers to common questions about using Debriefed. Can't find what you're looking for? 
+            Find answers to common questions about using Case Broker. Can't find what you're looking for? 
             Get in touch with our support team.
           </p>
         </div>

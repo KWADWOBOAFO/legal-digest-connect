@@ -176,8 +176,8 @@ const AuthDialog = ({ open, onOpenChange, initialView, initialUserType }: AuthDi
           toast({
             title: "Account created!",
             description: userType === 'firm' 
-              ? "Welcome to DEBRIEFED. Complete your firm profile to get started."
-              : "Welcome to DEBRIEFED. Let's get started."
+              ? "Welcome to CASE BROKER. Complete your firm profile to get started."
+              : "Welcome to CASE BROKER. Let's get started."
           });
           resetForm();
           onOpenChange(false);
@@ -217,7 +217,7 @@ const AuthDialog = ({ open, onOpenChange, initialView, initialUserType }: AuthDi
     if (view === 'login') {
       return isFirmMode ? 'Firm Portal' : 'Welcome Back';
     }
-    return isFirmMode ? 'Register Your Firm' : 'Join DEBRIEFED';
+    return isFirmMode ? 'Register Your Firm' : 'Join CASE BROKER';
   };
 
   const getDialogDescription = () => {

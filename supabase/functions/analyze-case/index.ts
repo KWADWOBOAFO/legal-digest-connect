@@ -133,7 +133,7 @@ serve(async (req) => {
       );
     }
 
-    const systemPrompt = `You are a legal case analyzer for DEBRIEFED, a platform that connects individuals with legal professionals. Your task is to analyze legal matters using the IRAC (Issue, Rule, Application, Conclusion) or IPAC (Issue, Principle, Application, Conclusion) legal analysis framework.
+    const systemPrompt = `You are a legal case analyzer for CASE BROKER, a platform that connects individuals with legal professionals. Your task is to analyze legal matters using the IRAC (Issue, Rule, Application, Conclusion) or IPAC (Issue, Principle, Application, Conclusion) legal analysis framework.
 
 Available practice areas: ${PRACTICE_AREAS.join(", ")}
 

@@ -50,7 +50,7 @@ const Careers = () => {
 
         <section className="mb-12">
           <h2 className="text-2xl font-serif font-semibold text-foreground mb-2">
-            Why Debriefed?
+            Why Case Broker?
           </h2>
           <p className="text-muted-foreground mb-6">
             We believe everyone deserves access to quality legal support. Our

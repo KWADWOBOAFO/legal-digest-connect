@@ -12,7 +12,7 @@ export const generateMeetingId = (): string => {
 // Generate Jitsi Meet URL
 export const generateJitsiMeetingUrl = (roomName: string, displayName?: string): string => {
   const baseUrl = 'https://meet.jit.si';
-  const encodedRoom = encodeURIComponent(`debriefed-${roomName}`);
+  const encodedRoom = encodeURIComponent(`casebroker-${roomName}`);
   const params = new URLSearchParams();
   
   if (displayName) {

@@ -79,7 +79,7 @@ const CookiePolicy = () => {
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">6. Contact Us</h2>
             <p>If you have any questions about our use of cookies, please contact us at:</p>
-            <p className="text-foreground/80">Email: <a href="mailto:privacy@debriefed.co.uk" className="text-primary hover:underline">privacy@debriefed.co.uk</a></p>
+            <p className="text-foreground/80">Email: <a href="mailto:privacy@casebroker.co.uk" className="text-primary hover:underline">privacy@casebroker.co.uk</a></p>
           </section>
         </div>
       </main>

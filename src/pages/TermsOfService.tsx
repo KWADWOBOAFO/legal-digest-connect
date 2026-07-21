@@ -15,19 +15,19 @@ const TermsOfService = () => {
         <div className="prose prose-lg max-w-none space-y-8 text-foreground/90">
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">1. About These Terms</h2>
-            <p>These Terms of Service ("Terms") govern your use of the Debriefed platform ("Platform"). By accessing or using our Platform, you agree to be bound by these Terms. If you do not agree, please do not use the Platform.</p>
+            <p>These Terms of Service ("Terms") govern your use of the Case Broker platform ("Platform"). By accessing or using our Platform, you agree to be bound by these Terms. If you do not agree, please do not use the Platform.</p>
           </section>
 
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">2. Our Services</h2>
-            <p>Debriefed is a legal services marketplace that connects individuals seeking legal assistance with qualified law firms. We provide:</p>
+            <p>Case Broker is a legal services marketplace that connects individuals seeking legal assistance with qualified law firms. We provide:</p>
             <ul className="list-disc pl-6 space-y-2 text-foreground/80">
               <li>A platform for submitting legal matters and receiving matched recommendations.</li>
               <li>Communication tools to facilitate discussions between clients and law firms.</li>
               <li>Consultation scheduling and management features.</li>
               <li>Document sharing and management capabilities.</li>
             </ul>
-            <p className="mt-4 p-4 bg-muted rounded-lg border border-border"><strong>Important:</strong> Debriefed is not a law firm and does not provide legal advice. We act solely as an intermediary connecting you with independent law firms.</p>
+            <p className="mt-4 p-4 bg-muted rounded-lg border border-border"><strong>Important:</strong> Case Broker is not a law firm and does not provide legal advice. We act solely as an intermediary connecting you with independent law firms.</p>
           </section>
 
           <section>
@@ -68,17 +68,17 @@ const TermsOfService = () => {
 
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">6. Consultations</h2>
-            <p>Consultations arranged through the Platform are conducted between the client and the law firm directly. Debriefed is not a party to any legal engagement and accepts no liability for the advice given or services rendered by law firms.</p>
+            <p>Consultations arranged through the Platform are conducted between the client and the law firm directly. Case Broker is not a party to any legal engagement and accepts no liability for the advice given or services rendered by law firms.</p>
           </section>
 
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">7. Intellectual Property</h2>
-            <p>All content, trademarks, and intellectual property on the Platform belong to Debriefed or its licensors. You may not use, reproduce, or distribute any content from the Platform without our prior written consent.</p>
+            <p>All content, trademarks, and intellectual property on the Platform belong to Case Broker or its licensors. You may not use, reproduce, or distribute any content from the Platform without our prior written consent.</p>
           </section>
 
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">8. Limitation of Liability</h2>
-            <p>To the fullest extent permitted by law, Debriefed shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Platform. Our total liability shall not exceed the amount you have paid to us in the 12 months preceding the claim.</p>
+            <p>To the fullest extent permitted by law, Case Broker shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Platform. Our total liability shall not exceed the amount you have paid to us in the 12 months preceding the claim.</p>
           </section>
 
           <section>
@@ -94,7 +94,7 @@ const TermsOfService = () => {
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">11. Contact Us</h2>
             <p>For questions about these Terms, please contact us at:</p>
-            <p className="text-foreground/80">Email: <a href="mailto:legal@debriefed.co.uk" className="text-primary hover:underline">legal@debriefed.co.uk</a></p>
+            <p className="text-foreground/80">Email: <a href="mailto:legal@casebroker.co.uk" className="text-primary hover:underline">legal@casebroker.co.uk</a></p>
           </section>
         </div>
       </main>

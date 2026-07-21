@@ -41,7 +41,7 @@ const HowItWorks = () => {
             Simple Process
           </span>
           <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground mb-4">
-            How Debriefed Works
+            How Case Broker Works
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             From confusion to clarity in four simple steps. We've streamlined the 

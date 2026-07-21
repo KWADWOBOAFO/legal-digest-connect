@@ -6,7 +6,7 @@ const testimonials = [
     role: "Small Business Owner",
     image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
     content:
-      "I had no idea my dispute was actually a contract law issue. Debriefed analyzed my situation and connected me with a specialist who resolved it in weeks.",
+      "I had no idea my dispute was actually a contract law issue. Case Broker analyzed my situation and connected me with a specialist who resolved it in weeks.",
     rating: 5,
   },
   {
@@ -22,7 +22,7 @@ const testimonials = [
     role: "First-Time Homebuyer",
     image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face",
     content:
-      "The property purchase process was so confusing. Debriefed identified I needed both property and contract law experts, and the consultation was incredibly helpful.",
+      "The property purchase process was so confusing. Case Broker identified I needed both property and contract law experts, and the consultation was incredibly helpful.",
     rating: 5,
   },
 ];

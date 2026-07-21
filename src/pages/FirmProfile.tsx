@@ -169,7 +169,7 @@ const FirmProfile = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <Scale className="h-8 w-8 text-primary" />
-          <span className="text-xl font-bold text-primary">DEBRIEFED</span>
+          <span className="text-xl font-bold text-primary">CASE BROKER</span>
         </div>
       </header>
 

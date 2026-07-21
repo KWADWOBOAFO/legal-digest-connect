@@ -21,7 +21,7 @@ const Community = () => {
           </p>
           <p className="text-muted-foreground">
             In the meantime, visit our <a href="/faqs" className="text-primary hover:underline">FAQs</a> or 
-            contact us at <span className="text-primary">support@debriefed.co.uk</span>.
+            contact us at <span className="text-primary">support@casebroker.co.uk</span>.
           </p>
         </div>
       </main>

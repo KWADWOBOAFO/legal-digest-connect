@@ -47,7 +47,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
           </head>
           <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ CASE BROKER</h1>
             </div>
             <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
               <h2 style="color: #1a365d; margin-top: 0;">Hello ${recipientName}!</h2>
@@ -62,7 +62,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
                   View Dashboard
                 </a>
               </div>
-              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Case Broker Team</p>
             </div>
           </body>
           </html>
@@ -81,7 +81,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
           </head>
           <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ CASE BROKER</h1>
             </div>
             <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
               <h2 style="color: #1a365d; margin-top: 0;">Hello ${recipientName}!</h2>
@@ -100,7 +100,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
                 </a>
               </div>
               ` : ''}
-              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Case Broker Team</p>
             </div>
           </body>
           </html>
@@ -119,7 +119,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
           </head>
           <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ CASE BROKER</h1>
             </div>
             <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
               <h2 style="color: #1a365d; margin-top: 0;">Congratulations, ${recipientName}!</h2>
@@ -138,7 +138,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
                   Go to Dashboard
                 </a>
               </div>
-              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Case Broker Team</p>
             </div>
           </body>
           </html>
@@ -157,7 +157,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
           </head>
           <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ CASE BROKER</h1>
             </div>
             <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
               <h2 style="color: #1a365d; margin-top: 0;">Hello ${recipientName},</h2>
@@ -173,7 +173,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
                   View Dashboard
                 </a>
               </div>
-              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Case Broker Team</p>
             </div>
           </body>
           </html>
@@ -192,7 +192,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
           </head>
           <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ CASE BROKER</h1>
             </div>
             <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
               <h2 style="color: #1a365d; margin-top: 0;">Hello ${recipientName},</h2>
@@ -209,7 +209,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
                   Contact Support
                 </a>
               </div>
-              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Case Broker Team</p>
             </div>
           </body>
           </html>
@@ -218,7 +218,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
 
     case "account_approved":
       return {
-        subject: `✅ Your DEBRIEFED account has been approved!`,
+        subject: `✅ Your CASE BROKER account has been approved!`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -228,7 +228,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
           </head>
           <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ CASE BROKER</h1>
             </div>
             <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
               <h2 style="color: #1a365d; margin-top: 0;">Welcome aboard, ${recipientName}! 🎉</h2>
@@ -248,7 +248,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
                   Go to Your Dashboard
                 </a>
               </div>
-              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Case Broker Team</p>
             </div>
           </body>
           </html>
@@ -257,7 +257,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
 
     case "account_revoked":
       return {
-        subject: `⚠️ Your DEBRIEFED account access has been restricted`,
+        subject: `⚠️ Your CASE BROKER account access has been restricted`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -267,7 +267,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
           </head>
           <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+              <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ CASE BROKER</h1>
             </div>
             <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
               <h2 style="color: #1a365d; margin-top: 0;">Hello ${recipientName},</h2>
@@ -282,7 +282,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
                   Contact Support
                 </a>
               </div>
-              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+              <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Case Broker Team</p>
             </div>
           </body>
           </html>
@@ -291,7 +291,7 @@ const getEmailContent = (type: string, recipientName: string, data: Notification
 
     default:
       return {
-        subject: "Notification from Debriefed",
+        subject: "Notification from Case Broker",
         html: `<p>You have a new notification. Please check your dashboard.</p>`,
       };
   }
@@ -412,7 +412,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     try {
       const emailResponse = await resend.emails.send({
-        from: "Debriefed <onboarding@resend.dev>",
+        from: "Case Broker <onboarding@resend.dev>",
         to: [recipientEmail],
         subject,
         html,

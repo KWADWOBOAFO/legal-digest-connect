@@ -29,7 +29,7 @@ const team = [
   {
     name: "Alexandra Chen",
     role: "Founder & CEO",
-    bio: "Former barrister with 15 years' experience in access to justice initiatives. Alexandra founded Debriefed to bridge the gap between people and legal services.",
+    bio: "Former barrister with 15 years' experience in access to justice initiatives. Alexandra founded Case Broker to bridge the gap between people and legal services.",
   },
   {
     name: "James Okafor",
@@ -44,7 +44,7 @@ const team = [
   {
     name: "David Park",
     role: "Head of Product",
-    bio: "UX specialist passionate about making complex processes simple. David ensures Debriefed is intuitive for everyone.",
+    bio: "UX specialist passionate about making complex processes simple. David ensures Case Broker is intuitive for everyone.",
   },
 ];
 
@@ -59,7 +59,7 @@ const About = () => {
             <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-6">
               <Scale className="w-8 h-8 text-accent-foreground" />
             </div>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold mb-6">About Debriefed</h1>
+            <h1 className="font-serif text-4xl md:text-5xl font-bold mb-6">About Case Broker</h1>
             <p className="text-primary-foreground/70 text-lg md:text-xl max-w-2xl mx-auto">
               We're on a mission to make quality legal services accessible to everyone. 
               By connecting people with the right law firms, we're transforming how legal help is found and delivered.
@@ -78,7 +78,7 @@ const About = () => {
                   shouldn't require hours of research, cold calls, and uncertainty.
                 </p>
                 <p className="text-muted-foreground mb-4">
-                  Debriefed was born from a simple idea: what if finding legal help was as straightforward as describing your problem 
+                  Case Broker was born from a simple idea: what if finding legal help was as straightforward as describing your problem 
                   and being matched with the right expert? We use intelligent matching to connect your legal matter with firms that 
                   specialise in exactly what you need.
                 </p>

@@ -17,7 +17,7 @@ const Status = () => {
           </div>
           <p className="text-2xl font-semibold text-foreground mb-2">All Systems Operational</p>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Debriefed is running smoothly. A detailed status page with uptime monitoring is coming soon.
+            Case Broker is running smoothly. A detailed status page with uptime monitoring is coming soon.
           </p>
         </div>
       </main>

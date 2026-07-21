@@ -173,7 +173,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       try {
         const emailResponse = await resend.emails.send({
-          from: "Debriefed <onboarding@resend.dev>",
+          from: "Case Broker <onboarding@resend.dev>",
           to: [profile.email],
           subject: `🔔 New matching case: ${caseTitle}`,
           html: `
@@ -185,7 +185,7 @@ const handler = async (req: Request): Promise<Response> => {
             </head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="background: linear-gradient(135deg, #1a365d 0%, #2d4a6f 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-                <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ DEBRIEFED</h1>
+                <h1 style="color: #d4a84b; margin: 0; font-size: 28px;">⚖️ CASE BROKER</h1>
               </div>
               <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
                 <h2 style="color: #1a365d; margin-top: 0;">Hello ${profile.full_name || firm.firm_name}!</h2>
@@ -201,7 +201,7 @@ const handler = async (req: Request): Promise<Response> => {
                     View Case
                   </a>
                 </div>
-                <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Debriefed Team</p>
+                <p style="color: #6b7280; font-size: 14px;">Best regards,<br>The Case Broker Team</p>
               </div>
             </body>
             </html>
