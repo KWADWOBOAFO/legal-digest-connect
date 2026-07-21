@@ -398,7 +398,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
                       }
                       required
                     />
-                    {regulatoryBody === 'sra' && (
+                    {regulatoryBody && (
                       <Button
                         type="button"
                         variant="outline"
@@ -413,25 +413,43 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
                       </Button>
                     )}
                   </div>
-                  
-                  {/* SRA Validation Result */}
-                  {regulatoryBody === 'sra' && sraValidation.status === 'valid' && (
+
+                  {/* Regulator validation result */}
+                  {sraValidation.status === 'valid' && (
                     <div className="flex items-center gap-2 text-green-600 bg-green-50 dark:bg-green-950/30 p-2 rounded-md">
                       <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
                       <span className="text-sm">
-                        Verified{sraValidation.firmName ? ` — ${sraValidation.firmName}` : ''}
+                        Verified against public register{sraValidation.firmName ? ` — ${sraValidation.firmName}` : ''}
                       </span>
                     </div>
                   )}
-                  {regulatoryBody === 'sra' && (sraValidation.status === 'not_found' || sraValidation.status === 'error') && (
-                    <div className="flex items-center gap-2 text-amber-600 bg-amber-50 dark:bg-amber-950/30 p-2 rounded-md">
-                      <XCircle className="h-4 w-4 flex-shrink-0" />
-                      <span className="text-sm">{sraValidation.message}</span>
+                  {sraValidation.status === 'manual' && sraValidation.registerUrl && (
+                    <div className="flex items-start gap-2 text-blue-700 bg-blue-50 dark:bg-blue-950/30 p-2 rounded-md">
+                      <FileCheck className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm space-y-1">
+                        <div>{sraValidation.message}</div>
+                        <a href={sraValidation.registerUrl} target="_blank" rel="noreferrer" className="underline font-medium">
+                          Open official register →
+                        </a>
+                      </div>
                     </div>
                   )}
-                  
+                  {(sraValidation.status === 'not_found' || sraValidation.status === 'error') && (
+                    <div className="flex items-start gap-2 text-amber-600 bg-amber-50 dark:bg-amber-950/30 p-2 rounded-md">
+                      <XCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm space-y-1">
+                        <div>{sraValidation.message}</div>
+                        {sraValidation.registerUrl && (
+                          <a href={sraValidation.registerUrl} target="_blank" rel="noreferrer" className="underline font-medium">
+                            Search the register manually →
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <p className="text-xs text-muted-foreground">
-                    Your {REGULATORY_BODIES.find(b => b.value === regulatoryBody)?.label || 'regulatory'} registration number will be verified by our team.
+                    Your {REGULATORY_BODIES.find(b => b.value === regulatoryBody)?.label || 'regulatory'} registration will be cross-checked with the official register before final admin approval.
                   </p>
                 </div>
               )}
