@@ -480,6 +480,7 @@ const Admin = () => {
             <TabsTrigger value="email">Email Config</TabsTrigger>
             <TabsTrigger value="regulatory">Regulatory Bodies</TabsTrigger>
             <TabsTrigger value="activity">Activity Log</TabsTrigger>
+            <TabsTrigger value="status-audit">Status Audit</TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics">
@@ -491,6 +492,16 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="firms" className="space-y-4">
+            {firms.some(f => f.is_verified && !f.nda_signed) && (
+              <Card className="border-destructive/50 bg-destructive/5">
+                <CardContent className="py-3 flex items-center gap-2 text-sm">
+                  <ShieldMinus className="h-4 w-4 text-destructive" />
+                  <span>
+                    <strong>{firms.filter(f => f.is_verified && !f.nda_signed).length}</strong> firm(s) are verified without a signed NDA — see the Status Audit tab.
+                  </span>
+                </CardContent>
+              </Card>
+            )}
             {/* Search and Filter */}
             <Card>
               <CardContent className="pt-6">
@@ -674,6 +685,11 @@ const Admin = () => {
           <TabsContent value="cases" className="space-y-4">
             <CaseModerationQueue />
           </TabsContent>
+
+          <TabsContent value="status-audit" className="space-y-4">
+            <AdminStatusAudit />
+          </TabsContent>
+
 
           <TabsContent value="payments" className="space-y-4">
             <AdminPaymentSettings />
