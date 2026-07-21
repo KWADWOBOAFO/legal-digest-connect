@@ -35,7 +35,7 @@ interface LawFirm {
   regulator_verified_at?: string | null;
   regulatory_body?: string | null;
   regulatory_number?: string | null;
-  regulator_verification_data?: Record<string, unknown> | null;
+  regulator_verification_data?: unknown;
 }
 
 interface AuthContextType {
