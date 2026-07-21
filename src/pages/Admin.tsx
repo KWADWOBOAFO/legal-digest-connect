@@ -109,9 +109,21 @@ const Admin = () => {
   }, [isAdmin, roleLoading, navigate, toast]);
 
   useEffect(() => {
-    if (isAdmin) {
-      fetchFirms();
-    }
+    if (!isAdmin) return;
+    fetchFirms();
+
+    // Realtime: refresh firms list whenever a firm row changes
+    // (new NDA sign, verification flip, profile updates)
+    const channel = supabase
+      .channel('admin-firms-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'law_firms' }, () => {
+        fetchFirms();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [isAdmin]);
 
   // Show nothing while role is loading or if not admin - prevents UI flash

@@ -108,6 +108,33 @@ const FirmDashboard = () => {
     }
   }, [lawFirm]);
 
+  // Realtime: while awaiting verification, listen for admin approval on this firm's row
+  useEffect(() => {
+    if (!lawFirm?.id || lawFirm.is_verified) return;
+
+    const channel = supabase
+      .channel(`firm-verification-${lawFirm.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'law_firms', filter: `id=eq.${lawFirm.id}` },
+        (payload) => {
+          const next = payload.new as { is_verified?: boolean; nda_signed?: boolean };
+          refreshProfile();
+          if (next?.is_verified) {
+            toast({
+              title: 'Firm verified',
+              description: 'Your firm has been approved. Welcome aboard!',
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [lawFirm?.id, lawFirm?.is_verified, refreshProfile, toast]);
+
   const fetchFirmData = async () => {
     try {
       // Fetch available cases (pending status) using anonymized view
