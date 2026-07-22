@@ -187,8 +187,7 @@ const CTASection = forwardRef<CTASectionRef>((_, ref) => {
           <div className="max-w-4xl mx-auto text-center">
             {/* Main Content */}
             <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground mb-6">
-              Ready to Get Your Legal Matter{" "}
-              <span className="text-gradient-gold">Case Broker?</span>
+              Ready to Broker Your Case?
             </h2>
             <p className="text-muted-foreground text-lg mb-10 max-w-2xl mx-auto">
               Join thousands who've found clarity in their legal situations. 
