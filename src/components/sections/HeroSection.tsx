@@ -51,7 +51,7 @@ const HeroSection = () => {
           {/* Main Headline */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-gold-light leading-tight mb-6 animate-fade-up delay-100">
             Your Legal Matter,{" "}
-            <span className="text-gradient-gold">Case Broker</span>
+            <span className="text-gradient-gold">Brokered</span>
           </h1>
 
           {/* Subheadline */}
