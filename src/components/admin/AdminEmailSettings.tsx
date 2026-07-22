@@ -68,7 +68,7 @@ const SmtpSettings = ({
             <Input
               value={settings.supportEmail}
               onChange={(e) => update('supportEmail', e.target.value)}
-              placeholder="support@debriefed.com"
+              placeholder="support@casebroker.com"
             />
           </div>
           <div className="space-y-2">
@@ -78,7 +78,7 @@ const SmtpSettings = ({
             <Input
               value={settings.adminEmail}
               onChange={(e) => update('adminEmail', e.target.value)}
-              placeholder="admin@debriefed.com"
+              placeholder="admin@casebroker.com"
             />
           </div>
         </div>
@@ -89,7 +89,7 @@ const SmtpSettings = ({
             <Input
               value={settings.smtpHost}
               onChange={(e) => update('smtpHost', e.target.value)}
-              placeholder="smtp.debriefed.com"
+              placeholder="smtp.casebroker.com"
             />
           </div>
           <div className="space-y-2">
@@ -108,7 +108,7 @@ const SmtpSettings = ({
             <Input
               value={settings.smtpUsername}
               onChange={(e) => update('smtpUsername', e.target.value)}
-              placeholder="no-reply@debriefed.com"
+              placeholder="no-reply@casebroker.com"
             />
           </div>
           <div className="space-y-2">
@@ -139,7 +139,7 @@ const SmtpSettings = ({
             <Input
               value={settings.fromName}
               onChange={(e) => update('fromName', e.target.value)}
-              placeholder="Debriefed"
+              placeholder="Case Broker"
             />
           </div>
           <div className="space-y-2">
@@ -147,7 +147,7 @@ const SmtpSettings = ({
             <Input
               value={settings.fromEmail}
               onChange={(e) => update('fromEmail', e.target.value)}
-              placeholder="no-reply@debriefed.com"
+              placeholder="no-reply@casebroker.com"
             />
           </div>
         </div>
@@ -196,12 +196,12 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
     key: 'welcome_email',
     label: 'Welcome Email',
     description: 'Sent to new users after they sign up and verify their email',
-    subject: 'Welcome to Debriefed!',
-    body: `<h1>Welcome to Debriefed!</h1>
+    subject: 'Welcome to Case Broker!',
+    body: `<h1>Welcome to Case Broker!</h1>
 <p>Hi {{user_name}},</p>
 <p>Thank you for creating your account. We're excited to have you on board.</p>
 <p>You can now start exploring the platform and submit your first case.</p>
-<p>Best regards,<br/>The Debriefed Team</p>`,
+<p>Best regards,<br/>The Case Broker Team</p>`,
     enabled: true,
     audience: 'all',
   },
@@ -209,11 +209,11 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
     key: 'account_approved',
     label: 'Account Approved',
     description: 'Sent when an admin approves a user account',
-    subject: 'Your Debriefed account has been approved',
+    subject: 'Your Case Broker account has been approved',
     body: `<h1>Account Approved</h1>
 <p>Hi {{user_name}},</p>
-<p>Your Debriefed account has been approved. You now have full access to all platform features.</p>
-<p>Best regards,<br/>The Debriefed Team</p>`,
+<p>Your Case Broker account has been approved. You now have full access to all platform features.</p>
+<p>Best regards,<br/>The Case Broker Team</p>`,
     enabled: true,
     audience: 'all',
   },
@@ -226,7 +226,7 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
 <p>Hi {{user_name}},</p>
 <p>Great news! <strong>{{firm_name}}</strong> has expressed interest in your case "<em>{{case_title}}</em>".</p>
 <p>Log in to your dashboard to review their profile and schedule a consultation.</p>
-<p>Best regards,<br/>The Debriefed Team</p>`,
+<p>Best regards,<br/>The Case Broker Team</p>`,
     enabled: true,
     audience: 'individual',
   },
@@ -245,7 +245,7 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
   <li>Duration: {{duration}} minutes</li>
 </ul>
 <p>You'll receive a reminder 24 hours before your appointment.</p>
-<p>Best regards,<br/>The Debriefed Team</p>`,
+<p>Best regards,<br/>The Case Broker Team</p>`,
     enabled: true,
     audience: 'all',
   },
@@ -258,7 +258,7 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
 <p>Hi {{user_name}},</p>
 <p>This is a reminder that your consultation is scheduled for <strong>{{date_time}}</strong>.</p>
 <p>Please make sure you have all your documents ready.</p>
-<p>Best regards,<br/>The Debriefed Team</p>`,
+<p>Best regards,<br/>The Case Broker Team</p>`,
     enabled: true,
     audience: 'all',
   },
@@ -269,9 +269,9 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
     subject: 'Your law firm has been verified',
     body: `<h1>Firm Verified</h1>
 <p>Hi {{user_name}},</p>
-<p>Congratulations! Your law firm <strong>{{firm_name}}</strong> has been verified on Debriefed.</p>
+<p>Congratulations! Your law firm <strong>{{firm_name}}</strong> has been verified on Case Broker.</p>
 <p>You can now start receiving case matches and scheduling consultations.</p>
-<p>Best regards,<br/>The Debriefed Team</p>`,
+<p>Best regards,<br/>The Case Broker Team</p>`,
     enabled: true,
     audience: 'firm',
   },
@@ -285,7 +285,7 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
 <p>Unfortunately, your law firm verification was not approved at this time.</p>
 <p>Reason: {{rejection_reason}}</p>
 <p>Please review the requirements and resubmit your application.</p>
-<p>Best regards,<br/>The Debriefed Team</p>`,
+<p>Best regards,<br/>The Case Broker Team</p>`,
     enabled: true,
     audience: 'firm',
   },
@@ -293,9 +293,9 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
     key: 'new_user_signup_admin',
     label: 'New User Signup (Admin Alert)',
     description: 'Notifies admins when a new user registers',
-    subject: 'New user registration on Debriefed',
+    subject: 'New user registration on Case Broker',
     body: `<h1>New User Registration</h1>
-<p>A new user has registered on Debriefed:</p>
+<p>A new user has registered on Case Broker:</p>
 <ul>
   <li>Name: {{user_name}}</li>
   <li>Email: {{user_email}}</li>
@@ -315,7 +315,7 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
 <p>Hi {{user_name}},</p>
 <p>Your case "<em>{{case_title}}</em>" has been submitted successfully and is now under review.</p>
 <p>We will notify you once matching firms have been identified.</p>
-<p>Best regards,<br/>The Debriefed Team</p>`,
+<p>Best regards,<br/>The Case Broker Team</p>`,
     enabled: true,
     audience: 'individual',
   },
@@ -323,7 +323,7 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
     key: 'weekly_digest',
     label: 'Weekly Digest',
     description: 'Weekly summary of platform activity sent to all users',
-    subject: 'Your weekly Debriefed digest',
+    subject: 'Your weekly Case Broker digest',
     body: `<h1>Weekly Digest</h1>
 <p>Hi {{user_name}},</p>
 <p>Here's your weekly summary:</p>
@@ -332,7 +332,7 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
   <li>Consultations completed: {{consultations_count}}</li>
   <li>Messages received: {{messages_count}}</li>
 </ul>
-<p>Best regards,<br/>The Debriefed Team</p>`,
+<p>Best regards,<br/>The Case Broker Team</p>`,
     enabled: false,
     audience: 'all',
   },
@@ -528,7 +528,7 @@ const DEFAULT_SMTP: SmtpConfig = {
   smtpPort: '465',
   smtpUsername: '',
   smtpPassword: '',
-  fromName: 'Debriefed',
+  fromName: 'Case Broker',
   fromEmail: '',
   encryption: 'tls',
 };
@@ -538,7 +538,7 @@ export const AdminEmailSettings = () => {
   const { toast } = useToast();
   const [smtp, setSmtp] = useState<SmtpConfig>(DEFAULT_SMTP);
   const [templates, setTemplates] = useState<EmailTemplate[]>(DEFAULT_TEMPLATES);
-  const [emailFooter, setEmailFooter] = useState('© 2026 Debriefed. All rights reserved.');
+  const [emailFooter, setEmailFooter] = useState('© 2026 Case Broker. All rights reserved.');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -714,7 +714,7 @@ export const AdminEmailSettings = () => {
               <Textarea
                 value={emailFooter}
                 onChange={(e) => setEmailFooter(e.target.value)}
-                placeholder="© 2026 Debriefed. All rights reserved."
+                placeholder="© 2026 Case Broker. All rights reserved."
                 rows={3}
               />
             </CardContent>

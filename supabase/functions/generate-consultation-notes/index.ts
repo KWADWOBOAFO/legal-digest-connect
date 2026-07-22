@@ -129,7 +129,7 @@ serve(async (req) => {
       );
     }
 
-    const systemPrompt = `You are a professional legal consultation notes formatter for DEBRIEFED. Your task is to transform raw consultation notes into well-structured, professional legal consultation notes.
+    const systemPrompt = `You are a professional legal consultation notes formatter for CASE BROKER. Your task is to transform raw consultation notes into well-structured, professional legal consultation notes.
 
 The notes should be clear, comprehensive, and suitable for:
 1. Sending to the client as a record of the consultation

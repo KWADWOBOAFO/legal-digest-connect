@@ -15,7 +15,7 @@ const PrivacyPolicy = () => {
         <div className="prose prose-lg max-w-none space-y-8 text-foreground/90">
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">1. Introduction</h2>
-            <p>Debriefed ("we", "our", "us") is committed to protecting your personal data and respecting your privacy. This Privacy Policy explains how we collect, use, store, and share your personal information when you use our platform.</p>
+            <p>Case Broker ("we", "our", "us") is committed to protecting your personal data and respecting your privacy. This Privacy Policy explains how we collect, use, store, and share your personal information when you use our platform.</p>
             <p>We act as a data controller for the personal data we process. If you have any questions about this policy, please contact us using the details provided below.</p>
           </section>
 
@@ -85,13 +85,13 @@ const PrivacyPolicy = () => {
               <li>The right to object to processing.</li>
               <li>The right to withdraw consent at any time.</li>
             </ul>
-            <p>To exercise any of these rights, please contact us at <a href="mailto:privacy@debriefed.co.uk" className="text-primary hover:underline">privacy@debriefed.co.uk</a>.</p>
+            <p>To exercise any of these rights, please contact us at <a href="mailto:privacy@casebroker.co.uk" className="text-primary hover:underline">privacy@casebroker.co.uk</a>.</p>
           </section>
 
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">8. Contact Us</h2>
             <p>If you have any questions about this Privacy Policy or our data practices, please contact us at:</p>
-            <p className="text-foreground/80">Email: <a href="mailto:privacy@debriefed.co.uk" className="text-primary hover:underline">privacy@debriefed.co.uk</a></p>
+            <p className="text-foreground/80">Email: <a href="mailto:privacy@casebroker.co.uk" className="text-primary hover:underline">privacy@casebroker.co.uk</a></p>
           </section>
         </div>
       </main>

@@ -53,7 +53,7 @@ const Footer = () => {
                 <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
                   <Scale className="w-5 h-5 text-accent-foreground" />
                 </div>
-                <span className="font-serif text-2xl font-bold">DEBRIEFED</span>
+                <span className="font-serif text-2xl font-bold">CASE BROKER</span>
               </a>
               <p className="text-primary-foreground/60 text-sm mb-6 max-w-xs">
                 Bridging the gap between everyday people and excellent legal services.
@@ -113,7 +113,7 @@ const Footer = () => {
           {/* Bottom Bar */}
           <div className="pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-primary-foreground/60 text-sm">
-              © {new Date().getFullYear()} Debriefed. All rights reserved.
+              © {new Date().getFullYear()} Case Broker. All rights reserved.
             </p>
             <p className="text-primary-foreground/60 text-sm">
               Made with care for access to justice.

@@ -242,7 +242,7 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Scale className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-primary">DEBRIEFED</span>
+            <span className="text-xl font-bold text-primary">CASE BROKER</span>
           </div>
           <Button variant="ghost" size="sm" onClick={handleSignOut}>
             <LogOut className="h-4 w-4 mr-2" />
@@ -477,13 +477,13 @@ const FirmOnboarding = ({ lawFirm, onComplete }: FirmOnboardingProps) => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="bg-muted p-4 rounded-lg max-h-64 overflow-y-auto text-sm">
-                <h4 className="font-semibold mb-2">DEBRIEFED Platform Non-Disclosure Agreement</h4>
+                <h4 className="font-semibold mb-2">CASE BROKER Platform Non-Disclosure Agreement</h4>
                 <p className="mb-2">
                   By accepting this agreement, you acknowledge and agree to the following terms:
                 </p>
                 <ol className="list-decimal list-inside space-y-2">
                   <li>
-                    <strong>Confidentiality:</strong> All client information, case details, and personal data accessed through the DEBRIEFED platform shall be treated as strictly confidential.
+                    <strong>Confidentiality:</strong> All client information, case details, and personal data accessed through the CASE BROKER platform shall be treated as strictly confidential.
                   </li>
                   <li>
                     <strong>Data Protection:</strong> You agree to comply with all applicable data protection laws, including GDPR, and maintain appropriate security measures for all client data.

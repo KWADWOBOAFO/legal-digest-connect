@@ -14,7 +14,7 @@ const HelpCenter = () => {
         <div className="text-center mb-12">
           <h1 className="font-serif text-4xl font-bold text-foreground mb-4">Help Center</h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Need assistance? We're here to help you get the most out of Debriefed.
+            Need assistance? We're here to help you get the most out of Case Broker.
           </p>
         </div>
 
@@ -24,7 +24,7 @@ const HelpCenter = () => {
               <LifeBuoy className="w-10 h-10 text-primary mx-auto mb-4" />
               <h3 className="font-semibold text-foreground mb-2">Getting Started</h3>
               <p className="text-sm text-muted-foreground">
-                New to Debriefed? Check our FAQs for quick answers to common questions.
+                New to Case Broker? Check our FAQs for quick answers to common questions.
               </p>
             </CardContent>
           </Card>
@@ -33,7 +33,7 @@ const HelpCenter = () => {
               <Mail className="w-10 h-10 text-primary mx-auto mb-4" />
               <h3 className="font-semibold text-foreground mb-2">Email Support</h3>
               <p className="text-sm text-muted-foreground">
-                Reach us at support@debriefed.co.uk. We aim to respond within 24 hours.
+                Reach us at support@casebroker.co.uk. We aim to respond within 24 hours.
               </p>
             </CardContent>
           </Card>
