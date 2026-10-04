@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, FileText, Lightbulb, Calendar } from "lucide-react";
+import { Helmet } from "react-helmet-async";
+import { SITE_URL } from "@/components/seo/RouteSeo";
 
 interface BlogPostData {
   id: string;
@@ -73,8 +75,34 @@ const BlogPost = () => {
     );
   }
 
+  const url = `${SITE_URL}/blog/${post.slug}`;
+  const desc = (post.excerpt || post.content).slice(0, 155);
+  const pageTitle = `${post.title} | Case Broker`;
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={desc} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={desc} />
+        <meta property="og:type" content="article" />
+        {post.cover_image_url && <meta property="og:image" content={post.cover_image_url} />}
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={desc} />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: post.title,
+            description: desc,
+            datePublished: post.published_at || post.created_at,
+            ...(post.cover_image_url ? { image: post.cover_image_url } : {}),
+            mainEntityOfPage: url,
+            publisher: { "@type": "Organization", name: "Case Broker", url: SITE_URL },
+          })}
+        </script>
+      </Helmet>
       <Navbar />
       <main className="container mx-auto px-4 pt-32 pb-20 max-w-3xl">
         <LegalBreadcrumb currentPage={post.title} />

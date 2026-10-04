@@ -38,6 +38,7 @@ import AdminUsersDetail from "./pages/admin/AdminUsersDetail";
 import AdminReviewsDetail from "./pages/admin/AdminReviewsDetail";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/layout/ScrollToTop";
+import RouteSeo from "./components/seo/RouteSeo";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
+          <RouteSeo />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />

@@ -109,6 +109,7 @@ const Firms = () => {
                 />
               </div>
               <select
+                aria-label="Filter by practice area"
                 value={practiceAreaFilter}
                 onChange={(e) => setPracticeAreaFilter(e.target.value)}
                 className="px-4 py-2 border rounded-lg bg-background"
