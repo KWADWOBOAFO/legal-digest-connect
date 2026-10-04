@@ -1,0 +1,18 @@
+# Case Broker
+
+> Case Broker matches people with legal matters to regulator-verified UK law firms for video consultations, so clients can compare fees, experience, reviews and awards.
+
+## Pages
+
+- [Home](https://casebroker.co.uk/): Submit a legal matter and get matched with specialist firms.
+- [Law Firms](https://casebroker.co.uk/firms): Browse verified firms by practice area.
+- [Pricing](https://casebroker.co.uk/pricing): Plans for law firms.
+- [About](https://casebroker.co.uk/about): Our mission and how the platform works.
+- [FAQs](https://casebroker.co.uk/faqs): Common questions from clients and firms.
+- [Blog](https://casebroker.co.uk/blog): Legal guides and insights.
+
+## Optional
+
+- [Help Center](https://casebroker.co.uk/help): Support guides.
+- [Privacy Policy](https://casebroker.co.uk/privacy): How personal data is handled.
+- [Terms of Service](https://casebroker.co.uk/terms): Platform terms.
