@@ -1,20 +1,18 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Scale, Twitter, Linkedin, Facebook, Instagram } from "lucide-react";
-import ContactFormDialog from "./ContactFormDialog";
+import { Scale } from "lucide-react";
 
 const footerLinks = {
   Platform: [
-    { label: "How It Works", href: "#how-it-works" },
-    { label: "Practice Areas", href: "#practice-areas" },
-    { label: "For Law Firms", href: "#for-firms" },
-    { label: "Pricing", href: "#pricing" },
+    { label: "How It Works", href: "/how-it-works" },
+    { label: "Practice Areas", href: "/practice-areas" },
+    { label: "For Law Firms", href: "/for-law-firms" },
+    { label: "Pricing", href: "/pricing" },
   ],
   Company: [
     { label: "About Us", href: "/about" },
     { label: "Careers", href: "/careers" },
     { label: "Blog", href: "/blog" },
-    { label: "Contact", href: "#contact" },
+    { label: "Contact", href: "/contact" },
   ],
   Legal: [
     { label: "Privacy Policy", href: "/privacy" },
@@ -30,19 +28,8 @@ const footerLinks = {
   ],
 };
 
-const socialLinks = [
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Instagram, href: "#", label: "Instagram" },
-];
-
 const Footer = () => {
-  const [contactOpen, setContactOpen] = useState(false);
-
   return (
-    <>
-      <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
       <footer className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-16">
           {/* Main Footer Content */}
@@ -59,19 +46,6 @@ const Footer = () => {
                 Bridging the gap between everyday people and excellent legal services.
                 Your matter, expertly matched.
               </p>
-              {/* Social Links */}
-              <div className="flex gap-4">
-                {socialLinks.map((social) => (
-                  <a
-                    key={social.label}
-                    href={social.href}
-                    aria-label={social.label}
-                    className="w-10 h-10 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-accent/20 transition-colors"
-                  >
-                    <social.icon className="w-5 h-5" />
-                  </a>
-                ))}
-              </div>
             </div>
 
             {/* Link Columns */}
@@ -81,14 +55,7 @@ const Footer = () => {
                 <ul className="space-y-3">
                   {links.map((link) => (
                     <li key={link.label}>
-                      {link.label === "Contact" ? (
-                        <button
-                          onClick={() => setContactOpen(true)}
-                          className="text-primary-foreground/60 hover:text-primary-foreground text-sm transition-colors"
-                        >
-                          {link.label}
-                        </button>
-                      ) : link.href.startsWith("/") ? (
+                      {link.href.startsWith("/") ? (
                         <Link
                           to={link.href}
                           className="text-primary-foreground/60 hover:text-primary-foreground text-sm transition-colors"
@@ -121,7 +88,6 @@ const Footer = () => {
           </div>
         </div>
       </footer>
-    </>
   );
 };
 

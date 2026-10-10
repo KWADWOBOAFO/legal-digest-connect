@@ -2,35 +2,14 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import LegalBreadcrumb from "@/components/layout/LegalBreadcrumb";
 import BackToTopButton from "@/components/layout/BackToTopButton";
-import { Briefcase, MapPin, Clock } from "lucide-react";
+import { ArrowRight, HeartHandshake, Scale, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
-const openings = [
-  {
-    title: "Senior Full-Stack Developer",
-    department: "Engineering",
-    location: "Remote (UK)",
-    type: "Full-time",
-  },
-  {
-    title: "Product Designer",
-    department: "Design",
-    location: "London, UK",
-    type: "Full-time",
-  },
-  {
-    title: "Legal Operations Manager",
-    department: "Operations",
-    location: "Remote (UK)",
-    type: "Full-time",
-  },
-  {
-    title: "Customer Success Associate",
-    department: "Support",
-    location: "Remote (UK)",
-    type: "Full-time",
-  },
+const values = [
+  { icon: Scale, title: "Access to justice", text: "We focus on making the route to regulated legal help clearer and less intimidating." },
+  { icon: ShieldCheck, title: "Trust by design", text: "Privacy, professional verification and responsible handling of legal information shape how we work." },
+  { icon: HeartHandshake, title: "People before process", text: "We design for people dealing with difficult circumstances and professionals responsible for helping them." },
 ];
 
 const Careers = () => {
@@ -48,49 +27,19 @@ const Careers = () => {
           services. We're building the future of access to justice.
         </p>
 
-        <section className="mb-12">
-          <h2 className="text-2xl font-serif font-semibold text-foreground mb-2">
-            Why Case Broker?
-          </h2>
-          <p className="text-muted-foreground mb-6">
-            We believe everyone deserves access to quality legal support. Our
-            mission-driven culture values transparency, innovation, and impact.
-            We offer competitive salaries, flexible working, and the chance to
-            make a real difference.
-          </p>
+        <section className="mb-16 grid gap-6 md:grid-cols-3">
+          {values.map((value) => <article key={value.title} className="border-t-2 border-accent bg-card p-6 shadow-card"><value.icon className="mb-4 h-7 w-7 text-accent" /><h2 className="mb-3 text-xl font-bold">{value.title}</h2><p className="text-sm leading-relaxed text-muted-foreground">{value.text}</p></article>)}
         </section>
 
-        <section>
-          <h2 className="text-2xl font-serif font-semibold text-foreground mb-6">
-            Open Positions
-          </h2>
-          <div className="space-y-4">
-            {openings.map((job) => (
-              <Card key={job.title} className="hover:shadow-md transition-shadow">
-                <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-5">
-                  <div>
-                    <h3 className="font-semibold text-foreground text-lg">
-                      {job.title}
-                    </h3>
-                    <div className="flex flex-wrap gap-4 mt-1 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Briefcase className="w-4 h-4" /> {job.department}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" /> {job.location}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" /> {job.type}
-                      </span>
-                    </div>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    View Details
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+        <section className="mb-16 grid gap-10 border-y border-border py-10 md:grid-cols-2">
+          <div><Sparkles className="mb-4 h-7 w-7 text-accent" /><h2 className="mb-3 text-2xl font-bold">How we hire</h2><p className="leading-relaxed text-muted-foreground">When roles are advertised, the process is designed to assess relevant skills fairly. Details about responsibilities, working arrangements and application stages will appear with each confirmed vacancy.</p></div>
+          <div><h2 className="mb-3 text-2xl font-bold">Equal opportunity</h2><p className="leading-relaxed text-muted-foreground">Case Broker values different backgrounds and perspectives. Recruitment decisions are based on the requirements of the role and the applicant’s ability to contribute.</p></div>
+        </section>
+
+        <section className="bg-muted/50 p-8">
+          <h2 className="mb-3 text-2xl font-bold">Current vacancies</h2>
+          <p className="mb-6 text-muted-foreground">There are no confirmed vacancies listed at present. This page will show role-specific responsibilities and application instructions when recruitment opens.</p>
+          <Button asChild variant="outline"><Link to="/contact">Contact Case Broker <ArrowRight /></Link></Button>
         </section>
       </main>
       <BackToTopButton />
