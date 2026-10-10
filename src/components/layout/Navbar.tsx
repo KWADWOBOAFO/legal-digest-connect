@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Scale, LogOut, User, Shield, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -81,25 +81,15 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) =>
-                link.href.startsWith("/") ? (
-                  <button
-                    key={link.label}
-                    onClick={() => navigate(link.href)}
-                    className="text-muted-foreground hover:text-foreground font-medium transition-colors"
-                  >
-                    {link.label}
-                  </button>
-                ) : (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    className="text-muted-foreground hover:text-foreground font-medium transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                )
-              )}
+              {navLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="text-muted-foreground hover:text-foreground font-medium transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </div>
 
             {/* CTA Buttons / User Menu */}
@@ -185,22 +175,16 @@ const Navbar = () => {
         <div className="flex flex-col h-full overflow-y-auto">
           <div className="p-6 space-y-1">
             {navLinks.map((link, index) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
-                onClick={(e) => {
-                  if (link.href.startsWith("/")) {
-                    e.preventDefault();
-                    navigate(link.href);
-                  }
-                  setIsOpen(false);
-                }}
+                to={link.href}
+                onClick={() => setIsOpen(false)}
                 className="flex items-center justify-between py-4 px-3 rounded-xl text-foreground hover:bg-muted font-medium text-lg transition-all duration-200 group"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 {link.label}
                 <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all duration-200" />
-              </a>
+              </Link>
             ))}
           </div>
 
