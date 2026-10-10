@@ -19,6 +19,22 @@ const META: Record<string, { title: string; description: string }> = {
     title: "Pricing for Law Firms | Case Broker",
     description: "Plans for law firms and solicitors to receive matched legal matters and grow their client base.",
   },
+  "/how-it-works": {
+    title: "How Case Broker Works | Legal Firm Matching",
+    description: "See how to submit a legal matter, compare interested regulated firms and book a secure video consultation through Case Broker.",
+  },
+  "/practice-areas": {
+    title: "Legal Practice Areas | Case Broker",
+    description: "Explore 22 legal practice areas and find regulated professionals for matters in England and Wales.",
+  },
+  "/for-law-firms": {
+    title: "Case Broker for Law Firms & Legal Professionals",
+    description: "Learn how regulated firms join Case Broker, receive matched matters and conduct paid video consultations.",
+  },
+  "/contact": {
+    title: "Contact Case Broker | Platform Support",
+    description: "Contact Case Broker about account support, firm applications, privacy requests and platform enquiries.",
+  },
   "/about": {
     title: "About Case Broker | Access to Justice",
     description: "Case Broker connects everyday people with excellent, verified legal professionals across the UK.",

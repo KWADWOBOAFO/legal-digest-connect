@@ -33,9 +33,9 @@ const Navbar = () => {
   }, [isOpen]);
 
   const publicNavLinks = [
-    { label: "How It Works", href: "#how-it-works" },
-    { label: "Practice Areas", href: "#practice-areas" },
-    { label: "For Law Firms", href: "#for-firms" },
+    { label: "How It Works", href: "/how-it-works" },
+    { label: "Practice Areas", href: "/practice-areas" },
+    { label: "For Law Firms", href: "/for-law-firms" },
   ];
 
   const adminNavLinks = [
@@ -187,7 +187,7 @@ const Navbar = () => {
             {navLinks.map((link, index) => (
               <a
                 key={link.label}
-                href={link.href.startsWith("/") ? undefined : link.href}
+                href={link.href}
                 onClick={(e) => {
                   if (link.href.startsWith("/")) {
                     e.preventDefault();

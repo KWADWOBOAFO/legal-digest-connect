@@ -68,7 +68,7 @@ const TermsOfService = () => {
 
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">6. Consultations</h2>
-            <p>Consultations arranged through the Platform are conducted between the client and the law firm directly. Case Broker is not a party to any legal engagement and accepts no liability for the advice given or services rendered by law firms.</p>
+            <p>Consultations booked through the Platform are conducted by video between the client and the law firm. Phone and in-person consultations are not offered through Case Broker. Case Broker is not a party to any legal engagement and accepts no liability for the advice given or services rendered by law firms.</p>
           </section>
 
           <section>

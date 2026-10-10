@@ -42,7 +42,7 @@ const faqCategories = [
       },
       {
         q: "What happens during a consultation?",
-        a: "Consultations can be conducted via video call, phone, or in-person (depending on the firm). During the consultation, the solicitor will review your case, provide initial advice, and discuss next steps and potential costs.",
+        a: "Consultations booked through Case Broker are conducted by video only. During the consultation, the legal professional can review your matter, provide initial advice, and discuss possible next steps and costs. Phone and in-person consultations are not offered through the platform.",
       },
       {
         q: "Is my information kept confidential?",
