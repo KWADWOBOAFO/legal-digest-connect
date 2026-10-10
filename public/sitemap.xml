@@ -15,6 +15,22 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://casebroker.co.uk/how-it-works</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://casebroker.co.uk/practice-areas</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://casebroker.co.uk/for-law-firms</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://casebroker.co.uk/contact</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://casebroker.co.uk/about</loc>
     <priority>0.6</priority>
   </url>
